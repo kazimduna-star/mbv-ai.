@@ -19,11 +19,12 @@ h1 span{color:#a58aff}
 .panel{margin-top:26px;padding:20px;background:#15151d;border:1px solid #302e3b;border-radius:18px}
 label{display:block;font-weight:bold;margin-bottom:12px}
 textarea{width:100%;height:125px;resize:vertical;background:#0d0d13;color:white;border:1px solid #393745;border-radius:12px;padding:14px;font-size:16px;outline:none}
-textarea:focus{border-color:#9b7bff}
+textarea:focus,select:focus{border-color:#9b7bff}
 select{width:100%;padding:13px;background:#0d0d13;color:white;border:1px solid #393745;border-radius:10px;font-size:15px;margin-top:8px}
-button{width:100%;border:0;border-radius:12px;padding:16px;background:linear-gradient(100deg,#8b5cf6,#b18cff);color:white;font-size:17px;font-weight:bold;margin-top:18px}
-button:active{transform:scale(.99)}
-#result{display:none;margin-top:22px;padding:18px;border:1px solid #393745;border-radius:14px;color:#c8c2d8;line-height:1.6}
+button{width:100%;border:0;border-radius:12px;padding:16px;background:linear-gradient(100deg,#8b5cf6,#b18cff);color:white;font-size:17px;font-weight:bold;margin-top:18px;cursor:pointer}
+button:disabled{opacity:.6;cursor:wait}
+#result{display:none;margin-top:22px;padding:18px;border:1px solid #393745;border-radius:14px;color:#c8c2d8;line-height:1.6;overflow-wrap:anywhere}
+#result img{width:100%;display:block;border-radius:12px;margin-top:12px}
 .note{font-size:12px;color:#8c899b;margin-top:16px;line-height:1.5}
 footer{text-align:center;color:#777386;padding:30px 15px;font-size:12px}
 </style>
@@ -33,39 +34,126 @@ footer{text-align:center;color:#777386;padding:30px 15px;font-size:12px}
   <div class="logo">MBV <span>AI</span></div>
   <div class="tag">BETA · 0 ₽</div>
 </header>
+
 <main>
   <div class="tag">✦ ТВОЯ AI-СТУДИЯ</div>
   <h1>Преврати идею<br>в <span>изображение.</span></h1>
-  <p class="sub">Опиши свою идею. MBV AI станет твоей личной студией генерации изображений.</p>
+  <p class="sub">Опиши свою идею. MBV AI превратит её в изображение с помощью искусственного интеллекта.</p>
+
   <section class="panel">
     <label for="prompt">Что нужно создать?</label>
-    <textarea id="prompt" placeholder="Например: аниме-герой с белыми волосами, ночной город, кинематографичный свет..."></textarea>
+    <textarea id="prompt" placeholder="Например: anime hero with white hair, night city, cinematic lighting..."></textarea>
+
     <label for="style" style="margin-top:20px">Стиль изображения</label>
     <select id="style">
-      <option>Аниме</option>
-      <option>Реализм</option>
-      <option>Фэнтези</option>
-      <option>Киберпанк</option>
-      <option>Манга</option>
+      <option value="Anime">Аниме</option>
+      <option value="Photographic">Реализм</option>
+      <option value="Fantasy art">Фэнтези</option>
+      <option value="Neonpunk">Киберпанк</option>
+      <option value="Manga">Манга</option>
     </select>
-    <button onclick="generate()">✦ Создать изображение</button>
+
+    <button id="generateBtn" onclick="generate()">✦ Создать изображение</button>
     <div id="result"></div>
-    <p class="note">Первая версия MBV AI. Генерация изображений подключается отдельно.</p>
+    <p class="note">Генерация выполняется публичной демоверсией Animagine XL 3.1. Доступность и скорость зависят от её нагрузки.</p>
   </section>
 </main>
+
 <footer>MBV AI © 2026 · Создано с энтузиазмом</footer>
-<script>
-function generate(){
-  const prompt=document.getElementById('prompt').value.trim();
-  const style=document.getElementById('style').value;
-  const result=document.getElementById('result');
-  result.style.display='block';
-  if(!prompt){
-    result.textContent='Сначала напиши, какое изображение хочешь создать.';
+
+<script type="module">
+import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
+
+const result = document.getElementById("result");
+const button = document.getElementById("generateBtn");
+let clientPromise;
+
+async function generate() {
+  const prompt = document.getElementById("prompt").value.trim();
+  const style = document.getElementById("style").value;
+
+  result.style.display = "block";
+  result.replaceChildren();
+
+  if (!prompt) {
+    result.textContent = "Сначала напиши, какое изображение хочешь создать.";
     return;
   }
-  result.textContent='Твой запрос сохранён на странице! Стиль: '+style+'. Настоящая генерация пока не подключена — это следующий этап разработки MBV AI.';
+
+  button.disabled = true;
+  button.textContent = "⏳ Создаём изображение...";
+  result.textContent = "Подключаем AI. Подожди, генерация может занять несколько минут.";
+
+  try {
+    if (!clientPromise) {
+      clientPromise = Client.connect("Asahina2K/animagine-xl-3.1");
+    }
+
+    const client = await clientPromise;
+
+    const response = await client.predict("/run", [
+      prompt,
+      "low quality, blurry, bad anatomy, extra fingers",
+      0,
+      1024,
+      1024,
+      7,
+      28,
+      "DPM++ 2M Karras",
+      "1024 x 1024",
+      style,
+      "Standard v3.1",
+      false,
+      0,
+      1,
+      true
+    ]);
+
+    const gallery = response.data?.[0];
+    const item = Array.isArray(gallery) ? gallery[0] : null;
+    const imageData = item?.image ?? item;
+    const imageUrl = typeof imageData === "string"
+      ? imageData
+      : imageData?.url;
+
+    if (!imageUrl) {
+      throw new Error("Сервис не вернул изображение.");
+    }
+
+    result.replaceChildren();
+
+    const message = document.createElement("div");
+    message.textContent = "✨ Изображение готово!";
+    result.appendChild(message);
+
+    const image = document.createElement("img");
+    image.src = imageUrl;
+    image.alt = prompt;
+    image.loading = "lazy";
+    result.appendChild(image);
+
+    const link = document.createElement("a");
+    link.href = imageUrl;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = "Открыть изображение";
+    link.style.color = "#b9a4ff";
+    link.style.display = "inline-block";
+    link.style.marginTop = "12px";
+    result.appendChild(link);
+
+  } catch (error) {
+    console.error(error);
+    clientPromise = null;
+    result.textContent =
+      "Не удалось создать изображение. Попробуй ещё раз позже. Возможно, AI-сервис занят или временно недоступен.";
+  } finally {
+    button.disabled = false;
+    button.textContent = "✦ Создать изображение";
+  }
 }
+
+window.generate = generate;
 </script>
 </body>
 </html>
