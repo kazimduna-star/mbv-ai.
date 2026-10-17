@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBV AI — Генератор изображений</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b0b10;color:#fff;font-family:Arial,sans-serif}
+header{padding:22px 18px;border-bottom:1px solid #292933;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:25px;font-weight:900;letter-spacing:-1px}
+.logo span{color:#9b7bff}
+.tag{font-size:12px;color:#b9b5c9;border:1px solid #383444;border-radius:20px;padding:7px 10px}
+main{max-width:650px;margin:35px auto;padding:0 18px}
+h1{font-size:38px;line-height:1.1;margin:12px 0}
+h1 span{color:#a58aff}
+.sub{color:#aaa7b8;line-height:1.6}
+.panel{margin-top:26px;padding:20px;background:#15151d;border:1px solid #302e3b;border-radius:18px}
+label{display:block;font-weight:bold;margin-bottom:12px}
+textarea{width:100%;height:125px;resize:vertical;background:#0d0d13;color:white;border:1px solid #393745;border-radius:12px;padding:14px;font-size:16px;outline:none}
+textarea:focus{border-color:#9b7bff}
+select{width:100%;padding:13px;background:#0d0d13;color:white;border:1px solid #393745;border-radius:10px;font-size:15px;margin-top:8px}
+button{width:100%;border:0;border-radius:12px;padding:16px;background:linear-gradient(100deg,#8b5cf6,#b18cff);color:white;font-size:17px;font-weight:bold;margin-top:18px}
+button:active{transform:scale(.99)}
+#result{display:none;margin-top:22px;padding:18px;border:1px solid #393745;border-radius:14px;color:#c8c2d8;line-height:1.6}
+.note{font-size:12px;color:#8c899b;margin-top:16px;line-height:1.5}
+footer{text-align:center;color:#777386;padding:30px 15px;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">MBV <span>AI</span></div>
+  <div class="tag">BETA · 0 ₽</div>
+</header>
+<main>
+  <div class="tag">✦ ТВОЯ AI-СТУДИЯ</div>
+  <h1>Преврати идею<br>в <span>изображение.</span></h1>
+  <p class="sub">Опиши свою идею. MBV AI станет твоей личной студией генерации изображений.</p>
+  <section class="panel">
+    <label for="prompt">Что нужно создать?</label>
+    <textarea id="prompt" placeholder="Например: аниме-герой с белыми волосами, ночной город, кинематографичный свет..."></textarea>
+    <label for="style" style="margin-top:20px">Стиль изображения</label>
+    <select id="style">
+      <option>Аниме</option>
+      <option>Реализм</option>
+      <option>Фэнтези</option>
+      <option>Киберпанк</option>
+      <option>Манга</option>
+    </select>
+    <button onclick="generate()">✦ Создать изображение</button>
+    <div id="result"></div>
+    <p class="note">Первая версия MBV AI. Генерация изображений подключается отдельно.</p>
+  </section>
+</main>
+<footer>MBV AI © 2026 · Создано с энтузиазмом</footer>
+<script>
+function generate(){
+  const prompt=document.getElementById('prompt').value.trim();
+  const style=document.getElementById('style').value;
+  const result=document.getElementById('result');
+  result.style.display='block';
+  if(!prompt){
+    result.textContent='Сначала напиши, какое изображение хочешь создать.';
+    return;
+  }
+  result.textContent='Твой запрос сохранён на странице! Стиль: '+style+'. Настоящая генерация пока не подключена — это следующий этап разработки MBV AI.';
+}
+</script>
+</body>
+</html>
