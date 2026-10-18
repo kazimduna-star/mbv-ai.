@@ -2,373 +2,1114 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#090910">
-<title>MBV AI — Твоя AI-студия</title>
-<style>
-:root{--bg:#090910;--panel:#151520;--line:#302d40;--purple:#a78bfa;--text:#f8f7ff;--muted:#aaa6bd}
-*{box-sizing:border-box}
-body{margin:0;background:radial-gradient(ellipse at 50% 0,#30204c 0,transparent 45%),var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif}
-header{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px;border-bottom:1px solid var(--line);background:#0b0b12ed;backdrop-filter:blur(15px)}
-.logo{font-size:25px;font-weight:950;letter-spacing:-1px}.logo span{color:var(--purple)}
-.balance{background:#211832;border:1px solid #493665;border-radius:30px;padding:9px 12px;color:#e2d5ff;font-size:12px;font-weight:bold}
-main{max-width:800px;margin:auto;padding:15px 14px 70px}
-.hero{text-align:center;padding:30px 4px}
-.badge{display:inline-block;border:1px solid #44345e;background:#20162f;border-radius:30px;padding:8px 12px;color:#d6c5ff;font-size:11px;letter-spacing:1px}
-h1{font-size:clamp(37px,9vw,59px);line-height:1.03;letter-spacing:-2px;margin:19px 0 12px}
-.gradient{background:linear-gradient(100deg,#c4b5fd,#9b7bff,#f0abfc);color:transparent;background-clip:text}
-.sub{color:var(--muted);line-height:1.65;font-size:14px;max-width:490px;margin:auto}
-nav{display:flex;gap:8px;overflow-x:auto;padding:5px 0 17px;scrollbar-width:none}
-button{border:0;border-radius:11px;padding:13px;background:linear-gradient(100deg,#8054ed,#b08aff);color:white;font-weight:bold;cursor:pointer}
-nav button{white-space:nowrap;background:#151520;border:1px solid var(--line);padding:11px 14px}
-nav button.active{background:#8054ed}
-.view{display:none}.view.active{display:block}
-.panel{background:linear-gradient(150deg,#181722,#11111a);border:1px solid var(--line);border-radius:19px;padding:18px;margin-bottom:15px}
-h2{font-size:21px;margin:0 0 8px}h3{font-size:15px;margin:0 0 7px}
-.muted{color:var(--muted);font-size:13px;line-height:1.6}
-label{display:block;font-size:13px;font-weight:bold;margin:19px 0 9px}
-textarea,input,select{width:100%;background:#0c0c13;color:white;border:1px solid #3a374b;border-radius:11px;padding:14px;font-size:15px;outline:none}
-textarea{min-height:120px;resize:vertical;line-height:1.5}
-.primary{width:100%;margin-top:17px;padding:15px}
-button:disabled{opacity:.55;cursor:wait}
-.secondary{background:#242132;border:1px solid #403851}
-#result{display:none;margin-top:18px}
-#result img{width:100%;height:auto;display:block;border-radius:13px;margin-top:12px}
-.status{white-space:pre-wrap;overflow-wrap:anywhere;color:#d6c7ff;font-size:13px;line-height:1.6}
-.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px}
-.stat{background:#0e0e16;border:1px solid var(--line);border-radius:12px;padding:15px}
-.stat strong{display:block;font-size:24px;margin-top:6px}
-.item{padding:14px 0;border-bottom:1px solid var(--line)}
-.row{display:flex;gap:9px;align-items:center}.row>*{flex:1;min-width:0}
-.promo{display:flex;gap:8px;margin-top:10px}.promo button{flex:0 0 auto}
-.history-img{display:block;width:100%;border-radius:13px;margin-top:10px}
-.note{font-size:11px;color:#88849b;line-height:1.6;margin-top:15px}
-.empty{text-align:center;padding:25px 10px;color:var(--muted);font-size:13px}
-footer{text-align:center;color:#777386;font-size:11px;padding:24px 10px}
-a{color:#c4b5fd}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#10091e">
+  <title>MBV AI — Генератор изображений</title>
+
+  <style>
+    :root {
+      --bg: #0b0713;
+      --panel: #171025;
+      --panel2: #211634;
+      --purple: #a855f7;
+      --pink: #ec4899;
+      --text: #f8f4ff;
+      --muted: #a99bbd;
+      --border: rgba(255,255,255,.09);
+      --green: #4ade80;
+      --red: #fb7185;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at top left, #291044 0, transparent 38%),
+        radial-gradient(ellipse at top right, #1b1038 0, transparent 35%),
+        var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(1100px, 100%);
+      margin: auto;
+      padding: 20px 16px 110px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0 24px;
+    }
+
+    .logo {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      background: linear-gradient(100deg, #fff, #d8b4fe, #f0abfc);
+      color: transparent;
+      background-clip: text;
+    }
+
+    .logo span {
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: #c084fc;
+      display: block;
+      margin-top: 3px;
+    }
+
+    .credits {
+      border: 1px solid #7540a5;
+      border-radius: 14px;
+      padding: 10px 13px;
+      background: #26143a;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .credits strong {
+      color: #e9b7ff;
+    }
+
+    .hero {
+      text-align: center;
+      padding: 24px 0 28px;
+    }
+
+    .badge {
+      display: inline-block;
+      color: #e9c7ff;
+      background: #28153c;
+      border: 1px solid #583078;
+      border-radius: 30px;
+      padding: 7px 13px;
+      font-size: 12px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: clamp(34px, 7vw, 58px);
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin: 0 0 14px;
+    }
+
+    .gradient {
+      background: linear-gradient(90deg, #c084fc, #f0abfc, #fb7185);
+      color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      max-width: 600px;
+      margin: auto;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    .panel {
+      background: rgba(23,16,37,.92);
+      border: 1px solid var(--border);
+      border-radius: 23px;
+      padding: 20px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.2);
+      margin-bottom: 18px;
+    }
+
+    .panel-title {
+      font-size: 19px;
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      color: #e6d9f7;
+      font-size: 13px;
+      font-weight: 650;
+      margin-bottom: 9px;
+    }
+
+    textarea, input, select {
+      width: 100%;
+      border: 1px solid #38284d;
+      background: #100b1b;
+      color: var(--text);
+      border-radius: 13px;
+      padding: 14px;
+      outline: none;
+      transition: border .2s;
+    }
+
+    textarea:focus, input:focus, select:focus {
+      border-color: var(--purple);
+    }
+
+    textarea {
+      min-height: 115px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 13px;
+      padding: 14px 18px;
+      font-weight: 800;
+      color: white;
+      background: linear-gradient(110deg, #9333ea, #c026d3, #db2777);
+      box-shadow: 0 7px 25px rgba(168,85,247,.18);
+      transition: transform .15s, opacity .15s;
+    }
+
+    .btn:active {
+      transform: scale(.98);
+    }
+
+    .btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      color: #eadcff;
+      background: #2a1b3c;
+      border: 1px solid #49305f;
+      box-shadow: none;
+    }
+
+    .btn-small {
+      padding: 10px 13px;
+      font-size: 12px;
+      border-radius: 10px;
+    }
+
+    .full {
+      width: 100%;
+    }
+
+    .status {
+      display: none;
+      margin-top: 16px;
+      padding: 13px;
+      border-radius: 12px;
+      background: #241837;
+      color: #e9d5ff;
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.error {
+      background: #351523;
+      color: #fecdd3;
+    }
+
+    .status.success {
+      background: #102b20;
+      color: #bbf7d0;
+    }
+
+    .result-box {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .result-box.show {
+      display: block;
+    }
+
+    .result-image {
+      display: block;
+      width: 100%;
+      max-height: 720px;
+      object-fit: contain;
+      border-radius: 15px;
+      background: #0a0710;
+      border: 1px solid var(--border);
+    }
+
+    .result-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 13px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 5px 0 15px;
+      scrollbar-width: none;
+    }
+
+    .tab {
+      flex: 1;
+      min-width: max-content;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #171025;
+      color: #bbaacb;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .tab.active {
+      color: white;
+      background: #38204e;
+      border-color: #8b45b6;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .empty {
+      padding: 30px 10px;
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .history-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .history-card {
+      min-width: 0;
+      background: #100b1b;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 9px;
+      overflow: hidden;
+    }
+
+    .history-card img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border-radius: 9px;
+      background: #211634;
+    }
+
+    .history-prompt {
+      color: #d8cce7;
+      font-size: 12px;
+      margin: 9px 0;
+      overflow-wrap: anywhere;
+      line-height: 1.5;
+    }
+
+    .history-card .btn {
+      margin-top: 5px;
+    }
+
+    .profile-stat {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      padding: 15px 0;
+      color: var(--muted);
+    }
+
+    .profile-stat strong {
+      color: white;
+      text-align: right;
+    }
+
+    .notice {
+      color: #d8c6ec;
+      background: #20152e;
+      border: 1px solid #38274c;
+      border-radius: 13px;
+      padding: 13px;
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 14px;
+    }
+
+    .shop-item {
+      padding: 16px;
+      background: #100b1b;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      margin-bottom: 12px;
+    }
+
+    .shop-item h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .shop-item p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    footer {
+      text-align: center;
+      color: #756584;
+      font-size: 12px;
+      padding: 24px 0;
+      line-height: 1.7;
+    }
+
+    .loading-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #d8b4fe;
+      margin-right: 5px;
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { opacity: .25; transform: scale(.8); }
+      to { opacity: 1; transform: scale(1.15); }
+    }
+
+    @media (max-width: 600px) {
+      .app {
+        padding: 12px 12px 100px;
+      }
+
+      .panel {
+        padding: 15px;
+        border-radius: 18px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .hero {
+        padding-top: 15px;
+      }
+
+      h1 {
+        letter-spacing: -1.3px;
+      }
+
+      .history-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
 </head>
+
 <body>
-<header>
-  <div class="logo">MBV <span>AI</span></div>
-  <div class="balance">✦ <span id="balance">100</span> кредитов</div>
-</header>
+  <main class="app">
+    <header>
+      <div class="logo">
+        MBV AI
+        <span>CREATIVE STUDIO</span>
+      </div>
 
-<main>
-<section class="hero">
-  <span class="badge">✦ ТВОЯ AI-СТУДИЯ</span>
-  <h1>Идеи становятся<br><span class="gradient">изображениями.</span></h1>
-  <p class="sub">Создавай арты, аниме и фантастические миры с помощью своей SDXL.</p>
-</section>
+      <div class="credits">
+        ✦ Баланс: <strong id="creditBalance">100</strong>
+      </div>
+    </header>
 
-<nav>
-  <button class="active" data-view="create">✦ Создать</button>
-  <button data-view="history">▧ История</button>
-  <button data-view="profile">♙ Профиль</button>
-  <button data-view="shop">✧ Магазин</button>
-</nav>
+    <section class="hero">
+      <div class="badge">✦ ИИ-генератор изображений</div>
+      <h1>Создавай свои<br><span class="gradient">миры с ИИ</span></h1>
+      <p class="subtitle">
+        Опиши идею, выбери стиль и создай изображение.
+        Творчество начинается с одной строки.
+      </p>
+    </section>
 
-<section class="view active" id="create">
-<div class="panel">
-  <h2>Генератор изображений</h2>
-  <p class="muted">Опиши идею и выбери стиль.</p>
-  <label for="prompt">Описание изображения</label>
-  <textarea id="prompt" maxlength="1500" placeholder="Таинственный город ночью, фиолетовый неон, дождь, кинематографическое освещение..."></textarea>
-  <label for="style">Стиль</label>
-  <select id="style">
-    <option value="Anime">Аниме</option>
-    <option value="Photographic, photorealistic">Фотореализм</option>
-    <option value="Fantasy art">Фэнтези</option>
-    <option value="Neonpunk, cyberpunk">Киберпанк</option>
-    <option value="Manga illustration">Манга</option>
-    <option value="Digital art">Цифровой арт</option>
-    <option value="Cinematic concept art">Кинематографический арт</option>
-    <option value="Watercolor painting">Акварель</option>
-  </select>
-  <button class="primary" id="generateBtn">✦ Создать изображение · 10 кредитов</button>
-  <div id="result" aria-live="polite"><div id="status" class="status"></div></div>
-  <p class="note">Colab должен оставаться запущенным, пока ты генерируешь изображения.</p>
-</div>
-</section>
+    <nav class="tabs" aria-label="Разделы">
+      <button class="tab active" data-page="create">✦ Создать</button>
+      <button class="tab" data-page="history">▦ История</button>
+      <button class="tab" data-page="profile">◉ Профиль</button>
+      <button class="tab" data-page="shop">✧ Магазин</button>
+    </nav>
 
-<section class="view" id="history">
-<div class="panel">
-  <h2>История генераций</h2>
-  <p class="muted">Результаты в этом браузере.</p>
-  <div id="historyList"></div>
-  <button class="secondary" id="clearHistory" style="width:100%;margin-top:15px">Очистить историю</button>
-</div>
-</section>
+    <section id="page-create" class="page active">
+      <div class="panel">
+        <div class="panel-title">Создание изображения</div>
 
-<section class="view" id="profile">
-<div class="panel">
-  <h2>Профиль</h2>
-  <label for="nickname">Имя пользователя</label>
-  <input id="nickname" maxlength="24" placeholder="MBV Creator">
-  <button class="primary" id="saveName">Сохранить профиль</button>
-  <div class="statgrid">
-    <div class="stat"><span class="muted">Кредиты</span><strong id="profileBalance">100</strong></div>
-    <div class="stat"><span class="muted">Генерации</span><strong id="generatedCount">0</strong></div>
-  </div>
-</div>
-</section>
+        <form id="generateForm">
+          <div class="field">
+            <label for="prompt">Что хочешь создать?</label>
+            <textarea
+              id="prompt"
+              maxlength="1500"
+              placeholder="Например: герой аниме стоит на крыше ночного города, фиолетовый неон, кинематографический свет..."
+              required
+            ></textarea>
+            <div class="hint">
+              Чем подробнее описание, тем точнее ИИ поймёт твою идею.
+              <span id="promptCount">0/1500</span>
+            </div>
+          </div>
 
-<section class="view" id="shop">
-<div class="panel">
-  <h2>Магазин MBV</h2>
-  <p class="muted">Демо-магазин: настоящие платежи не подключены.</p>
-  <div class="item">
-    <div class="row"><div><h3>Стартовый набор</h3><p class="muted">50 демо-кредитов</p></div><button class="secondary" id="starterBtn">Получить</button></div>
-  </div>
-  <div class="item"><h3>Creator Pack</h3><p class="muted">500 кредитов · скоро</p></div>
-  <div class="item"><h3>Pro Studio</h3><p class="muted">2000 кредитов · скоро</p></div>
-  <label for="promo">Промокод</label>
-  <div class="promo"><input id="promo" maxlength="30" placeholder="Введи промокод"><button class="secondary" id="applyPromo">Применить</button></div>
-  <p id="promoMessage" class="muted" aria-live="polite"></p>
-  <p class="note">Кредиты и промокоды сохраняются в браузере и не защищены сервером.</p>
-</div>
-</section>
+          <div class="grid">
+            <div class="field">
+              <label for="style">Стиль изображения</label>
+              <select id="style">
+                <option value="Anime">Аниме</option>
+                <option value="Photographic">Фотореализм</option>
+                <option value="Fantasy art">Фэнтези</option>
+                <option value="Neonpunk">Неон / киберпанк</option>
+                <option value="Manga">Манга</option>
+              </select>
+            </div>
 
-<footer>MBV AI © 2026 · Создавай собственные миры</footer>
-</main>
+            <div class="field">
+              <label for="quality">Качество</label>
+              <select id="quality">
+                <option value="standard">Стандартное</option>
+                <option value="detailed">Детализированное</option>
+                <option value="cinematic">Кинематографическое</option>
+              </select>
+            </div>
+          </div>
 
-<script type="module">
-import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
+          <button id="generateBtn" class="btn full" type="submit">
+            ✦ Создать изображение
+          </button>
 
-const SERVER_URL = "https://e31423d3cdb66248a2.gradio.live";
-const GENERATION_COST = 10;
-const STORAGE_KEY = "mbv_ai_site_v4";
+          <div id="status" class="status" role="status" aria-live="polite"></div>
+        </form>
 
-const $ = id => document.getElementById(id);
-let clientPromise = null;
-let isGenerating = false;
-let state = {};
+        <div id="resultBox" class="result-box">
+          <div class="panel-title">Твой результат</div>
+          <img id="resultImage" class="result-image" alt="Созданное изображение">
 
-try {
-  state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-} catch {
-  state = {};
-}
+          <div class="result-actions">
+            <button id="downloadBtn" class="btn btn-small" type="button">
+              ↓ Скачать изображение
+            </button>
+            <button id="saveBtn" class="btn btn-secondary btn-small" type="button">
+              ♡ Сохранить в историю
+            </button>
+          </div>
+        </div>
+      </div>
 
-if (!Number.isFinite(state.credits)) state.credits = 100;
-if (!Array.isArray(state.history)) state.history = [];
-if (!Array.isArray(state.usedPromos)) state.usedPromos = [];
-if (typeof state.name !== "string") state.name = "";
-if (typeof state.starterClaimed !== "boolean") state.starterClaimed = false;
+      <div class="notice">
+        <strong>Как работает генерация?</strong><br>
+        Изображения создаёт модель SDXL в Google Colab.
+        Для генерации Colab должен быть запущен, а серверная ссылка — актуальной.
+      </div>
+    </section>
 
-function saveState() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch (e) {
-    console.warn("Не удалось сохранить данные:", e);
-  }
-  render();
-}
+    <section id="page-history" class="page">
+      <div class="panel">
+        <div class="panel-title">История изображений</div>
+        <div id="historyContainer" class="history-grid"></div>
+        <button id="clearHistoryBtn" class="btn btn-secondary full" type="button">
+          Очистить историю
+        </button>
+      </div>
+    </section>
 
-function render() {
-  $("balance").textContent = state.credits;
-  $("profileBalance").textContent = state.credits;
-  $("generatedCount").textContent = state.history.length;
-  $("nickname").value = state.name;
-  $("starterBtn").disabled = state.starterClaimed;
-  $("starterBtn").textContent = state.starterClaimed ? "Получено" : "Получить";
+    <section id="page-profile" class="page">
+      <div class="panel">
+        <div class="panel-title">Твой профиль</div>
 
-  const list = $("historyList");
-  list.replaceChildren();
+        <div class="field">
+          <label for="nickname">Имя пользователя</label>
+          <input id="nickname" maxlength="30" placeholder="Введи свой ник">
+        </div>
 
-  if (!state.history.length) {
-    const empty = document.createElement("div");
-    empty.className = "empty";
-    empty.textContent = "Здесь появятся твои изображения.";
-    list.appendChild(empty);
-    return;
-  }
+        <button id="saveProfileBtn" class="btn full" type="button">
+          Сохранить профиль
+        </button>
 
-  state.history.forEach(entry => {
-    const card = document.createElement("article");
-    card.style.marginTop = "18px";
+        <div class="profile-stat">
+          <span>Пользователь</span>
+          <strong id="profileName">Гость</strong>
+        </div>
 
-    const description = document.createElement("p");
-    description.className = "muted";
-    description.textContent = entry.prompt || "Изображение MBV AI";
-    card.appendChild(description);
+        <div class="profile-stat">
+          <span>Баланс</span>
+          <strong id="profileCredits">100</strong>
+        </div>
 
-    const img = document.createElement("img");
-    img.className = "history-img";
-    img.src = entry.url;
-    img.alt = entry.prompt || "Изображение MBV AI";
-    img.loading = "lazy";
-    card.appendChild(img);
+        <div class="profile-stat">
+          <span>Сохранено изображений</span>
+          <strong id="profileImages">0</strong>
+        </div>
 
-    const link = document.createElement("a");
-    link.href = entry.url;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.textContent = "Открыть изображение";
-    card.appendChild(link);
+        <div class="notice">
+          Профиль и баланс сохраняются в браузере на этом устройстве.
+          Очистка данных браузера может удалить эти данные.
+        </div>
+      </div>
+    </section>
 
-    list.appendChild(card);
-  });
-}
+    <section id="page-shop" class="page">
+      <div class="panel">
+        <div class="panel-title">Магазин MBV AI</div>
 
-function showStatus(message) {
-  $("result").style.display = "block";
-  $("status").textContent = message;
-}
+        <div class="shop-item">
+          <h3>✦ Набор 100 кредитов</h3>
+          <p>Демо-предложение для проверки интерфейса.</p>
+          <button class="btn full" type="button" data-demo-credits="100">
+            Получить демо-кредиты
+          </button>
+        </div>
 
-function getImageUrl(item) {
-  if (typeof item === "string") return item;
-  if (!item || typeof item !== "object") return null;
-  if (typeof item.url === "string") return item.url;
-  if (typeof item.path === "string") return item.path;
-  if (item.image) return getImageUrl(item.image);
-  if (item.data) return getImageUrl(item.data);
-  return null;
-}
+        <div class="shop-item">
+          <h3>✧ Набор 500 кредитов</h3>
+          <p>Демо-предложение для проверки интерфейса.</p>
+          <button class="btn full" type="button" data-demo-credits="500">
+            Получить демо-кредиты
+          </button>
+        </div>
 
-function showImage(url, prompt) {
-  const result = $("result");
-  result.replaceChildren();
-  result.style.display = "block";
+        <div class="panel-title" style="margin-top:24px">Промокод</div>
+        <div class="field">
+          <label for="promoInput">Введи промокод</label>
+          <input id="promoInput" maxlength="40" placeholder="Например, MBVSTART">
+        </div>
+        <button id="promoBtn" class="btn full" type="button">
+          Активировать промокод
+        </button>
 
-  const title = document.createElement("p");
-  title.textContent = "✅ Изображение создано!";
-  result.appendChild(title);
+        <div id="shopStatus" class="status"></div>
 
-  const img = document.createElement("img");
-  img.src = url;
-  img.alt = prompt;
-  result.appendChild(img);
+        <div class="notice">
+          Магазин и промокоды здесь демонстрационные: они не принимают оплату.
+          Кредиты в браузере нельзя считать защищённым платёжным балансом.
+        </div>
+      </div>
+    </section>
 
-  const link = document.createElement("a");
-  link.href = url;
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
-  link.textContent = "Открыть изображение";
-  link.style.display = "inline-block";
-  link.style.marginTop = "12px";
-  result.appendChild(link);
-}
+    <footer>
+      MBV AI · Creative Studio<br>
+      Изображения создаются моделью SDXL через Google Colab.
+    </footer>
+  </main>
 
-document.querySelectorAll("nav button").forEach(button => {
-  button.addEventListener("click", () => {
-    document.querySelectorAll("nav button").forEach(b => {
-      b.classList.toggle("active", b === button);
-    });
-    document.querySelectorAll(".view").forEach(view => {
-      view.classList.toggle("active", view.id === button.dataset.view);
-    });
-  });
-});
+  <script type="module">
+    import { Client } from
+      "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
 
-$("saveName").addEventListener("click", () => {
-  state.name = $("nickname").value.trim().slice(0, 24);
-  saveState();
-  alert("Профиль сохранён.");
-});
+    // ВАЖНО: если Colab выдал новую ссылку, замени адрес ниже.
+    const SERVER_URL = "https://e31423d3cdb66248a2.gradio.live";
 
-$("clearHistory").addEventListener("click", () => {
-  if (!confirm("Очистить историю?")) return;
-  state.history = [];
-  saveState();
-});
+    const STORAGE_KEYS = {
+      credits: "mbv_ai_credits_v1",
+      history: "mbv_ai_history_v1",
+      nickname: "mbv_ai_nickname_v1",
+      promos: "mbv_ai_promos_v1"
+    };
 
-$("starterBtn").addEventListener("click", () => {
-  if (state.starterClaimed) return;
-  state.starterClaimed = true;
-  state.credits += 50;
-  saveState();
-  $("promoMessage").textContent = "Добавлено 50 демо-кредитов.";
-});
+    const $ = (id) => document.getElementById(id);
 
-$("applyPromo").addEventListener("click", () => {
-  const code = $("promo").value.trim().toUpperCase();
-  const codes = {MBV1:100, MBV2:250, MBV3:500};
-
-  if (!codes[code]) {
-    $("promoMessage").textContent = "Промокод не найден.";
-    return;
-  }
-  if (state.usedPromos.includes(code)) {
-    $("promoMessage").textContent = "Этот промокод уже использован.";
-    return;
-  }
-
-  state.usedPromos.push(code);
-  state.credits += codes[code];
-  saveState();
-  $("promoMessage").textContent = "Добавлено " + codes[code] + " демо-кредитов.";
-});
-
-$("generateBtn").addEventListener("click", async () => {
-  if (isGenerating) return;
-
-  const prompt = $("prompt").value.trim();
-  const style = $("style").value;
-  const button = $("generateBtn");
-
-  if (!prompt) {
-    showStatus("Сначала напиши описание изображения.");
-    $("prompt").focus();
-    return;
-  }
-
-  if (state.credits < GENERATION_COST) {
-    showStatus("Недостаточно кредитов. Открой магазин.");
-    return;
-  }
-
-  isGenerating = true;
-  button.disabled = true;
-  button.textContent = "⏳ Подключаем SDXL...";
-  showStatus("Подключаем сервер Colab...");
-
-  try {
-    if (!clientPromise) {
-      clientPromise = Client.connect(SERVER_URL);
+    function readStorage(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw === null ? fallback : JSON.parse(raw);
+      } catch {
+        return fallback;
+      }
     }
 
-    const client = await clientPromise;
-    button.textContent = "🎨 Создаём изображение...";
-    showStatus("SDXL генерирует изображение. Подожди несколько минут.");
-
-    // ИСПРАВЛЕННЫЙ МАРШРУТ
-    const response = await client.predict("/generate_mbv", [prompt, style]);
-    const imageUrl = getImageUrl(response?.data?.[0]);
-
-    if (!imageUrl) {
-      console.error("Ответ Gradio:", response);
-      throw new Error("Сервер ответил, но изображение не найдено в ответе.");
+    function writeStorage(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+        return true;
+      } catch {
+        return false;
+      }
     }
 
-    state.credits -= GENERATION_COST;
-    state.history.unshift({
-      prompt,
-      url: imageUrl,
-      createdAt: new Date().toISOString()
+    let credits = readStorage(STORAGE_KEYS.credits, 100);
+    let history = readStorage(STORAGE_KEYS.history, []);
+    let nickname = readStorage(STORAGE_KEYS.nickname, "");
+    let usedPromos = readStorage(STORAGE_KEYS.promos, []);
+    let currentImage = null;
+    let currentPrompt = "";
+    let currentStyle = "Anime";
+    let currentQuality = "standard";
+    let isGenerating = false;
+    let gradioClientPromise = null;
+
+    function showStatus(message, type = "") {
+      const status = $("status");
+      status.textContent = message;
+      status.className = "status show" + (type ? " " + type : "");
+    }
+
+    function showShopStatus(message, type = "") {
+      const status = $("shopStatus");
+      status.textContent = message;
+      status.className = "status show" + (type ? " " + type : "");
+    }
+
+    function updateCredits() {
+      $("creditBalance").textContent = credits;
+      $("profileCredits").textContent = credits;
+      writeStorage(STORAGE_KEYS.credits, credits);
+    }
+
+    function updateProfile() {
+      $("profileName").textContent = nickname || "Гость";
+      $("nickname").value = nickname;
+      $("profileImages").textContent = history.length;
+      updateCredits();
+    }
+
+    function getGradioClient() {
+      if (!gradioClientPromise) {
+        gradioClientPromise = Client.connect(SERVER_URL).catch((error) => {
+          gradioClientPromise = null;
+          throw error;
+        });
+      }
+      return gradioClientPromise;
+    }
+
+    function setPage(pageName) {
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.classList.toggle("active", tab.dataset.page === pageName);
+      });
+
+      document.querySelectorAll(".page").forEach((page) => {
+        page.classList.toggle("active", page.id === "page-" + pageName);
+      });
+
+      if (pageName === "history") renderHistory();
+      if (pageName === "profile") updateProfile();
+    }
+
+    document.querySelectorAll(".tab").forEach((tab) => {
+      tab.addEventListener("click", () => setPage(tab.dataset.page));
     });
-    state.history = state.history.slice(0, 20);
 
-    saveState();
-    showImage(imageUrl, prompt);
+    $("prompt").addEventListener("input", () => {
+      $("promptCount").textContent = $("prompt").value.length + "/1500";
+    });
 
-  } catch (error) {
-    console.error("MBV AI error:", error);
-    clientPromise = null;
-    showStatus(
-      "Не удалось получить изображение.\n\n" +
-      "Убедись, что Colab работает и ссылка актуальна.\n\n" +
-      "Ошибка: " + (error?.message || String(error))
-    );
-  } finally {
-    isGenerating = false;
-    button.disabled = false;
-    button.textContent = "✦ Создать изображение · 10 кредитов";
-  }
-});
+    function extractImage(result) {
+      // Gradio обычно возвращает объект с data у компонента Image.
+      // У разных версий клиента формат результата может отличаться.
+      const data = result?.data;
 
-render();
-</script>
+      if (Array.isArray(data)) {
+        const first = data[0];
+
+        if (typeof first === "string") return first;
+        if (first?.url) return first.url;
+        if (first?.path) return first.path;
+        if (first?.data) return first.data;
+      }
+
+      if (typeof data === "string") return data;
+      if (data?.url) return data.url;
+      if (data?.path) return data.path;
+      if (data?.data) return data.data;
+
+      if (Array.isArray(result) && result.length) {
+        const first = result[0];
+        if (typeof first === "string") return first;
+        if (first?.url) return first.url;
+        if (first?.path) return first.path;
+        if (first?.data) return first.data;
+      }
+
+      throw new Error(
+        "Сервер ответил, но изображение не найдено в ответе. Проверь формат результата Gradio."
+      );
+    }
+
+    function qualityPrompt(quality) {
+      const prompts = {
+        standard: "high quality",
+        detailed: "highly detailed, intricate details, sharp focus",
+        cinematic: "cinematic lighting, dramatic composition, film still"
+      };
+
+      return prompts[quality] || prompts.standard;
+    }
+
+    $("generateForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      if (isGenerating) return;
+
+      const prompt = $("prompt").value.trim();
+      const style = $("style").value;
+      const quality = $("quality").value;
+
+      if (!prompt) {
+        showStatus("Сначала напиши описание изображения.", "error");
+        return;
+      }
+
+      if (credits < 1) {
+        showStatus(
+          "Недостаточно демо-кредитов. Открой раздел «Магазин».",
+          "error"
+        );
+        return;
+      }
+
+      isGenerating = true;
+      $("generateBtn").disabled = true;
+      $("generateBtn").innerHTML =
+        '<span class="loading-dot"></span> Создаю изображение...';
+
+      $("resultBox").classList.remove("show");
+      showStatus(
+        "Подключаюсь к Colab и запускаю генерацию. Это может занять несколько минут."
+      );
+
+      try {
+        const client = await getGradioClient();
+
+        const fullPrompt = [
+          prompt,
+          style,
+          qualityPrompt(quality)
+        ].filter(Boolean).join(", ");
+
+        // ИСПРАВЛЕНО: правильный endpoint из ошибки твоего Colab.
+        // Раньше здесь было "/predict", из-за чего возникала ошибка.
+        const result = await client.predict(
+          "/generate_mbv",
+          [fullPrompt, style]
+        );
+
+        currentImage = extractImage(result);
+        currentPrompt = prompt;
+        currentStyle = style;
+        currentQuality = quality;
+
+        $("resultImage").src = currentImage;
+        $("resultBox").classList.add("show");
+
+        credits = Math.max(0, credits - 1);
+        updateCredits();
+
+        showStatus(
+          "Изображение готово! Нажми «Сохранить в историю», чтобы оставить его в галерее.",
+          "success"
+        );
+      } catch (error) {
+        console.error("MBV AI generation error:", error);
+
+        let message = error?.message || String(error);
+
+        if (
+          message.includes("predict") &&
+          message.includes("endpoint")
+        ) {
+          message =
+            'Endpoint не найден. В этом коде используется "/generate_mbv". ' +
+            "Убедись, что опубликован именно этот index.html.";
+        } else if (
+          message.toLowerCase().includes("failed to fetch") ||
+          message.toLowerCase().includes("load failed")
+        ) {
+          message =
+            "Не удалось подключиться к Colab. Проверь, что ячейка генерации всё ещё работает, " +
+            "а SERVER_URL совпадает с текущей ссылкой gradio.live.";
+        }
+
+        showStatus("Не удалось получить изображение.\n\nОшибка: " + message, "error");
+      } finally {
+        isGenerating = false;
+        $("generateBtn").disabled = false;
+        $("generateBtn").textContent = "✦ Создать изображение";
+      }
+    });
+
+    function saveCurrentImage() {
+      if (!currentImage) {
+        showStatus("Сначала создай изображение.", "error");
+        return;
+      }
+
+      const alreadySaved = history.some((item) =>
+        item.prompt === currentPrompt &&
+        item.image === currentImage
+      );
+
+      if (alreadySaved) {
+        showStatus("Это изображение уже есть в истории.");
+        return;
+      }
+
+      history.unshift({
+        id: Date.now(),
+        prompt: currentPrompt,
+        style: currentStyle,
+        quality: currentQuality,
+        image: currentImage,
+        date: new Date().toLocaleString("ru-RU")
+      });
+
+      history = history.slice(0, 20);
+
+      const saved = writeStorage(STORAGE_KEYS.history, history);
+
+      if (!saved) {
+        showStatus(
+          "Не удалось сохранить изображение: возможно, в браузере закончилось место.",
+          "error"
+        );
+        history.shift();
+        return;
+      }
+
+      updateProfile();
+      showStatus("Изображение сохранено в историю.", "success");
+    }
+
+    $("saveBtn").addEventListener("click", saveCurrentImage);
+
+    $("downloadBtn").addEventListener("click", async () => {
+      if (!currentImage) return;
+
+      try {
+        let blob;
+
+        if (currentImage.startsWith("data:")) {
+          const response = await fetch(currentImage);
+          blob = await response.blob();
+        } else {
+          const response = await fetch(currentImage);
+
+          if (!response.ok) {
+            throw new Error("Не удалось загрузить изображение для скачивания.");
+          }
+
+          blob = await response.blob();
+        }
+
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "mbv-ai-" + Date.now() + ".png";
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+      } catch (error) {
+        // Если браузер не разрешил загрузку по URL,
+        // открываем изображение отдельно.
+        window.open(currentImage, "_blank", "noopener,noreferrer");
+      }
+    });
+
+    function renderHistory() {
+      const container = $("historyContainer");
+      container.replaceChildren();
+
+      if (!history.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.style.gridColumn = "1 / -1";
+        empty.textContent = "Здесь пока пусто. Создай первое изображение!";
+        container.appendChild(empty);
+        $("profileImages").textContent = "0";
+        return;
+      }
+
+      history.forEach((item) => {
+        const card = document.createElement("article");
+        card.className = "history-card";
+
+        const img = document.createElement("img");
+        img.src = item.image;
+        img.alt = item.prompt || "Изображение MBV AI";
+        img.loading = "lazy";
+
+        const prompt = document.createElement("div");
+        prompt.className = "history-prompt";
+        prompt.textContent = item.prompt;
+
+        const date = document.createElement("div");
+        date.className = "hint";
+        date.textContent = item.date || "";
+
+        const openButton = document.createElement("button");
+        openButton.className = "btn btn-secondary btn-small full";
+        openButton.textContent = "Открыть";
+        openButton.addEventListener("click", () => {
+          currentImage = item.image;
+          currentPrompt = item.prompt;
+          currentStyle = item.style || "Anime";
+          currentQuality = item.quality || "standard";
+
+          $("prompt").value = item.prompt;
+          $("style").value = currentStyle;
+          $("quality").value = currentQuality;
+          $("promptCount").textContent =
+            item.prompt.length + "/1500";
+          $("resultImage").src = item.image;
+          $("resultBox").classList.add("show");
+
+          setPage("create");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "btn btn-secondary btn-small full";
+        deleteButton.textContent = "Удалить";
+        deleteButton.style.marginTop = "6px";
+
+        deleteButton.addEventListener("click", () => {
+          history = history.filter((entry) => entry.id !== item.id);
+          writeStorage(STORAGE_KEYS.history, history);
+          renderHistory();
+          updateProfile();
+        });
+
+        card.append(img, prompt, date, openButton, deleteButton);
+        container.appendChild(card);
+      });
+
+      $("profileImages").textContent = history.length;
+    }
+
+    $("clearHistoryBtn").addEventListener("click", () => {
+      if (!history.length) return;
+
+      const confirmed = window.confirm(
+        "Удалить всю историю изображений на этом устройстве?"
+      );
+
+      if (!confirmed) return;
+
+      history = [];
+      writeStorage(STORAGE_KEYS.history, history);
+      renderHistory();
+      updateProfile();
+    });
+
+    $("saveProfileBtn").addEventListener("click", () => {
+      nickname = $("nickname").value.trim().slice(0, 30);
+      writeStorage(STORAGE_KEYS.nickname, nickname);
+      updateProfile();
+
+      alert("Профиль сохранён на этом устройстве.");
+    });
+
+    document.querySelectorAll("[data-demo-credits]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const amount = Number(button.dataset.demoCredits);
+
+        if (!Number.isFinite(amount) || amount <= 0) return;
+
+        const confirmed = window.confirm(
+          "Добавить " + amount + " демонстрационных кредитов? Реальная оплата не выполняется."
+        );
+
+        if (!confirmed) return;
+
+        credits += amount;
+        updateCredits();
+        showShopStatus(
+          "Добавлено " + amount + " демо-кредитов.",
+          "success"
+        );
+      });
+    });
+
+    const PROMO_CODES = {
+      MBVSTART: 50,
+      MBV100: 100,
+      MBVGIFT: 25
+    };
+
+    $("promoBtn").addEventListener("click", () => {
+      const code = $("promoInput").value.trim().toUpperCase();
+
+      if (!code) {
+        showShopStatus("Введи промокод.", "error");
+        return;
+      }
+
+      if (usedPromos.includes(code)) {
+        showShopStatus("Этот промокод уже использован на этом устройстве.", "error");
+        return;
+      }
+
+      if (!Object.prototype.hasOwnProperty.call(PROMO_CODES, code)) {
+        showShopStatus("Промокод не найден.", "error");
+        return;
+      }
+
+      const reward = PROMO_CODES[code];
+
+      usedPromos.push(code);
+      credits += reward;
+
+      writeStorage(STORAGE_KEYS.promos, usedPromos);
+      updateCredits();
+
+      $("promoInput").value = "";
+
+      showShopStatus(
+        "Промокод активирован! Начислено " + reward + " демо-кредитов.",
+        "success"
+      );
+    });
+
+    // Инициализация страницы.
+    $("promptCount").textContent = $("prompt").value.length + "/1500";
+    updateCredits();
+    updateProfile();
+    renderHistory();
+  </script>
 </body>
 </html>
