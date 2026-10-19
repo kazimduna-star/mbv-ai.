@@ -7,133 +7,87 @@
 <title>MBV AI — Animagine XL 3.1</title>
 <style>
 *{box-sizing:border-box}
-:root{color-scheme:dark;--bg:#0b0913;--card:#171323;--border:#302542;--purple:#8b5cf6;--pink:#d946ef}
-body{margin:0;background:radial-gradient(ellipse at top,#24113e,#0b0913 55%);color:#f8f4ff;font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
-header{padding:20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:#0b0913cc}
-.logo{font-size:25px;font-weight:900;letter-spacing:1px}.logo span{color:#b69aff}
-.badge{font-size:11px;padding:6px 10px;border:1px solid #62428b;border-radius:30px;color:#d8c3ff}
-main{width:min(760px,100%);margin:auto;padding:25px 15px 60px}
-.hero{text-align:center;padding:18px 0 25px}
-h1{font-size:clamp(30px,7vw,46px);margin:0 0 10px}
-.hero p,.muted{color:#b5abc9;line-height:1.6}
-.card{background:#171323eF;border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:18px;box-shadow:0 12px 40px #0003}
-.tag{display:inline-block;background:#291b41;color:#d8c3ff;padding:7px 10px;border-radius:9px;font-size:12px;margin-bottom:17px}
-label{display:block;font-weight:700;margin:0 0 9px}
-textarea,select{width:100%;padding:13px;background:#0d0a17;color:#fff;border:1px solid #3b2d50;border-radius:12px;font:inherit;outline:none}
-textarea{min-height:130px;resize:vertical}
-textarea:focus,select:focus{border-color:#a78bfa}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-.field{margin-bottom:18px}
-button{font:inherit;cursor:pointer}
-.generate{width:100%;padding:15px;border:0;border-radius:13px;background:linear-gradient(100deg,#7c3aed,#c026d3);color:white;font-weight:850;font-size:16px}
-.generate:disabled{opacity:.55;cursor:wait}
-.status{font-size:13px;color:#c4b5fd;line-height:1.6;margin-top:14px;overflow-wrap:anywhere}
-.result{display:block;width:100%;height:auto;max-height:800px;object-fit:contain;border-radius:14px;margin-top:17px;background:#0c0912}
-.hidden{display:none!important}
-.note{font-size:12px;line-height:1.65;color:#9e93b5;margin-top:15px}
-footer{text-align:center;color:#827693;font-size:12px;padding:20px}
-@media(max-width:520px){.row{grid-template-columns:1fr}.card{padding:16px}}
+body{margin:0;background:#0b0913;color:#f7f2ff;font-family:system-ui,sans-serif}
+header{padding:18px 20px;background:#120d20;border-bottom:1px solid #332344}
+.logo{font-size:26px;font-weight:900}.logo span{color:#a78bfa}
+main{max-width:720px;margin:auto;padding:22px 15px}
+h1{font-size:clamp(28px,7vw,42px);text-align:center}
+.sub{text-align:center;color:#b8abc9;line-height:1.5}
+.card{background:#171323;border:1px solid #352746;border-radius:18px;padding:18px;margin-top:22px}
+label{display:block;margin:15px 0 8px;font-weight:700}
+textarea,select{width:100%;background:#0d0a16;color:white;border:1px solid #49365e;border-radius:11px;padding:13px;font:inherit}
+textarea{min-height:125px;resize:vertical}
+button{width:100%;margin-top:18px;padding:15px;border:0;border-radius:12px;background:linear-gradient(100deg,#7c3aed,#c026d3);color:white;font-weight:800;font-size:16px}
+button:disabled{opacity:.55}
+#status{color:#d4c2ff;font-size:14px;line-height:1.6;margin-top:15px;overflow-wrap:anywhere}
+img{width:100%;height:auto;display:block;margin-top:15px;border-radius:12px}
+a{color:#c4b5fd}
+.note{font-size:12px;color:#9e92b1;line-height:1.6;margin-top:18px}
 </style>
 </head>
 <body>
-<header>
-  <div class="logo">MBV <span>AI</span></div>
-  <div class="badge">ANIMAGINE XL 3.1</div>
-</header>
-
+<header><div class="logo">MBV <span>AI</span></div></header>
 <main>
-  <div class="hero">
-    <h1>Anime <span style="color:#b69aff">AI</span></h1>
-    <p>Создавай аниме-иллюстрации по своему описанию.</p>
-  </div>
+<h1>Animagine XL 3.1</h1>
+<p class="sub">Создавай аниме-иллюстрации по своему описанию.</p>
 
-  <section class="card">
-    <div class="tag">✦ Модель: Animagine XL 3.1</div>
+<div class="card">
+<label for="prompt">Описание изображения</label>
+<textarea id="prompt" placeholder="1girl, long black hair, blue eyes, anime, cherry blossoms, sunset, masterpiece, best quality"></textarea>
 
-    <div class="field">
-      <label for="prompt">Описание изображения</label>
-      <textarea id="prompt" placeholder="Например: 1girl, long black hair, blue eyes, school uniform, cherry blossoms, sunset, masterpiece, best quality"></textarea>
-    </div>
+<label for="ratio">Формат</label>
+<select id="ratio">
+<option value="896 x 1152">Портрет</option>
+<option value="1024 x 1024">Квадрат</option>
+<option value="1152 x 896">Альбомный</option>
+</select>
 
-    <div class="row">
-      <div class="field">
-        <label for="ratio">Формат</label>
-        <select id="ratio">
-          <option value="portrait">Портретный</option>
-          <option value="square">Квадратный</option>
-          <option value="landscape">Альбомный</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="steps">Детализация</label>
-        <select id="steps">
-          <option value="20">Быстрее</option>
-          <option value="28" selected>Стандарт</option>
-          <option value="35">Выше</option>
-        </select>
-      </div>
-    </div>
+<label for="steps">Детализация</label>
+<select id="steps">
+<option value="20">Быстро</option>
+<option value="28" selected>Стандарт</option>
+<option value="35">Высокая</option>
+</select>
 
-    <button class="generate" id="generate">✨ Создать изображение</button>
-    <div class="status" id="status">Готов к генерации. Введи описание.</div>
-    <div id="output"></div>
+<button id="generate">✨ Создать изображение</button>
+<div id="status">Модель: Animagine XL 3.1. Введи описание.</div>
+<div id="results"></div>
 
-    <p class="note">
-      Используется публичное пространство Animagine XL 3.1 на Hugging Face.
-      Его владелец может ограничивать запросы или отключать сервер.
-      Для работы необходим доступный API.
-    </p>
-  </section>
+<p class="note">
+Генерация выполняется сторонним сервером Hugging Face.
+Он может быть занят, ограничивать запросы или менять API.
+</p>
+</div>
 </main>
-
-<footer>MBV AI · Powered by Animagine XL 3.1</footer>
 
 <script type="module">
 import { Client } from
-  "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
+"https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
 
-const SPACE = "Asahina2K/animagine-xl-3.1";
 const $ = id => document.getElementById(id);
 
-$("generate").addEventListener("click", generate);
-
-async function generate() {
+$("generate").addEventListener("click", async () => {
   const prompt = $("prompt").value.trim();
-
   if (!prompt) {
-    $("status").textContent = "❗ Сначала введи описание изображения.";
+    $("status").textContent = "Сначала напиши описание изображения.";
     return;
   }
 
   const button = $("generate");
   button.disabled = true;
-  $("output").replaceChildren();
-  $("status").textContent = "⏳ Подключаю Animagine XL 3.1...";
+  $("results").replaceChildren();
+  $("status").textContent = "Подключаю Animagine XL 3.1...";
 
   try {
-    const client = await Client.connect(SPACE);
+    const client = await Client.connect("Asahina2K/animagine-xl-3.1");
+
+    $("status").textContent = "Генерирую изображение...";
+
     const ratio = $("ratio").value;
+    const [width, height] = ratio.split(" x ").map(Number);
 
-    let width = 896;
-    let height = 1152;
-
-    if (ratio === "square") {
-      width = 1024;
-      height = 1024;
-    } else if (ratio === "landscape") {
-      width = 1152;
-      height = 896;
-    }
-
-    $("status").textContent = "🎨 Генерирую изображение...";
-
-    /*
-      Параметры соответствуют ранее найденной схеме
-      публичного API Space. Если владелец изменил API,
-      список аргументов потребуется обновить.
-    */
     const result = await client.predict("/run", [
-      prompt + ", masterpiece, best quality, very aesthetic",
+      prompt,
       "",
       0,
       width,
@@ -141,8 +95,7 @@ async function generate() {
       7,
       Number($("steps").value),
       "Euler a",
-      ratio === "square" ? "1024 x 1024" :
-        ratio === "landscape" ? "1152 x 896" : "896 x 1152",
+      ratio,
       "(None)",
       "Standard v3.1",
       false,
@@ -151,79 +104,48 @@ async function generate() {
       true
     ]);
 
-    const urls = [];
+    const images = result.data?.[0];
+    const list = Array.isArray(images) ? images : [images];
+    let count = 0;
 
-    function findImages(value) {
-      if (!value) return;
+    for (const item of list) {
+      const url = typeof item === "string"
+        ? item
+        : item?.image?.url || item?.url || item?.path;
 
-      if (Array.isArray(value)) {
-        value.forEach(findImages);
-        return;
-      }
+      if (!url) continue;
 
-      if (typeof value === "string") {
-        if (/^https?:\/\/.+\.(png|jpe?g|webp)(\?.*)?$/i.test(value)) {
-          urls.push(value);
-        }
-        return;
-      }
-
-      if (typeof value === "object") {
-        if (value.url && typeof value.url === "string") {
-          urls.push(value.url);
-          return;
-        }
-
-        if (value.image) findImages(value.image);
-        if (value.path && /\.(png|jpe?g|webp)$/i.test(value.path)) {
-          urls.push(value.path);
-        }
-
-        if (!value.url && !value.path && !value.image) {
-          Object.values(value).forEach(findImages);
-        }
-      }
-    }
-
-    findImages(result.data);
-
-    const uniqueUrls = [...new Set(urls)];
-
-    if (uniqueUrls.length === 0) {
-      throw new Error(
-        "Сервер ответил, но формат результата отличается от ожидаемого."
-      );
-    }
-
-    uniqueUrls.forEach((url, index) => {
-      const img = document.createElement("img");
-      img.src = url;
-      img.alt = "Изображение Animagine XL 3.1";
-      img.className = "result";
-      $("output").appendChild(img);
+      const image = document.createElement("img");
+      image.src = url;
+      image.alt = "Результат Animagine XL 3.1";
+      $("results").appendChild(image);
 
       const link = document.createElement("a");
       link.href = url;
       link.target = "_blank";
       link.rel = "noopener";
-      link.textContent = "Открыть изображение " + (index + 1);
+      link.textContent = "Открыть изображение";
       link.style.display = "block";
-      link.style.marginTop = "12px";
-      link.style.color = "#c4b5fd";
-      $("output").appendChild(link);
-    });
+      link.style.marginTop = "10px";
+      $("results").appendChild(link);
+      count++;
+    }
 
-    $("status").textContent = "✅ Генерация завершена!";
+    if (!count) {
+      throw new Error("Ответ API не содержит изображений в ожидаемом формате.");
+    }
+
+    $("status").textContent = "Готово! Изображение создано.";
   } catch (error) {
     console.error(error);
     $("status").textContent =
-      "❌ Не удалось создать изображение. Возможно, Space недоступен " +
-      "или его API изменился. Подробности: " +
-      (error?.message || "неизвестная ошибка");
+      "Ошибка подключения или генерации: " +
+      (error.message || "сервер недоступен") +
+      ". Проверь API Space.";
   } finally {
     button.disabled = false;
   }
-}
+});
 </script>
 </body>
 </html>
