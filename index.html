@@ -3,400 +3,227 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MBV AI — Генератор изображений</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MBV AI — Animagine XL 3.1</title>
 <style>
-:root {
-  --bg:#090811;
-  --panel:#151323;
-  --panel2:#1d1930;
-  --purple:#8b5cf6;
-  --pink:#ec4899;
-  --text:#f6f3ff;
-  --muted:#aaa4c2;
-  --border:#302944;
-}
 *{box-sizing:border-box}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-}
-header{
-  position:sticky;top:0;z-index:5;
-  background:#0c0a16ed;backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--border);
-  padding:15px 5%;
-  display:flex;justify-content:space-between;align-items:center;
-}
-.logo{font-size:24px;font-weight:900;letter-spacing:1px}
-.logo span{color:var(--purple)}
-.beta{
-  font-size:11px;color:#d6c7ff;
-  border:1px solid #594184;padding:5px 9px;border-radius:20px;
-}
-nav{
-  display:flex;gap:8px;padding:12px 5%;
-  overflow-x:auto;border-bottom:1px solid var(--border);
-}
-nav button{
-  white-space:nowrap;background:transparent;color:var(--muted);
-  border:1px solid transparent;border-radius:12px;
-  padding:10px 15px;font-size:14px;cursor:pointer;
-}
-nav button.active,nav button:hover{
-  background:var(--panel2);color:white;border-color:#594184;
-}
-main{max-width:1000px;margin:auto;padding:25px 16px 60px}
-.hero{text-align:center;margin:20px 0 28px}
-.hero h1{font-size:clamp(27px,6vw,43px);margin:0 0 10px}
-.hero h1 span{
-  background:linear-gradient(90deg,#a78bfa,#f0abfc,#f472b6);
-  -webkit-background-clip:text;color:transparent;
-}
-.hero p{color:var(--muted);line-height:1.6}
-.card{
-  background:var(--panel);border:1px solid var(--border);
-  border-radius:20px;padding:20px;margin-bottom:18px;
-}
-label{display:block;font-weight:650;margin:0 0 10px}
-textarea,select,input{
-  width:100%;background:#0d0b18;color:white;
-  border:1px solid var(--border);border-radius:12px;
-  padding:13px;font:inherit;outline:none;
-}
-textarea{resize:vertical;min-height:115px}
-textarea:focus,select:focus,input:focus{border-color:var(--purple)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.field{margin-bottom:17px}
-button{font:inherit}
-.primary{
-  width:100%;padding:15px;border:0;border-radius:13px;
-  color:white;font-weight:800;font-size:16px;cursor:pointer;
-  background:linear-gradient(100deg,#7c3aed,#c026d3);
-  box-shadow:0 6px 25px #7c3aed35;
-}
-.primary:disabled{opacity:.6;cursor:wait}
-.status{color:var(--muted);font-size:13px;margin-top:12px}
-.result{
-  width:100%;display:block;border-radius:14px;
-  margin-top:15px;max-height:750px;object-fit:contain;
-  background:#0d0b18;
-}
+:root{color-scheme:dark;--bg:#0b0913;--card:#171323;--border:#302542;--purple:#8b5cf6;--pink:#d946ef}
+body{margin:0;background:radial-gradient(ellipse at top,#24113e,#0b0913 55%);color:#f8f4ff;font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
+header{padding:20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:#0b0913cc}
+.logo{font-size:25px;font-weight:900;letter-spacing:1px}.logo span{color:#b69aff}
+.badge{font-size:11px;padding:6px 10px;border:1px solid #62428b;border-radius:30px;color:#d8c3ff}
+main{width:min(760px,100%);margin:auto;padding:25px 15px 60px}
+.hero{text-align:center;padding:18px 0 25px}
+h1{font-size:clamp(30px,7vw,46px);margin:0 0 10px}
+.hero p,.muted{color:#b5abc9;line-height:1.6}
+.card{background:#171323eF;border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:18px;box-shadow:0 12px 40px #0003}
+.tag{display:inline-block;background:#291b41;color:#d8c3ff;padding:7px 10px;border-radius:9px;font-size:12px;margin-bottom:17px}
+label{display:block;font-weight:700;margin:0 0 9px}
+textarea,select{width:100%;padding:13px;background:#0d0a17;color:#fff;border:1px solid #3b2d50;border-radius:12px;font:inherit;outline:none}
+textarea{min-height:130px;resize:vertical}
+textarea:focus,select:focus{border-color:#a78bfa}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.field{margin-bottom:18px}
+button{font:inherit;cursor:pointer}
+.generate{width:100%;padding:15px;border:0;border-radius:13px;background:linear-gradient(100deg,#7c3aed,#c026d3);color:white;font-weight:850;font-size:16px}
+.generate:disabled{opacity:.55;cursor:wait}
+.status{font-size:13px;color:#c4b5fd;line-height:1.6;margin-top:14px;overflow-wrap:anywhere}
+.result{display:block;width:100%;height:auto;max-height:800px;object-fit:contain;border-radius:14px;margin-top:17px;background:#0c0912}
 .hidden{display:none!important}
-.model-info{
-  border:1px solid #49346a;background:#211832;
-  border-radius:12px;padding:12px;color:#d8c8ff;
-  font-size:13px;line-height:1.5;margin-bottom:16px;
-}
-.small{font-size:12px;color:var(--muted);line-height:1.6}
-.list-item{
-  padding:14px;border-radius:12px;background:var(--panel2);
-  margin-top:10px;overflow-wrap:anywhere;
-}
-footer{text-align:center;color:var(--muted);font-size:12px;padding:25px}
-@media(max-width:600px){
-  .grid{grid-template-columns:1fr}
-  .card{padding:15px}
-  header{padding:13px 16px}
-}
+.note{font-size:12px;line-height:1.65;color:#9e93b5;margin-top:15px}
+footer{text-align:center;color:#827693;font-size:12px;padding:20px}
+@media(max-width:520px){.row{grid-template-columns:1fr}.card{padding:16px}}
 </style>
 </head>
 <body>
-
 <header>
   <div class="logo">MBV <span>AI</span></div>
-  <div class="beta">BETA · 0 ₽</div>
+  <div class="badge">ANIMAGINE XL 3.1</div>
 </header>
 
-<nav>
-  <button class="active" data-tab="create">✨ Создать</button>
-  <button data-tab="history">🕘 История</button>
-  <button data-tab="profile">👤 Профиль</button>
-  <button data-tab="shop">💎 Магазин</button>
-</nav>
-
 <main>
-<section id="create">
   <div class="hero">
-    <h1>Создай свою <span>идею</span></h1>
-    <p>Генератор изображений MBV AI.<br>
-    Выбери нейросеть, напиши запрос и создай изображение.</p>
+    <h1>Anime <span style="color:#b69aff">AI</span></h1>
+    <p>Создавай аниме-иллюстрации по своему описанию.</p>
   </div>
 
-  <div class="card">
-    <div class="field">
-      <label for="model">🤖 Нейросеть</label>
-      <select id="model">
-        <option value="old">MBV AI — основная модель SDXL</option>
-        <option value="animagine">Animagine XL 3.1 — Anime</option>
-      </select>
-    </div>
-
-    <div class="model-info" id="modelInfo">
-      Основная модель MBV AI. Используется сервер SDXL.
-    </div>
+  <section class="card">
+    <div class="tag">✦ Модель: Animagine XL 3.1</div>
 
     <div class="field">
-      <label for="prompt">📝 Что нужно нарисовать?</label>
-      <textarea id="prompt" placeholder="Например: красивая аниме-девушка с чёрными волосами, голубыми глазами, на фоне ночного Токио..."></textarea>
+      <label for="prompt">Описание изображения</label>
+      <textarea id="prompt" placeholder="Например: 1girl, long black hair, blue eyes, school uniform, cherry blossoms, sunset, masterpiece, best quality"></textarea>
     </div>
 
-    <div class="grid">
+    <div class="row">
       <div class="field">
-        <label for="style">🎨 Стиль</label>
-        <select id="style">
-          <option value="Аниме">Аниме</option>
-          <option value="Реализм">Реализм</option>
-          <option value="Фэнтези">Фэнтези</option>
-          <option value="Киберпанк">Киберпанк</option>
-          <option value="Манга">Манга</option>
+        <label for="ratio">Формат</label>
+        <select id="ratio">
+          <option value="portrait">Портретный</option>
+          <option value="square">Квадратный</option>
+          <option value="landscape">Альбомный</option>
         </select>
       </div>
       <div class="field">
-        <label for="quality">⚡ Качество</label>
-        <select id="quality">
-          <option value="fast">Быстро</option>
-          <option value="standard" selected>Стандарт</option>
-          <option value="high">Высокое</option>
+        <label for="steps">Детализация</label>
+        <select id="steps">
+          <option value="20">Быстрее</option>
+          <option value="28" selected>Стандарт</option>
+          <option value="35">Выше</option>
         </select>
       </div>
     </div>
 
-    <button class="primary" id="generate">✨ Создать изображение</button>
-    <div class="status" id="status">Выбери модель и введи описание.</div>
-    <img id="result" class="result hidden" alt="Результат генерации">
-    <button id="saveImage" class="primary hidden" style="margin-top:12px">
-      ⬇️ Сохранить изображение
-    </button>
-    <p class="small">
-      Генерация выполняется на сервере. Для работы выбранной модели
-      сервер должен быть запущен.
+    <button class="generate" id="generate">✨ Создать изображение</button>
+    <div class="status" id="status">Готов к генерации. Введи описание.</div>
+    <div id="output"></div>
+
+    <p class="note">
+      Используется публичное пространство Animagine XL 3.1 на Hugging Face.
+      Его владелец может ограничивать запросы или отключать сервер.
+      Для работы необходим доступный API.
     </p>
-  </div>
-</section>
-
-<section id="history" class="hidden">
-  <div class="hero"><h1>🕘 История</h1><p>Твои последние изображения на этом устройстве.</p></div>
-  <div class="card" id="historyList">Пока нет сохранённых результатов.</div>
-  <button class="primary" id="clearHistory">Очистить историю</button>
-</section>
-
-<section id="profile" class="hidden">
-  <div class="hero"><h1>👤 Профиль</h1><p>Локальный профиль MBV AI.</p></div>
-  <div class="card">
-    <div class="field">
-      <label for="nickname">Твой ник</label>
-      <input id="nickname" placeholder="Например, MBV">
-    </div>
-    <button class="primary" id="saveProfile">Сохранить профиль</button>
-    <p id="profileStatus" class="status"></p>
-    <p class="small">Профиль хранится в браузере этого устройства.</p>
-  </div>
-</section>
-
-<section id="shop" class="hidden">
-  <div class="hero"><h1>💎 Магазин</h1><p>Раздел магазина пока в разработке.</p></div>
-  <div class="card">
-    <h3>MBV AI — BETA</h3>
-    <p class="small">Сейчас генерация зависит от доступности сервера и его лимитов.</p>
-  </div>
-</section>
+  </section>
 </main>
 
-<footer>MBV AI · Anime image generation · Beta</footer>
+<footer>MBV AI · Powered by Animagine XL 3.1</footer>
 
 <script type="module">
 import { Client } from
   "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
 
-/*
-  ВСТАВЬ СВОИ АКТУАЛЬНЫЕ ССЫЛКИ НА GRADIO-СЕРВЕРЫ.
-
-  old: сервер старой модели MBV AI / SDXL.
-  animagine: отдельный запущенный сервер Animagine XL 3.1.
-
-  Пример формата: https://xxxx.gradio.live
-  Не вставляй сюда ссылку на страницу модели Hugging Face:
-  это не адрес работающего API.
-*/
-const SERVERS = {
-  old: "https://e31423d3cdb66248a2.gradio.live",
-  animagine: ""
-};
-
-const ENDPOINT = "/generate_mbv";
-
+const SPACE = "Asahina2K/animagine-xl-3.1";
 const $ = id => document.getElementById(id);
 
-function readHistory(){
-  try{return JSON.parse(localStorage.getItem("mbv_history") || "[]")}
-  catch{return []}
-}
+$("generate").addEventListener("click", generate);
 
-function showTab(tab){
-  document.querySelectorAll("main section").forEach(s=>{
-    s.classList.toggle("hidden",s.id!==tab);
-  });
-  document.querySelectorAll("nav button").forEach(b=>{
-    b.classList.toggle("active",b.dataset.tab===tab);
-  });
-  if(tab==="history") renderHistory();
-}
+async function generate() {
+  const prompt = $("prompt").value.trim();
 
-document.querySelectorAll("nav button").forEach(button=>{
-  button.addEventListener("click",()=>showTab(button.dataset.tab));
-});
-
-$("model").addEventListener("change",()=>{
-  const model=$("model").value;
-  $("modelInfo").textContent = model==="animagine"
-    ? "Animagine XL 3.1: модель для аниме-иллюстраций. Нужен работающий сервер Animagine."
-    : "Основная модель MBV AI. Используется твой существующий SDXL-сервер.";
-});
-
-$("generate").addEventListener("click",generate);
-
-async function generate(){
-  const prompt=$("prompt").value.trim();
-  const model=$("model").value;
-  const style=$("style").value;
-  const quality=$("quality").value;
-
-  if(!prompt){
-    $("status").textContent="❗ Сначала напиши описание изображения.";
+  if (!prompt) {
+    $("status").textContent = "❗ Сначала введи описание изображения.";
     return;
   }
 
-  const server=SERVERS[model];
-  if(!server){
-    $("status").textContent=
-      "⚠️ Для Animagine XL 3.1 ещё не указана ссылка на работающий сервер.";
-    return;
-  }
+  const button = $("generate");
+  button.disabled = true;
+  $("output").replaceChildren();
+  $("status").textContent = "⏳ Подключаю Animagine XL 3.1...";
 
-  const button=$("generate");
-  button.disabled=true;
-  $("result").classList.add("hidden");
-  $("saveImage").classList.add("hidden");
-  $("status").textContent="⏳ Подключаюсь к модели и создаю изображение...";
+  try {
+    const client = await Client.connect(SPACE);
+    const ratio = $("ratio").value;
 
-  try{
-    const client=await Client.connect(server);
+    let width = 896;
+    let height = 1152;
 
-    const fullPrompt = quality==="high"
-      ? prompt + ", masterpiece, best quality, highly detailed"
-      : quality==="fast"
-      ? prompt
-      : prompt + ", high quality, detailed";
+    if (ratio === "square") {
+      width = 1024;
+      height = 1024;
+    } else if (ratio === "landscape") {
+      width = 1152;
+      height = 896;
+    }
+
+    $("status").textContent = "🎨 Генерирую изображение...";
 
     /*
-      Сервер должен принимать два аргумента:
-      prompt и style, и публиковать /generate_mbv.
-      Если API у сервера отличается, нужно изменить вызов под его схему.
+      Параметры соответствуют ранее найденной схеме
+      публичного API Space. Если владелец изменил API,
+      список аргументов потребуется обновить.
     */
-    const response=await client.predict(ENDPOINT,[fullPrompt,style]);
+    const result = await client.predict("/run", [
+      prompt + ", masterpiece, best quality, very aesthetic",
+      "",
+      0,
+      width,
+      height,
+      7,
+      Number($("steps").value),
+      "Euler a",
+      ratio === "square" ? "1024 x 1024" :
+        ratio === "landscape" ? "1152 x 896" : "896 x 1152",
+      "(None)",
+      "Standard v3.1",
+      false,
+      0.55,
+      1.5,
+      true
+    ]);
 
-    const output=response.data?.[0];
-    let imageUrl="";
+    const urls = [];
 
-    if(typeof output==="string"){
-      imageUrl=output;
-    }else if(output?.url){
-      imageUrl=output.url;
-    }else if(output?.path){
-      imageUrl=output.path;
+    function findImages(value) {
+      if (!value) return;
+
+      if (Array.isArray(value)) {
+        value.forEach(findImages);
+        return;
+      }
+
+      if (typeof value === "string") {
+        if (/^https?:\/\/.+\.(png|jpe?g|webp)(\?.*)?$/i.test(value)) {
+          urls.push(value);
+        }
+        return;
+      }
+
+      if (typeof value === "object") {
+        if (value.url && typeof value.url === "string") {
+          urls.push(value.url);
+          return;
+        }
+
+        if (value.image) findImages(value.image);
+        if (value.path && /\.(png|jpe?g|webp)$/i.test(value.path)) {
+          urls.push(value.path);
+        }
+
+        if (!value.url && !value.path && !value.image) {
+          Object.values(value).forEach(findImages);
+        }
+      }
     }
 
-    if(!imageUrl){
-      throw new Error("Сервер не вернул изображение в ожидаемом формате.");
+    findImages(result.data);
+
+    const uniqueUrls = [...new Set(urls)];
+
+    if (uniqueUrls.length === 0) {
+      throw new Error(
+        "Сервер ответил, но формат результата отличается от ожидаемого."
+      );
     }
 
-    $("result").src=imageUrl;
-    $("result").classList.remove("hidden");
-    $("saveImage").classList.remove("hidden");
-    $("status").textContent="✅ Готово!";
+    uniqueUrls.forEach((url, index) => {
+      const img = document.createElement("img");
+      img.src = url;
+      img.alt = "Изображение Animagine XL 3.1";
+      img.className = "result";
+      $("output").appendChild(img);
 
-    const history=readHistory();
-    history.unshift({
-      prompt,
-      model,
-      style,
-      imageUrl,
-      date:new Date().toLocaleString()
+      const link = document.createElement("a");
+      link.href = url;
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = "Открыть изображение " + (index + 1);
+      link.style.display = "block";
+      link.style.marginTop = "12px";
+      link.style.color = "#c4b5fd";
+      $("output").appendChild(link);
     });
-    localStorage.setItem("mbv_history",JSON.stringify(history.slice(0,10)));
 
-  }catch(error){
+    $("status").textContent = "✅ Генерация завершена!";
+  } catch (error) {
     console.error(error);
-    $("status").textContent=
-      "❌ Не удалось создать изображение: "+(error.message||"ошибка сервера");
-  }finally{
-    button.disabled=false;
+    $("status").textContent =
+      "❌ Не удалось создать изображение. Возможно, Space недоступен " +
+      "или его API изменился. Подробности: " +
+      (error?.message || "неизвестная ошибка");
+  } finally {
+    button.disabled = false;
   }
 }
-
-$("saveImage").addEventListener("click",async()=>{
-  const url=$("result").src;
-  if(!url)return;
-
-  try{
-    const response=await fetch(url);
-    const blob=await response.blob();
-    const objectUrl=URL.createObjectURL(blob);
-    const a=document.createElement("a");
-    a.href=objectUrl;
-    a.download="mbv-ai.png";
-    a.click();
-    URL.revokeObjectURL(objectUrl);
-  }catch{
-    window.open(url,"_blank");
-  }
-});
-
-function renderHistory(){
-  const list=$("historyList");
-  const history=readHistory();
-  if(!history.length){
-    list.textContent="Пока нет сохранённых результатов.";
-    return;
-  }
-
-  list.replaceChildren();
-  history.forEach(item=>{
-    const div=document.createElement("div");
-    div.className="list-item";
-
-    const title=document.createElement("b");
-    title.textContent=item.prompt;
-
-    const info=document.createElement("p");
-    info.className="small";
-    info.textContent=`${item.model} · ${item.style} · ${item.date}`;
-
-    div.append(title,info);
-
-    if(item.imageUrl){
-      const img=document.createElement("img");
-      img.src=item.imageUrl;
-      img.className="result";
-      img.alt="Изображение из истории";
-      div.append(img);
-    }
-    list.append(div);
-  });
-}
-
-$("clearHistory").addEventListener("click",()=>{
-  localStorage.removeItem("mbv_history");
-  renderHistory();
-});
-
-$("saveProfile").addEventListener("click",()=>{
-  localStorage.setItem("mbv_nickname",$("nickname").value.trim());
-  $("profileStatus").textContent="✅ Профиль сохранён.";
-});
-
-$("nickname").value=localStorage.getItem("mbv_nickname")||"";
 </script>
 </body>
 </html>
