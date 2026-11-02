@@ -1,151 +1,702 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MBV AI — Animagine XL 3.1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>MB UNIVERSE 0.2</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#0b0913;color:#f7f2ff;font-family:system-ui,sans-serif}
-header{padding:18px 20px;background:#120d20;border-bottom:1px solid #332344}
-.logo{font-size:26px;font-weight:900}.logo span{color:#a78bfa}
-main{max-width:720px;margin:auto;padding:22px 15px}
-h1{font-size:clamp(28px,7vw,42px);text-align:center}
-.sub{text-align:center;color:#b8abc9;line-height:1.5}
-.card{background:#171323;border:1px solid #352746;border-radius:18px;padding:18px;margin-top:22px}
-label{display:block;margin:15px 0 8px;font-weight:700}
-textarea,select{width:100%;background:#0d0a16;color:white;border:1px solid #49365e;border-radius:11px;padding:13px;font:inherit}
-textarea{min-height:125px;resize:vertical}
-button{width:100%;margin-top:18px;padding:15px;border:0;border-radius:12px;background:linear-gradient(100deg,#7c3aed,#c026d3);color:white;font-weight:800;font-size:16px}
-button:disabled{opacity:.55}
-#status{color:#d4c2ff;font-size:14px;line-height:1.6;margin-top:15px;overflow-wrap:anywhere}
-img{width:100%;height:auto;display:block;margin-top:15px;border-radius:12px}
-a{color:#c4b5fd}
-.note{font-size:12px;color:#9e92b1;line-height:1.6;margin-top:18px}
+body{
+ margin:0;overflow:hidden;background:#02040b;color:white;
+ font-family:Arial,sans-serif;touch-action:pan-x pan-y;
+}
+#space{position:fixed;inset:0}
+canvas{display:block}
+.panel{
+ position:fixed;z-index:5;
+ background:rgba(7,13,28,.88);
+ border:1px solid rgba(83,151,220,.3);
+ border-radius:13px;padding:13px;
+ backdrop-filter:blur(14px);
+ box-shadow:0 5px 30px #0008;
+}
+#top{
+ top:10px;left:10px;right:10px;
+ display:flex;align-items:center;justify-content:space-between;
+}
+.logo{
+ font-weight:bold;letter-spacing:2px;color:#73ceff;
+ font-size:19px;text-shadow:0 0 15px #168bff;
+}
+.info{font-size:11px;line-height:1.7;color:#b6cce8}
+#left{
+ top:75px;left:10px;width:205px;
+ max-height:72vh;overflow:auto;
+}
+#right{
+ top:75px;right:10px;width:215px;
+ max-height:75vh;overflow:auto;
+}
+h3{font-size:13px;color:#73ceff;margin:0 0 10px}
+button,select,input{
+ width:100%;margin:4px 0;padding:10px;
+ background:#14243e;color:white;
+ border:1px solid #345277;border-radius:8px;
+ font-size:12px;
+}
+button{cursor:pointer}
+button:active{background:#2769a3}
+.primary{background:#1269a8;border-color:#4bafff}
+.danger{border-color:#874d56;background:#3b1b29}
+label{display:block;margin-top:10px;color:#a9c6e5;font-size:11px}
+#objects button{text-align:left}
+#bottom{
+ position:fixed;z-index:6;bottom:12px;left:50%;
+ transform:translateX(-50%);
+ display:flex;gap:6px;padding:8px;
+ width:max-content;max-width:96%;
+}
+#bottom button{min-width:70px;margin:0}
+#hint{
+ position:fixed;z-index:4;bottom:72px;
+ left:50%;transform:translateX(-50%);
+ color:#91afd0;font-size:10px;
+ text-align:center;white-space:nowrap;
+ pointer-events:none;
+}
+.value{color:#77d1ff;font-weight:bold}
+#toast{
+ position:fixed;z-index:10;top:65px;left:50%;
+ transform:translateX(-50%);
+ background:#10243b;border:1px solid #4a8fca;
+ padding:9px 16px;border-radius:20px;
+ font-size:12px;opacity:0;transition:.3s;
+ pointer-events:none;
+}
+#toast.show{opacity:1}
+.section{border-top:1px solid #30435c;margin-top:12px;padding-top:10px}
+@media(max-width:650px){
+ .panel{padding:8px}
+ #left{top:68px;left:7px;width:145px;max-height:55vh}
+ #right{top:auto;right:7px;bottom:78px;width:155px;max-height:36vh}
+ .logo{font-size:14px}
+ #bottom{bottom:7px;gap:3px;padding:5px}
+ #bottom button{min-width:55px;padding:8px 5px;font-size:10px}
+ button,select,input{padding:8px;font-size:11px}
+ #hint{bottom:61px;font-size:9px}
+ h3{font-size:11px}
+}
 </style>
+<script type="importmap">
+{
+ "imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+ }
+}
+</script>
 </head>
 <body>
-<header><div class="logo">MBV <span>AI</span></div></header>
-<main>
-<h1>Animagine XL 3.1</h1>
-<p class="sub">Создавай аниме-иллюстрации по своему описанию.</p>
-
-<div class="card">
-<label for="prompt">Описание изображения</label>
-<textarea id="prompt" placeholder="1girl, long black hair, blue eyes, anime, cherry blossoms, sunset, masterpiece, best quality"></textarea>
-
-<label for="ratio">Формат</label>
-<select id="ratio">
-<option value="896 x 1152">Портрет</option>
-<option value="1024 x 1024">Квадрат</option>
-<option value="1152 x 896">Альбомный</option>
-</select>
-
-<label for="steps">Детализация</label>
-<select id="steps">
-<option value="20">Быстро</option>
-<option value="28" selected>Стандарт</option>
-<option value="35">Высокая</option>
-</select>
-
-<button id="generate">✨ Создать изображение</button>
-<div id="status">Модель: Animagine XL 3.1. Введи описание.</div>
-<div id="results"></div>
-
-<p class="note">
-Генерация выполняется сторонним сервером Hugging Face.
-Он может быть занят, ограничивать запросы или менять API.
-</p>
+<div id="space"></div>
+<div id="top" class="panel">
+ <div class="logo">✦ MB UNIVERSE <small style="font-size:9px;color:#8da9c9">0.2</small></div>
+ <div class="info" id="clock">Год 0 · День 1</div>
 </div>
-</main>
-
+<div id="left" class="panel">
+ <h3>🌌 КОСМИЧЕСКАЯ СИСТЕМА</h3>
+ <div id="objects" class="info"></div>
+ <button class="primary" id="add">＋ Создать планету</button>
+ <button id="addAsteroid">✦ Создать астероид</button>
+ <button id="addSaturn">🪐 Создать Сатурн</button>
+ <button id="reset">↻ Сброс системы</button>
+ <div class="section info">
+  Объектов: <span id="count" class="value">0</span><br>
+  Состояние: <span id="status" class="value">Работает</span>
+ </div>
+</div>
+<div id="right" class="panel">
+ <h3>⚙ ПАРАМЕТРЫ</h3>
+ <div id="selected" class="info">Выбери планету</div>
+ <label>Масса</label>
+ <input id="mass" type="range" min="0.1" max="100" value="1" step="0.1">
+ <div id="massValue" class="info">1.0</div>
+ <label>Размер</label>
+ <input id="radius" type="range" min="0.15" max="4" value="1" step="0.05">
+ <div id="radiusValue" class="info">1.0</div>
+ <label>Скорость времени</label>
+ <select id="speed">
+  <option value="0">Пауза</option>
+  <option value="1">1×</option>
+  <option value="5">5×</option>
+  <option value="20" selected>20×</option>
+  <option value="50">50×</option>
+  <option value="100">100×</option>
+  <option value="500">500×</option>
+ </select>
+ <div class="section">
+  <button id="focus" class="primary">◎ Следить за объектом</button>
+  <button id="orbitToggle">◉ Орбиты: ВКЛ</button>
+  <button id="delete" class="danger">Удалить объект</button>
+ </div>
+</div>
+<div id="hint">Вращай пальцем · Приближай двумя пальцами · Нажимай на планеты</div>
+<div id="toast"></div>
+<div id="bottom" class="panel">
+ <button id="pause">Ⅱ Пауза</button>
+ <button id="faster">＋ Время</button>
+ <button id="slower">－ Время</button>
+</div>
 <script type="module">
-import { Client } from
-"https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
-
-const $ = id => document.getElementById(id);
-
-$("generate").addEventListener("click", async () => {
-  const prompt = $("prompt").value.trim();
-  if (!prompt) {
-    $("status").textContent = "Сначала напиши описание изображения.";
-    return;
-  }
-
-  const button = $("generate");
-  button.disabled = true;
-  $("results").replaceChildren();
-  $("status").textContent = "Подключаю Animagine XL 3.1...";
-
-  try {
-    const client = await Client.connect("Asahina2K/animagine-xl-3.1");
-
-    $("status").textContent = "Генерирую изображение...";
-
-    const ratio = $("ratio").value;
-    const [width, height] = ratio.split(" x ").map(Number);
-
-    const result = await client.predict("/run", [
-      prompt,
-      "",
-      0,
-      width,
-      height,
-      7,
-      Number($("steps").value),
-      "Euler a",
-      ratio,
-      "(None)",
-      "Standard v3.1",
-      false,
-      0.55,
-      1.5,
-      true
-    ]);
-
-    const images = result.data?.[0];
-    const list = Array.isArray(images) ? images : [images];
-    let count = 0;
-
-    for (const item of list) {
-      const url = typeof item === "string"
-        ? item
-        : item?.image?.url || item?.url || item?.path;
-
-      if (!url) continue;
-
-      const image = document.createElement("img");
-      image.src = url;
-      image.alt = "Результат Animagine XL 3.1";
-      $("results").appendChild(image);
-
-      const link = document.createElement("a");
-      link.href = url;
-      link.target = "_blank";
-      link.rel = "noopener";
-      link.textContent = "Открыть изображение";
-      link.style.display = "block";
-      link.style.marginTop = "10px";
-      $("results").appendChild(link);
-      count++;
-    }
-
-    if (!count) {
-      throw new Error("Ответ API не содержит изображений в ожидаемом формате.");
-    }
-
-    $("status").textContent = "Готово! Изображение создано.";
-  } catch (error) {
-    console.error(error);
-    $("status").textContent =
-      "Ошибка подключения или генерации: " +
-      (error.message || "сервер недоступен") +
-      ". Проверь API Space.";
-  } finally {
-    button.disabled = false;
-  }
+import * as THREE from "three";
+import {OrbitControls} from "three/addons/controls/OrbitControls.js";
+/* =================================
+ MB UNIVERSE ENGINE 0.2
+================================= */
+const $=id=>document.getElementById(id);
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x02040b);
+scene.fog=new THREE.FogExp2(0x02040b,0.00065);
+const camera=new THREE.PerspectiveCamera(
+ 60,innerWidth/innerHeight,0.1,3000
+);
+camera.position.set(0,12,24);
+const renderer=new THREE.WebGLRenderer({
+ antialias:true,
+ powerPreference:"high-performance"
 });
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
+renderer.setSize(innerWidth,innerHeight);
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.15;
+$("space").appendChild(renderer.domElement);
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;
+controls.dampingFactor=.055;
+controls.minDistance=2;
+controls.maxDistance=250;
+controls.rotateSpeed=.65;
+controls.zoomSpeed=.8;
+/* LIGHTING */
+scene.add(new THREE.AmbientLight(0x829bc8,.45));
+const sunLight=new THREE.PointLight(0xffffff,260,500,1.5);
+scene.add(sunLight);
+/* BACKGROUND STARS */
+function makeStars(count,size,color){
+ const geo=new THREE.BufferGeometry();
+ const positions=[];
+ const colors=[];
+ for(let i=0;i<count;i++){
+  const r=100+Math.random()*800;
+  const theta=Math.random()*Math.PI*2;
+  const phi=Math.acos(2*Math.random()-1);
+  positions.push(
+   r*Math.sin(phi)*Math.cos(theta),
+   r*Math.cos(phi),
+   r*Math.sin(phi)*Math.sin(theta)
+  );
+  const c=new THREE.Color(color);
+  c.multiplyScalar(.55+Math.random()*.7);
+  colors.push(c.r,c.g,c.b);
+ }
+ geo.setAttribute("position",new THREE.Float32BufferAttribute(positions,3));
+ geo.setAttribute("color",new THREE.Float32BufferAttribute(colors,3));
+ const mat=new THREE.PointsMaterial({
+  size,color:0xffffff,vertexColors:true,
+  sizeAttenuation:true,transparent:true,opacity:.9
+ });
+ const points=new THREE.Points(geo,mat);
+ scene.add(points);
+ return points;
+}
+const stars=makeStars(9000,.65,0xffffff);
+const distantStars=makeStars(3000,1.3,0x6baaff);
+/* NEBULA BACKGROUND */
+function createNebula(){
+ const canvas=document.createElement("canvas");
+ canvas.width=512;canvas.height=512;
+ const ctx=canvas.getContext("2d");
+ const g=ctx.createRadialGradient(256,256,10,256,256,250);
+ g.addColorStop(0,"rgba(35,65,155,.3)");
+ g.addColorStop(.35,"rgba(64,31,120,.17)");
+ g.addColorStop(1,"rgba(0,0,0,0)");
+ ctx.fillStyle=g;
+ ctx.fillRect(0,0,512,512);
+ const tex=new THREE.CanvasTexture(canvas);
+ const sprite=new THREE.Sprite(
+  new THREE.SpriteMaterial({
+   map:tex,transparent:true,depthWrite:false,
+   blending:THREE.AdditiveBlending
+  })
+ );
+ sprite.position.set(-60,35,-160);
+ sprite.scale.set(260,260,1);
+ scene.add(sprite);
+}
+createNebula();
+/* TEXTURE GENERATOR */
+function createTexture(color,seed=1,type="rock"){
+ const canvas=document.createElement("canvas");
+ canvas.width=1024;canvas.height=512;
+ const ctx=canvas.getContext("2d");
+ ctx.fillStyle=color;
+ ctx.fillRect(0,0,1024,512);
+ let r=seed*12345+7;
+ function random(){
+  r=(r*16807)%2147483647;
+  return (r-1)/2147483646;
+ }
+ if(type==="earth"){
+  for(let i=0;i<100;i++){
+   const x=random()*1024,y=random()*512;
+   const w=20+random()*100,h=10+random()*55;
+   ctx.fillStyle=["#28764d","#438e53","#a7a16a","#235d46"][Math.floor(random()*4)];
+   ctx.beginPath();
+   ctx.ellipse(x,y,w,h,random()*3,0,Math.PI*2);
+   ctx.fill();
+  }
+  for(let i=0;i<160;i++){
+   ctx.fillStyle=`rgba(255,255,255,${random()*.28})`;
+   ctx.beginPath();
+   ctx.ellipse(random()*1024,random()*512,20+random()*90,2+random()*8,random(),0,Math.PI*2);
+   ctx.fill();
+  }
+ }else if(type==="gas"){
+  for(let i=0;i<100;i++){
+   ctx.fillStyle=`rgba(${random()>.5?"255,220,180":"65,35,20"},${random()*.23})`;
+   ctx.fillRect(0,random()*512,1024,2+random()*25);
+  }
+ }else{
+  for(let i=0;i<350;i++){
+   ctx.fillStyle=`rgba(255,255,255,${random()*.17})`;
+   ctx.beginPath();
+   ctx.ellipse(random()*1024,random()*512,4+random()*70,2+random()*25,random()*3,0,Math.PI*2);
+   ctx.fill();
+  }
+ }
+ const texture=new THREE.CanvasTexture(canvas);
+ texture.colorSpace=THREE.SRGBColorSpace;
+ texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
+ return texture;
+}
+/* SUN GLOW */
+function makeGlow(){
+ const canvas=document.createElement("canvas");
+ canvas.width=256;canvas.height=256;
+ const ctx=canvas.getContext("2d");
+ const g=ctx.createRadialGradient(128,128,5,128,128,128);
+ g.addColorStop(0,"rgba(255,245,180,.8)");
+ g.addColorStop(.2,"rgba(255,160,50,.35)");
+ g.addColorStop(.55,"rgba(255,90,20,.1)");
+ g.addColorStop(1,"rgba(255,60,10,0)");
+ ctx.fillStyle=g;
+ ctx.fillRect(0,0,256,256);
+ const tex=new THREE.CanvasTexture(canvas);
+ const sprite=new THREE.Sprite(new THREE.SpriteMaterial({
+  map:tex,transparent:true,blending:THREE.AdditiveBlending,
+  depthWrite:false
+ }));
+ sprite.scale.set(7,7,1);
+ return sprite;
+}
+/* BODY SYSTEM */
+let bodies=[];
+let selected=null;
+let simulationSpeed=20;
+let simulationTime=0;
+let showOrbits=true;
+let following=false;
+const G=39.4784176;
+function createBody(name,mass,radius,color,x,y,z,seed=1,type="rock",options={}){
+ const geometry=new THREE.SphereGeometry(radius,64,48);
+ const texture=createTexture(color,seed,type);
+ const material=new THREE.MeshStandardMaterial({
+  map:texture,roughness:type==="gas"?.72:.92,
+  metalness:.02
+ });
+ const mesh=new THREE.Mesh(geometry,material);
+ mesh.position.set(x,y,z);
+ scene.add(mesh);
+ const body={
+  id:crypto.randomUUID(),
+  name,mass,radius,mesh,
+  position:new THREE.Vector3(x,y,z),
+  velocity:new THREE.Vector3(),
+  color,texture,
+  atmosphere:null,
+  ring:null,
+  orbit:null,
+  glow:null,
+  seed
+ };
+ if(options.atmosphere){
+  const atm=new THREE.Mesh(
+   new THREE.SphereGeometry(radius*1.09,48,32),
+   new THREE.MeshBasicMaterial({
+    color:options.atmosphere,
+    transparent:true,opacity:.13,
+    side:THREE.BackSide,
+    blending:THREE.AdditiveBlending,
+    depthWrite:false
+   })
+  );
+  mesh.add(atm);
+  body.atmosphere=atm;
+ }
+ if(options.ring){
+  const ring=new THREE.Mesh(
+   new THREE.RingGeometry(radius*1.35,radius*2.15,128),
+   new THREE.MeshStandardMaterial({
+    color:options.ring,
+    side:THREE.DoubleSide,
+    transparent:true,opacity:.8,
+    roughness:1
+   })
+  );
+  ring.rotation.x=-Math.PI/2.35;
+  mesh.add(ring);
+  body.ring=ring;
+ }
+ if(options.sun){
+  body.glow=makeGlow();
+  mesh.add(body.glow);
+ }
+ const orbitGeometry=new THREE.BufferGeometry();
+ const points=[];
+ for(let i=0;i<=256;i++){
+  const a=i/256*Math.PI*2;
+  points.push(new THREE.Vector3(
+   Math.cos(a)*Math.sqrt(x*x+z*z),0,
+   Math.sin(a)*Math.sqrt(x*x+z*z)
+  ));
+ }
+ orbitGeometry.setFromPoints(points);
+ const orbit=new THREE.Line(
+  orbitGeometry,
+  new THREE.LineBasicMaterial({
+   color:0x3873a5,transparent:true,opacity:.28
+  })
+ );
+ scene.add(orbit);
+ body.orbit=orbit;
+ bodies.push(body);
+ updateObjectList();
+ return body;
+}
+/* INITIAL SYSTEM */
+function clearSystem(){
+ for(const b of bodies){
+  scene.remove(b.mesh);
+  scene.remove(b.orbit);
+  b.mesh.geometry.dispose();
+  b.mesh.material.map?.dispose();
+  b.mesh.material.dispose();
+  b.orbit.geometry.dispose();
+  b.orbit.material.dispose();
+ }
+ bodies=[];
+}
+function createSystem(){
+ clearSystem();
+ const sun=createBody(
+  "Солнце",1,1.4,"#ff9b24",0,0,0,3,"rock",
+  {sun:true}
+ );
+ const earth=createBody(
+  "Земля",.000003,0.5,"#205dbb",8,0,0,7,"earth",
+  {atmosphere:0x258cff}
+ );
+ earth.velocity.set(0,0,Math.sqrt(G/8));
+ const moon=createBody(
+  "Луна",.000000037,.16,"#9298a5",9.5,0,0,9
+ );
+ moon.velocity.set(0,0,Math.sqrt(G/9.5)+.8);
+ const mars=createBody(
+  "Марс",.00000032,.36,"#bd5632",13,0,0,5
+ );
+ mars.velocity.set(0,0,Math.sqrt(G/13));
+ const jupiter=createBody(
+  "Юпитер",.00095,1.05,"#bd966e",18,0,0,12,"gas"
+ );
+ jupiter.velocity.set(0,0,Math.sqrt(G/18));
+ const saturn=createBody(
+  "Сатурн",.00028,.85,"#c7ad82",23,0,0,15,"gas",
+  {ring:0xc8ae83}
+ );
+ saturn.velocity.set(0,0,Math.sqrt(G/23));
+ sunLight.position.copy(sun.position);
+ selectBody(earth);
+ updateObjectList();
+ showToast("Солнечная система создана");
+}
+createSystem();
+/* PHYSICS */
+function calculateGravity(){
+ const forces=bodies.map(()=>new THREE.Vector3());
+ for(let i=0;i<bodies.length;i++){
+  for(let j=i+1;j<bodies.length;j++){
+   const a=bodies[i],b=bodies[j];
+   const delta=new THREE.Vector3().subVectors(b.position,a.position);
+   const d2=Math.max(delta.lengthSq(),.08);
+   const force=G*a.mass*b.mass/d2;
+   delta.normalize().multiplyScalar(force);
+   forces[i].add(delta);
+   forces[j].sub(delta);
+  }
+ }
+ return forces;
+}
+function physicsStep(dt){
+ const f1=calculateGravity();
+ const old=[];
+ for(let i=0;i<bodies.length;i++){
+  const b=bodies[i];
+  const acceleration=f1[i].clone().divideScalar(Math.max(b.mass,1e-12));
+  old.push(acceleration);
+  b.position.addScaledVector(b.velocity,dt)
+   .addScaledVector(acceleration,.5*dt*dt);
+ }
+ const f2=calculateGravity();
+ for(let i=0;i<bodies.length;i++){
+  const b=bodies[i];
+  const next=f2[i].clone().divideScalar(Math.max(b.mass,1e-12));
+  b.velocity.addScaledVector(old[i].add(next),.5*dt);
+  b.mesh.position.copy(b.position);
+ }
+}
+/* TIME */
+function updateSimulation(delta){
+ if(simulationSpeed===0)return;
+ const total=delta*simulationSpeed/365;
+ const amount=Math.min(total,.025);
+ const steps=Math.max(1,Math.min(100,Math.ceil(amount/.0002)));
+ const dt=amount/steps;
+ for(let i=0;i<steps;i++)physicsStep(dt);
+ simulationTime+=amount*365;
+ const year=Math.floor(simulationTime/365);
+ const day=Math.floor(simulationTime%365)+1;
+ $("clock").textContent=`Год ${year} · День ${day}`;
+}
+/* SELECTION */
+const raycaster=new THREE.Raycaster();
+const pointer=new THREE.Vector2();
+let downX=0,downY=0;
+renderer.domElement.addEventListener("pointerdown",e=>{
+ downX=e.clientX;downY=e.clientY;
+});
+renderer.domElement.addEventListener("pointerup",e=>{
+ if(Math.hypot(e.clientX-downX,e.clientY-downY)>8)return;
+ pointer.x=e.clientX/innerWidth*2-1;
+ pointer.y=-(e.clientY/innerHeight)*2+1;
+ raycaster.setFromCamera(pointer,camera);
+ const hits=raycaster.intersectObjects(
+  bodies.map(b=>b.mesh),false
+ );
+ if(hits.length){
+  const body=bodies.find(b=>b.mesh===hits[0].object);
+  if(body)selectBody(body);
+ }
+});
+function selectBody(body){
+ selected=body;
+ following=false;
+ $("selected").innerHTML=
+  `<b style="color:#79d2ff">${body.name}</b><br>
+  Масса: ${body.mass.toExponential(3)}<br>
+  Радиус: ${body.radius.toFixed(2)}`;
+ $("mass").value=Math.min(100,Math.max(.1,body.mass*1000000));
+ $("radius").value=body.radius;
+ $("massValue").textContent=body.mass.toExponential(3);
+ $("radiusValue").textContent=body.radius.toFixed(2);
+ updateObjectList();
+}
+/* OBJECT LIST */
+function updateObjectList(){
+ $("objects").innerHTML="";
+ for(const body of bodies){
+  const btn=document.createElement("button");
+  btn.textContent="● "+body.name;
+  btn.style.borderColor=body===selected?"#65caff":"#345277";
+  btn.onclick=()=>selectBody(body);
+  $("objects").appendChild(btn);
+ }
+ $("count").textContent=bodies.length;
+}
+/* ADD PLANET */
+$("add").onclick=()=>{
+ const number=bodies.length+1;
+ const distance=27+number*2.5;
+ const body=createBody(
+  "Планета "+number,.000003,.5,
+  ["#488bd0","#a96e48","#4caa87","#9d78c9"][number%4],
+  distance,0,0,number+17
+ );
+ body.velocity.set(0,0,Math.sqrt(G/distance));
+ selectBody(body);
+ showToast("Новая планета создана");
+};
+/* ADD ASTEROID */
+$("addAsteroid").onclick=()=>{
+ const angle=Math.random()*Math.PI*2;
+ const distance=10+Math.random()*20;
+ const x=Math.cos(angle)*distance;
+ const z=Math.sin(angle)*distance;
+ const body=createBody(
+  "Астероид",.00000001,.1,
+  "#777b82",x,0,z,Math.random()*100
+ );
+ body.velocity.set(
+  -Math.sin(angle)*Math.sqrt(G/distance),
+  0,
+  Math.cos(angle)*Math.sqrt(G/distance)
+ );
+ selectBody(body);
+ showToast("Астероид добавлен");
+};
+/* ADD SATURN */
+$("addSaturn").onclick=()=>{
+ const distance=30+bodies.length*2;
+ const body=createBody(
+  "Сатурн",.00028,.85,"#c7ad82",
+  distance,0,0,21,"gas",{ring:0xc8ae83}
+ );
+ body.velocity.set(0,0,Math.sqrt(G/distance));
+ selectBody(body);
+ showToast("Сатурн создан");
+};
+/* MASS */
+$("mass").oninput=e=>{
+ if(!selected)return;
+ selected.mass=Number(e.target.value)/1000000;
+ $("massValue").textContent=selected.mass.toExponential(3);
+ $("selected").innerHTML=
+  `<b>${selected.name}</b><br>Масса: ${selected.mass.toExponential(3)}<br>Радиус: ${selected.radius.toFixed(2)}`;
+};
+/* RADIUS */
+$("radius").oninput=e=>{
+ if(!selected)return;
+ const value=Number(e.target.value);
+ const ratio=value/selected.radius;
+ selected.radius=value;
+ selected.mesh.scale.multiplyScalar(ratio);
+ $("radiusValue").textContent=value.toFixed(2);
+ $("selected").innerHTML=
+  `<b>${selected.name}</b><br>Масса: ${selected.mass.toExponential(3)}<br>Радиус: ${value.toFixed(2)}`;
+};
+/* SPEED */
+$("speed").onchange=e=>{
+ simulationSpeed=Number(e.target.value);
+ updateStatus();
+};
+function updateStatus(){
+ $("status").textContent=simulationSpeed===0?"Пауза":"Работает";
+ $("pause").textContent=simulationSpeed===0?"▶ Старт":"Ⅱ Пауза";
+}
+$("pause").onclick=()=>{
+ simulationSpeed=simulationSpeed===0?20:0;
+ $("speed").value=String(simulationSpeed);
+ updateStatus();
+};
+$("faster").onclick=()=>{
+ simulationSpeed=simulationSpeed===0?1:Math.min(500,simulationSpeed*2);
+ $("speed").value=String(simulationSpeed);
+ updateStatus();
+};
+$("slower").onclick=()=>{
+ simulationSpeed=Math.max(0,simulationSpeed/2);
+ $("speed").value=String(simulationSpeed);
+ updateStatus();
+};
+/* ORBITS */
+$("orbitToggle").onclick=()=>{
+ showOrbits=!showOrbits;
+ for(const b of bodies)b.orbit.visible=showOrbits;
+ $("orbitToggle").textContent="◉ Орбиты: "+(showOrbits?"ВКЛ":"ВЫКЛ");
+};
+/* CAMERA */
+$("focus").onclick=()=>{
+ if(!selected)return;
+ following=true;
+ controls.target.copy(selected.position);
+ const direction=new THREE.Vector3(0,2,5);
+ camera.position.copy(selected.position).add(direction);
+ controls.update();
+ showToast("Камера следит за "+selected.name);
+};
+/* DELETE */
+$("delete").onclick=()=>{
+ if(!selected)return;
+ if(selected.name==="Солнце"){
+  showToast("Солнце нельзя удалить");
+  return;
+ }
+ const b=selected;
+ scene.remove(b.mesh);
+ scene.remove(b.orbit);
+ b.mesh.geometry.dispose();
+ b.mesh.material.map?.dispose();
+ b.mesh.material.dispose();
+ b.orbit.geometry.dispose();
+ b.orbit.material.dispose();
+ bodies=bodies.filter(x=>x!==b);
+ selected=null;
+ $("selected").textContent="Выбери планету";
+ updateObjectList();
+};
+/* RESET */
+$("reset").onclick=()=>{
+ createSystem();
+ simulationTime=0;
+ simulationSpeed=20;
+ $("speed").value="20";
+ updateStatus();
+};
+/* TOAST */
+let toastTimer;
+function showToast(message){
+ const t=$("toast");
+ t.textContent=message;
+ t.classList.add("show");
+ clearTimeout(toastTimer);
+ toastTimer=setTimeout(()=>t.classList.remove("show"),1800);
+}
+/* ANIMATION */
+let lastFrame=performance.now();
+let elapsed=0;
+function animate(now){
+ requestAnimationFrame(animate);
+ const delta=Math.min((now-lastFrame)/1000,.05);
+ lastFrame=now;
+ elapsed+=delta;
+ updateSimulation(delta);
+ for(const b of bodies){
+  b.mesh.rotation.y+=delta*(b.name==="Солнце"?.18:.12);
+  if(b.glow){
+   const pulse=1+Math.sin(elapsed*2)*.045;
+   b.glow.scale.set(7*pulse,7*pulse,1);
+  }
+ }
+ stars.rotation.y+=delta*.0015;
+ distantStars.rotation.y-=delta*.0005;
+ if(following&&selected){
+  controls.target.lerp(selected.position,.08);
+  const offset=new THREE.Vector3(0,2,5);
+  camera.position.lerp(selected.position.clone().add(offset),.025);
+ }
+ controls.update();
+ renderer.render(scene,camera);
+}
+requestAnimationFrame(animate);
+/* RESIZE */
+window.addEventListener("resize",()=>{
+ camera.aspect=innerWidth/innerHeight;
+ camera.updateProjectionMatrix();
+ renderer.setSize(innerWidth,innerHeight);
+ renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
+});
+/* START */
+updateStatus();
+console.log("MB UNIVERSE 0.2 STARTED");
 </script>
 </body>
 </html>
