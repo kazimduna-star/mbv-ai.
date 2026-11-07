@@ -1,702 +1,370 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>MB UNIVERSE 0.2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MB RENT — Аренда инструментов</title>
 <style>
 *{box-sizing:border-box}
-body{
- margin:0;overflow:hidden;background:#02040b;color:white;
- font-family:Arial,sans-serif;touch-action:pan-x pan-y;
-}
-#space{position:fixed;inset:0}
-canvas{display:block}
-.panel{
- position:fixed;z-index:5;
- background:rgba(7,13,28,.88);
- border:1px solid rgba(83,151,220,.3);
- border-radius:13px;padding:13px;
- backdrop-filter:blur(14px);
- box-shadow:0 5px 30px #0008;
-}
-#top{
- top:10px;left:10px;right:10px;
- display:flex;align-items:center;justify-content:space-between;
-}
-.logo{
- font-weight:bold;letter-spacing:2px;color:#73ceff;
- font-size:19px;text-shadow:0 0 15px #168bff;
-}
-.info{font-size:11px;line-height:1.7;color:#b6cce8}
-#left{
- top:75px;left:10px;width:205px;
- max-height:72vh;overflow:auto;
-}
-#right{
- top:75px;right:10px;width:215px;
- max-height:75vh;overflow:auto;
-}
-h3{font-size:13px;color:#73ceff;margin:0 0 10px}
-button,select,input{
- width:100%;margin:4px 0;padding:10px;
- background:#14243e;color:white;
- border:1px solid #345277;border-radius:8px;
- font-size:12px;
-}
-button{cursor:pointer}
-button:active{background:#2769a3}
-.primary{background:#1269a8;border-color:#4bafff}
-.danger{border-color:#874d56;background:#3b1b29}
-label{display:block;margin-top:10px;color:#a9c6e5;font-size:11px}
-#objects button{text-align:left}
-#bottom{
- position:fixed;z-index:6;bottom:12px;left:50%;
- transform:translateX(-50%);
- display:flex;gap:6px;padding:8px;
- width:max-content;max-width:96%;
-}
-#bottom button{min-width:70px;margin:0}
-#hint{
- position:fixed;z-index:4;bottom:72px;
- left:50%;transform:translateX(-50%);
- color:#91afd0;font-size:10px;
- text-align:center;white-space:nowrap;
- pointer-events:none;
-}
-.value{color:#77d1ff;font-weight:bold}
-#toast{
- position:fixed;z-index:10;top:65px;left:50%;
- transform:translateX(-50%);
- background:#10243b;border:1px solid #4a8fca;
- padding:9px 16px;border-radius:20px;
- font-size:12px;opacity:0;transition:.3s;
- pointer-events:none;
-}
-#toast.show{opacity:1}
-.section{border-top:1px solid #30435c;margin-top:12px;padding-top:10px}
-@media(max-width:650px){
- .panel{padding:8px}
- #left{top:68px;left:7px;width:145px;max-height:55vh}
- #right{top:auto;right:7px;bottom:78px;width:155px;max-height:36vh}
- .logo{font-size:14px}
- #bottom{bottom:7px;gap:3px;padding:5px}
- #bottom button{min-width:55px;padding:8px 5px;font-size:10px}
- button,select,input{padding:8px;font-size:11px}
- #hint{bottom:61px;font-size:9px}
- h3{font-size:11px}
-}
+body{margin:0;background:#0c1018;color:#f5f6fa;font-family:Arial,sans-serif}
+button,input,textarea,select{font:inherit}
+header{padding:20px 5%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #252d3b;background:#111722;position:sticky;top:0;z-index:5}
+.logo{font-size:25px;font-weight:900;letter-spacing:1px}
+.logo span{color:#ffb52e}
+button{cursor:pointer;border:0;border-radius:10px;padding:12px 17px;font-weight:bold}
+.primary{background:#ffb52e;color:#171717}
+.secondary{background:#252e3d;color:white}
+main{max-width:1100px;margin:auto;padding:25px 16px}
+.hero{padding:35px 22px;border:1px solid #30394a;border-radius:20px;background:linear-gradient(130deg,#192334,#111722);margin-bottom:25px}
+.hero h1{font-size:clamp(30px,7vw,48px);margin:0 0 12px}
+.hero p{color:#aeb8c9;line-height:1.5}
+.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:25px 0 15px}
+.section-title h2{margin:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.card{background:#141c28;border:3px double #566174;border-radius:15px;overflow:hidden}
+.photo{height:180px;background:#202a39;display:flex;align-items:center;justify-content:center;color:#8190a6}
+.photo img{width:100%;height:100%;object-fit:cover}
+.card-body{padding:15px}
+.card h3{margin:0 0 9px}
+.muted{color:#9ba8bb;font-size:14px;line-height:1.5}
+.price{color:#ffbd43;font-size:19px;font-weight:bold;margin:12px 0}
+.card select,.card input{width:100%;padding:11px;margin:7px 0;background:#0d1420;color:white;border:1px solid #39475c;border-radius:8px}
+.card button{width:100%;margin-top:8px}
+.empty{padding:35px 15px;text-align:center;color:#9ba8bb;border:1px dashed #485367;border-radius:14px}
+.panel{background:#141c28;border:1px solid #344054;padding:18px;border-radius:15px;margin:18px 0}
+.panel h2{margin-top:0}
+.field{margin:12px 0}
+.field label{display:block;color:#bdc7d7;font-size:14px;margin-bottom:7px}
+.field input,.field textarea,.field select{width:100%;padding:12px;border-radius:9px;border:1px solid #39475c;background:#0d1420;color:white}
+.field textarea{min-height:75px;resize:vertical}
+.hidden{display:none!important}
+.admin-product,.order{padding:13px;background:#202a39;border-radius:10px;margin:10px 0}
+.admin-product button{margin:5px 5px 0 0}
+footer{text-align:center;color:#78869a;padding:30px 15px}
+.notice{color:#ffca66;font-size:13px;line-height:1.5}
 </style>
-<script type="importmap">
-{
- "imports":{
-  "three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
-  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
- }
-}
-</script>
 </head>
 <body>
-<div id="space"></div>
-<div id="top" class="panel">
- <div class="logo">✦ MB UNIVERSE <small style="font-size:9px;color:#8da9c9">0.2</small></div>
- <div class="info" id="clock">Год 0 · День 1</div>
-</div>
-<div id="left" class="panel">
- <h3>🌌 КОСМИЧЕСКАЯ СИСТЕМА</h3>
- <div id="objects" class="info"></div>
- <button class="primary" id="add">＋ Создать планету</button>
- <button id="addAsteroid">✦ Создать астероид</button>
- <button id="addSaturn">🪐 Создать Сатурн</button>
- <button id="reset">↻ Сброс системы</button>
- <div class="section info">
-  Объектов: <span id="count" class="value">0</span><br>
-  Состояние: <span id="status" class="value">Работает</span>
- </div>
-</div>
-<div id="right" class="panel">
- <h3>⚙ ПАРАМЕТРЫ</h3>
- <div id="selected" class="info">Выбери планету</div>
- <label>Масса</label>
- <input id="mass" type="range" min="0.1" max="100" value="1" step="0.1">
- <div id="massValue" class="info">1.0</div>
- <label>Размер</label>
- <input id="radius" type="range" min="0.15" max="4" value="1" step="0.05">
- <div id="radiusValue" class="info">1.0</div>
- <label>Скорость времени</label>
- <select id="speed">
-  <option value="0">Пауза</option>
-  <option value="1">1×</option>
-  <option value="5">5×</option>
-  <option value="20" selected>20×</option>
-  <option value="50">50×</option>
-  <option value="100">100×</option>
-  <option value="500">500×</option>
- </select>
- <div class="section">
-  <button id="focus" class="primary">◎ Следить за объектом</button>
-  <button id="orbitToggle">◉ Орбиты: ВКЛ</button>
-  <button id="delete" class="danger">Удалить объект</button>
- </div>
-</div>
-<div id="hint">Вращай пальцем · Приближай двумя пальцами · Нажимай на планеты</div>
-<div id="toast"></div>
-<div id="bottom" class="panel">
- <button id="pause">Ⅱ Пауза</button>
- <button id="faster">＋ Время</button>
- <button id="slower">－ Время</button>
-</div>
-<script type="module">
-import * as THREE from "three";
-import {OrbitControls} from "three/addons/controls/OrbitControls.js";
-/* =================================
- MB UNIVERSE ENGINE 0.2
-================================= */
-const $=id=>document.getElementById(id);
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x02040b);
-scene.fog=new THREE.FogExp2(0x02040b,0.00065);
-const camera=new THREE.PerspectiveCamera(
- 60,innerWidth/innerHeight,0.1,3000
-);
-camera.position.set(0,12,24);
-const renderer=new THREE.WebGLRenderer({
- antialias:true,
- powerPreference:"high-performance"
-});
-renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
-renderer.setSize(innerWidth,innerHeight);
-renderer.outputColorSpace=THREE.SRGBColorSpace;
-renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=1.15;
-$("space").appendChild(renderer.domElement);
-const controls=new OrbitControls(camera,renderer.domElement);
-controls.enableDamping=true;
-controls.dampingFactor=.055;
-controls.minDistance=2;
-controls.maxDistance=250;
-controls.rotateSpeed=.65;
-controls.zoomSpeed=.8;
-/* LIGHTING */
-scene.add(new THREE.AmbientLight(0x829bc8,.45));
-const sunLight=new THREE.PointLight(0xffffff,260,500,1.5);
-scene.add(sunLight);
-/* BACKGROUND STARS */
-function makeStars(count,size,color){
- const geo=new THREE.BufferGeometry();
- const positions=[];
- const colors=[];
- for(let i=0;i<count;i++){
-  const r=100+Math.random()*800;
-  const theta=Math.random()*Math.PI*2;
-  const phi=Math.acos(2*Math.random()-1);
-  positions.push(
-   r*Math.sin(phi)*Math.cos(theta),
-   r*Math.cos(phi),
-   r*Math.sin(phi)*Math.sin(theta)
-  );
-  const c=new THREE.Color(color);
-  c.multiplyScalar(.55+Math.random()*.7);
-  colors.push(c.r,c.g,c.b);
- }
- geo.setAttribute("position",new THREE.Float32BufferAttribute(positions,3));
- geo.setAttribute("color",new THREE.Float32BufferAttribute(colors,3));
- const mat=new THREE.PointsMaterial({
-  size,color:0xffffff,vertexColors:true,
-  sizeAttenuation:true,transparent:true,opacity:.9
- });
- const points=new THREE.Points(geo,mat);
- scene.add(points);
- return points;
+
+<header>
+  <div class="logo">MB <span>RENT</span></div>
+  <button class="secondary" onclick="openLogin()">Админ</button>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>Инструменты в аренду</h1>
+    <p>Выбирай оборудование, срок аренды и отправляй заявку.</p>
+    <button class="primary" onclick="document.getElementById('catalog').scrollIntoView({behavior:'smooth'})">Открыть каталог</button>
+  </section>
+
+  <div class="section-title" id="catalog">
+    <h2>Каталог инструментов</h2>
+    <span class="muted" id="count">0 товаров</span>
+  </div>
+
+  <div class="grid" id="products"></div>
+
+  <section class="panel hidden" id="login">
+    <h2>Вход администратора</h2>
+    <div class="field">
+      <label>Код доступа</label>
+      <input id="adminCode" type="password" placeholder="Введите код">
+    </div>
+    <button class="primary" onclick="login()">Войти</button>
+    <button class="secondary" onclick="closeLogin()">Закрыть</button>
+    <p class="notice">Демо-код: MB2026. Для настоящего сайта понадобится защищённая авторизация.</p>
+  </section>
+
+  <section class="hidden" id="admin">
+    <div class="section-title">
+      <h2>Панель администратора</h2>
+      <button class="secondary" onclick="logout()">Выйти</button>
+    </div>
+
+    <div class="panel">
+      <h2 id="formTitle">Добавить инструмент</h2>
+      <input type="hidden" id="editId">
+
+      <div class="field">
+        <label>Название инструмента</label>
+        <input id="name" placeholder="Например: Перфоратор">
+      </div>
+
+      <div class="field">
+        <label>Категория</label>
+        <select id="category">
+          <option>Электроинструменты</option>
+          <option>Строительное оборудование</option>
+          <option>Садовая техника</option>
+          <option>Измерительные приборы</option>
+          <option>Другое</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Описание</label>
+        <textarea id="description" placeholder="Описание инструмента"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Фотография</label>
+        <input id="photo" type="file" accept="image/*">
+      </div>
+
+      <div class="field">
+        <label>Цена за 1 час (₽)</label>
+        <input id="p1" type="number" min="0" placeholder="Цена">
+      </div>
+      <div class="field">
+        <label>Цена за 3 часа (₽)</label>
+        <input id="p3" type="number" min="0" placeholder="Цена">
+      </div>
+      <div class="field">
+        <label>Цена за 12 часов (₽)</label>
+        <input id="p12" type="number" min="0" placeholder="Цена">
+      </div>
+      <div class="field">
+        <label>Цена за 24 часа (₽)</label>
+        <input id="p24" type="number" min="0" placeholder="Цена">
+      </div>
+
+      <button class="primary" onclick="saveProduct()">Сохранить инструмент</button>
+      <button class="secondary" onclick="resetForm()">Очистить форму</button>
+    </div>
+
+    <div class="panel">
+      <h2>Мои инструменты</h2>
+      <div id="adminProducts"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Заявки на аренду</h2>
+      <div id="orders"></div>
+    </div>
+  </section>
+</main>
+
+<footer>MB RENT © 2026</footer>
+
+<script>
+const ADMIN_CODE = "MB2026";
+
+let products = JSON.parse(localStorage.getItem("mbr_products") || "[]");
+let orders = JSON.parse(localStorage.getItem("mbr_orders") || "[]");
+
+function saveData(){
+  localStorage.setItem("mbr_products",JSON.stringify(products));
+  localStorage.setItem("mbr_orders",JSON.stringify(orders));
 }
-const stars=makeStars(9000,.65,0xffffff);
-const distantStars=makeStars(3000,1.3,0x6baaff);
-/* NEBULA BACKGROUND */
-function createNebula(){
- const canvas=document.createElement("canvas");
- canvas.width=512;canvas.height=512;
- const ctx=canvas.getContext("2d");
- const g=ctx.createRadialGradient(256,256,10,256,256,250);
- g.addColorStop(0,"rgba(35,65,155,.3)");
- g.addColorStop(.35,"rgba(64,31,120,.17)");
- g.addColorStop(1,"rgba(0,0,0,0)");
- ctx.fillStyle=g;
- ctx.fillRect(0,0,512,512);
- const tex=new THREE.CanvasTexture(canvas);
- const sprite=new THREE.Sprite(
-  new THREE.SpriteMaterial({
-   map:tex,transparent:true,depthWrite:false,
-   blending:THREE.AdditiveBlending
-  })
- );
- sprite.position.set(-60,35,-160);
- sprite.scale.set(260,260,1);
- scene.add(sprite);
+
+function money(n){
+  return Number(n).toLocaleString("ru-RU")+" ₽";
 }
-createNebula();
-/* TEXTURE GENERATOR */
-function createTexture(color,seed=1,type="rock"){
- const canvas=document.createElement("canvas");
- canvas.width=1024;canvas.height=512;
- const ctx=canvas.getContext("2d");
- ctx.fillStyle=color;
- ctx.fillRect(0,0,1024,512);
- let r=seed*12345+7;
- function random(){
-  r=(r*16807)%2147483647;
-  return (r-1)/2147483646;
- }
- if(type==="earth"){
-  for(let i=0;i<100;i++){
-   const x=random()*1024,y=random()*512;
-   const w=20+random()*100,h=10+random()*55;
-   ctx.fillStyle=["#28764d","#438e53","#a7a16a","#235d46"][Math.floor(random()*4)];
-   ctx.beginPath();
-   ctx.ellipse(x,y,w,h,random()*3,0,Math.PI*2);
-   ctx.fill();
+
+function render(){
+  const area=document.getElementById("products");
+  document.getElementById("count").textContent=products.length+" товаров";
+
+  if(!products.length){
+    area.innerHTML='<div class="empty" style="grid-column:1/-1">Пока нет инструментов.<br>Скоро здесь появится каталог.</div>';
+    return;
   }
-  for(let i=0;i<160;i++){
-   ctx.fillStyle=`rgba(255,255,255,${random()*.28})`;
-   ctx.beginPath();
-   ctx.ellipse(random()*1024,random()*512,20+random()*90,2+random()*8,random(),0,Math.PI*2);
-   ctx.fill();
+
+  area.innerHTML=products.map(p=>`
+    <article class="card">
+      <div class="photo">
+        ${p.photo?`<img src="${p.photo}" alt="">`:"Фото не добавлено"}
+      </div>
+      <div class="card-body">
+        <div class="muted">${escapeHTML(p.category)}</div>
+        <h3>${escapeHTML(p.name)}</h3>
+        <div class="muted">${escapeHTML(p.description)}</div>
+        <div class="price">от ${money(Math.min(p.p1,p.p3,p.p12,p.p24))}</div>
+        <select id="duration-${p.id}" onchange="updatePrice('${p.id}')">
+          <option value="1">1 час — ${money(p.p1)}</option>
+          <option value="3">3 часа — ${money(p.p3)}</option>
+          <option value="12">12 часов — ${money(p.p12)}</option>
+          <option value="24">24 часа — ${money(p.p24)}</option>
+        </select>
+        <div class="muted" id="total-${p.id}">Итого: ${money(p.p1)}</div>
+        <button class="primary" onclick="makeOrder('${p.id}')">Оставить заявку</button>
+      </div>
+    </article>
+  `).join("");
+}
+
+function escapeHTML(value){
+  return String(value??"").replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+function updatePrice(id){
+  const p=products.find(x=>x.id===id);
+  const duration=document.getElementById("duration-"+id).value;
+  document.getElementById("total-"+id).textContent="Итого: "+money(p["p"+duration]);
+}
+
+function makeOrder(id){
+  const p=products.find(x=>x.id===id);
+  const duration=document.getElementById("duration-"+id).value;
+  const customer=prompt("Как вас зовут?");
+  if(!customer)return;
+  const phone=prompt("Ваш номер телефона:");
+  if(!phone)return;
+
+  orders.unshift({
+    id:Date.now(),
+    product:p.name,
+    duration:duration,
+    price:p["p"+duration],
+    customer:customer,
+    phone:phone,
+    date:new Date().toLocaleString("ru-RU")
+  });
+
+  saveData();
+  alert("Заявка сохранена! Свяжитесь с арендодателем для подтверждения.");
+  renderAdmin();
+}
+
+function openLogin(){
+  document.getElementById("login").classList.remove("hidden");
+  document.getElementById("admin").classList.add("hidden");
+}
+function closeLogin(){
+  document.getElementById("login").classList.add("hidden");
+}
+function login(){
+  if(document.getElementById("adminCode").value!==ADMIN_CODE){
+    alert("Неверный код");
+    return;
   }
- }else if(type==="gas"){
-  for(let i=0;i<100;i++){
-   ctx.fillStyle=`rgba(${random()>.5?"255,220,180":"65,35,20"},${random()*.23})`;
-   ctx.fillRect(0,random()*512,1024,2+random()*25);
+  closeLogin();
+  document.getElementById("admin").classList.remove("hidden");
+  renderAdmin();
+  document.getElementById("admin").scrollIntoView({behavior:"smooth"});
+}
+function logout(){
+  document.getElementById("admin").classList.add("hidden");
+}
+
+function saveProduct(){
+  const name=document.getElementById("name").value.trim();
+  const description=document.getElementById("description").value.trim();
+  const category=document.getElementById("category").value;
+  const editId=document.getElementById("editId").value;
+
+  const prices={
+    p1:Number(document.getElementById("p1").value),
+    p3:Number(document.getElementById("p3").value),
+    p12:Number(document.getElementById("p12").value),
+    p24:Number(document.getElementById("p24").value)
+  };
+
+  if(!name || Object.values(prices).some(x=>!Number.isFinite(x)||x<0)){
+    alert("Заполни название и все четыре цены.");
+    return;
   }
- }else{
-  for(let i=0;i<350;i++){
-   ctx.fillStyle=`rgba(255,255,255,${random()*.17})`;
-   ctx.beginPath();
-   ctx.ellipse(random()*1024,random()*512,4+random()*70,2+random()*25,random()*3,0,Math.PI*2);
-   ctx.fill();
+
+  const existing=products.find(p=>p.id===editId);
+  const file=document.getElementById("photo").files[0];
+
+  function finish(photo){
+    const product={
+      id:editId||String(Date.now()),
+      name,description,category,...prices,
+      photo:photo!==undefined?photo:(existing?.photo||"")
+    };
+
+    if(editId){
+      products=products.map(p=>p.id===editId?product:p);
+    }else{
+      products.push(product);
+    }
+
+    try{
+      saveData();
+      resetForm();
+      render();
+      renderAdmin();
+      alert("Инструмент сохранён!");
+    }catch(e){
+      alert("Не удалось сохранить. Возможно, фотография слишком большая.");
+    }
   }
- }
- const texture=new THREE.CanvasTexture(canvas);
- texture.colorSpace=THREE.SRGBColorSpace;
- texture.anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
- return texture;
-}
-/* SUN GLOW */
-function makeGlow(){
- const canvas=document.createElement("canvas");
- canvas.width=256;canvas.height=256;
- const ctx=canvas.getContext("2d");
- const g=ctx.createRadialGradient(128,128,5,128,128,128);
- g.addColorStop(0,"rgba(255,245,180,.8)");
- g.addColorStop(.2,"rgba(255,160,50,.35)");
- g.addColorStop(.55,"rgba(255,90,20,.1)");
- g.addColorStop(1,"rgba(255,60,10,0)");
- ctx.fillStyle=g;
- ctx.fillRect(0,0,256,256);
- const tex=new THREE.CanvasTexture(canvas);
- const sprite=new THREE.Sprite(new THREE.SpriteMaterial({
-  map:tex,transparent:true,blending:THREE.AdditiveBlending,
-  depthWrite:false
- }));
- sprite.scale.set(7,7,1);
- return sprite;
-}
-/* BODY SYSTEM */
-let bodies=[];
-let selected=null;
-let simulationSpeed=20;
-let simulationTime=0;
-let showOrbits=true;
-let following=false;
-const G=39.4784176;
-function createBody(name,mass,radius,color,x,y,z,seed=1,type="rock",options={}){
- const geometry=new THREE.SphereGeometry(radius,64,48);
- const texture=createTexture(color,seed,type);
- const material=new THREE.MeshStandardMaterial({
-  map:texture,roughness:type==="gas"?.72:.92,
-  metalness:.02
- });
- const mesh=new THREE.Mesh(geometry,material);
- mesh.position.set(x,y,z);
- scene.add(mesh);
- const body={
-  id:crypto.randomUUID(),
-  name,mass,radius,mesh,
-  position:new THREE.Vector3(x,y,z),
-  velocity:new THREE.Vector3(),
-  color,texture,
-  atmosphere:null,
-  ring:null,
-  orbit:null,
-  glow:null,
-  seed
- };
- if(options.atmosphere){
-  const atm=new THREE.Mesh(
-   new THREE.SphereGeometry(radius*1.09,48,32),
-   new THREE.MeshBasicMaterial({
-    color:options.atmosphere,
-    transparent:true,opacity:.13,
-    side:THREE.BackSide,
-    blending:THREE.AdditiveBlending,
-    depthWrite:false
-   })
-  );
-  mesh.add(atm);
-  body.atmosphere=atm;
- }
- if(options.ring){
-  const ring=new THREE.Mesh(
-   new THREE.RingGeometry(radius*1.35,radius*2.15,128),
-   new THREE.MeshStandardMaterial({
-    color:options.ring,
-    side:THREE.DoubleSide,
-    transparent:true,opacity:.8,
-    roughness:1
-   })
-  );
-  ring.rotation.x=-Math.PI/2.35;
-  mesh.add(ring);
-  body.ring=ring;
- }
- if(options.sun){
-  body.glow=makeGlow();
-  mesh.add(body.glow);
- }
- const orbitGeometry=new THREE.BufferGeometry();
- const points=[];
- for(let i=0;i<=256;i++){
-  const a=i/256*Math.PI*2;
-  points.push(new THREE.Vector3(
-   Math.cos(a)*Math.sqrt(x*x+z*z),0,
-   Math.sin(a)*Math.sqrt(x*x+z*z)
-  ));
- }
- orbitGeometry.setFromPoints(points);
- const orbit=new THREE.Line(
-  orbitGeometry,
-  new THREE.LineBasicMaterial({
-   color:0x3873a5,transparent:true,opacity:.28
-  })
- );
- scene.add(orbit);
- body.orbit=orbit;
- bodies.push(body);
- updateObjectList();
- return body;
-}
-/* INITIAL SYSTEM */
-function clearSystem(){
- for(const b of bodies){
-  scene.remove(b.mesh);
-  scene.remove(b.orbit);
-  b.mesh.geometry.dispose();
-  b.mesh.material.map?.dispose();
-  b.mesh.material.dispose();
-  b.orbit.geometry.dispose();
-  b.orbit.material.dispose();
- }
- bodies=[];
-}
-function createSystem(){
- clearSystem();
- const sun=createBody(
-  "Солнце",1,1.4,"#ff9b24",0,0,0,3,"rock",
-  {sun:true}
- );
- const earth=createBody(
-  "Земля",.000003,0.5,"#205dbb",8,0,0,7,"earth",
-  {atmosphere:0x258cff}
- );
- earth.velocity.set(0,0,Math.sqrt(G/8));
- const moon=createBody(
-  "Луна",.000000037,.16,"#9298a5",9.5,0,0,9
- );
- moon.velocity.set(0,0,Math.sqrt(G/9.5)+.8);
- const mars=createBody(
-  "Марс",.00000032,.36,"#bd5632",13,0,0,5
- );
- mars.velocity.set(0,0,Math.sqrt(G/13));
- const jupiter=createBody(
-  "Юпитер",.00095,1.05,"#bd966e",18,0,0,12,"gas"
- );
- jupiter.velocity.set(0,0,Math.sqrt(G/18));
- const saturn=createBody(
-  "Сатурн",.00028,.85,"#c7ad82",23,0,0,15,"gas",
-  {ring:0xc8ae83}
- );
- saturn.velocity.set(0,0,Math.sqrt(G/23));
- sunLight.position.copy(sun.position);
- selectBody(earth);
- updateObjectList();
- showToast("Солнечная система создана");
-}
-createSystem();
-/* PHYSICS */
-function calculateGravity(){
- const forces=bodies.map(()=>new THREE.Vector3());
- for(let i=0;i<bodies.length;i++){
-  for(let j=i+1;j<bodies.length;j++){
-   const a=bodies[i],b=bodies[j];
-   const delta=new THREE.Vector3().subVectors(b.position,a.position);
-   const d2=Math.max(delta.lengthSq(),.08);
-   const force=G*a.mass*b.mass/d2;
-   delta.normalize().multiplyScalar(force);
-   forces[i].add(delta);
-   forces[j].sub(delta);
+
+  if(file){
+    if(file.size>1200000){
+      alert("Выбери фотографию размером до 1,2 МБ.");
+      return;
+    }
+    const reader=new FileReader();
+    reader.onload=()=>finish(reader.result);
+    reader.readAsDataURL(file);
+  }else{
+    finish(undefined);
   }
- }
- return forces;
 }
-function physicsStep(dt){
- const f1=calculateGravity();
- const old=[];
- for(let i=0;i<bodies.length;i++){
-  const b=bodies[i];
-  const acceleration=f1[i].clone().divideScalar(Math.max(b.mass,1e-12));
-  old.push(acceleration);
-  b.position.addScaledVector(b.velocity,dt)
-   .addScaledVector(acceleration,.5*dt*dt);
- }
- const f2=calculateGravity();
- for(let i=0;i<bodies.length;i++){
-  const b=bodies[i];
-  const next=f2[i].clone().divideScalar(Math.max(b.mass,1e-12));
-  b.velocity.addScaledVector(old[i].add(next),.5*dt);
-  b.mesh.position.copy(b.position);
- }
+
+function editProduct(id){
+  const p=products.find(x=>x.id===id);
+  document.getElementById("editId").value=p.id;
+  document.getElementById("name").value=p.name;
+  document.getElementById("description").value=p.description;
+  document.getElementById("category").value=p.category;
+  ["p1","p3","p12","p24"].forEach(k=>document.getElementById(k).value=p[k]);
+  document.getElementById("formTitle").textContent="Редактировать инструмент";
+  document.getElementById("photo").value="";
+  document.getElementById("name").scrollIntoView({behavior:"smooth"});
 }
-/* TIME */
-function updateSimulation(delta){
- if(simulationSpeed===0)return;
- const total=delta*simulationSpeed/365;
- const amount=Math.min(total,.025);
- const steps=Math.max(1,Math.min(100,Math.ceil(amount/.0002)));
- const dt=amount/steps;
- for(let i=0;i<steps;i++)physicsStep(dt);
- simulationTime+=amount*365;
- const year=Math.floor(simulationTime/365);
- const day=Math.floor(simulationTime%365)+1;
- $("clock").textContent=`Год ${year} · День ${day}`;
+
+function deleteProduct(id){
+  if(!confirm("Удалить этот инструмент?"))return;
+  products=products.filter(p=>p.id!==id);
+  saveData();
+  render();
+  renderAdmin();
 }
-/* SELECTION */
-const raycaster=new THREE.Raycaster();
-const pointer=new THREE.Vector2();
-let downX=0,downY=0;
-renderer.domElement.addEventListener("pointerdown",e=>{
- downX=e.clientX;downY=e.clientY;
-});
-renderer.domElement.addEventListener("pointerup",e=>{
- if(Math.hypot(e.clientX-downX,e.clientY-downY)>8)return;
- pointer.x=e.clientX/innerWidth*2-1;
- pointer.y=-(e.clientY/innerHeight)*2+1;
- raycaster.setFromCamera(pointer,camera);
- const hits=raycaster.intersectObjects(
-  bodies.map(b=>b.mesh),false
- );
- if(hits.length){
-  const body=bodies.find(b=>b.mesh===hits[0].object);
-  if(body)selectBody(body);
- }
-});
-function selectBody(body){
- selected=body;
- following=false;
- $("selected").innerHTML=
-  `<b style="color:#79d2ff">${body.name}</b><br>
-  Масса: ${body.mass.toExponential(3)}<br>
-  Радиус: ${body.radius.toFixed(2)}`;
- $("mass").value=Math.min(100,Math.max(.1,body.mass*1000000));
- $("radius").value=body.radius;
- $("massValue").textContent=body.mass.toExponential(3);
- $("radiusValue").textContent=body.radius.toFixed(2);
- updateObjectList();
+
+function resetForm(){
+  ["editId","name","description","p1","p3","p12","p24"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("photo").value="";
+  document.getElementById("formTitle").textContent="Добавить инструмент";
 }
-/* OBJECT LIST */
-function updateObjectList(){
- $("objects").innerHTML="";
- for(const body of bodies){
-  const btn=document.createElement("button");
-  btn.textContent="● "+body.name;
-  btn.style.borderColor=body===selected?"#65caff":"#345277";
-  btn.onclick=()=>selectBody(body);
-  $("objects").appendChild(btn);
- }
- $("count").textContent=bodies.length;
+
+function renderAdmin(){
+  document.getElementById("adminProducts").innerHTML=products.length?
+    products.map(p=>`
+      <div class="admin-product">
+        <b>${escapeHTML(p.name)}</b>
+        <div class="muted">1 ч: ${money(p.p1)} · 3 ч: ${money(p.p3)} · 12 ч: ${money(p.p12)} · 24 ч: ${money(p.p24)}</div>
+        <button class="secondary" onclick="editProduct('${p.id}')">Изменить</button>
+        <button class="secondary" onclick="deleteProduct('${p.id}')">Удалить</button>
+      </div>`).join("")
+    :'<div class="empty">Инструментов пока нет.</div>';
+
+  document.getElementById("orders").innerHTML=orders.length?
+    orders.map(o=>`
+      <div class="order">
+        <b>${escapeHTML(o.product)}</b>
+        <p class="muted">${escapeHTML(o.customer)} · ${escapeHTML(o.phone)}</p>
+        <p>${o.duration} часа · ${money(o.price)}</p>
+        <small class="muted">${escapeHTML(o.date)}</small>
+        <br><button class="secondary" onclick="deleteOrder(${o.id})">Удалить заявку</button>
+      </div>`).join("")
+    :'<div class="empty">Заявок пока нет.</div>';
 }
-/* ADD PLANET */
-$("add").onclick=()=>{
- const number=bodies.length+1;
- const distance=27+number*2.5;
- const body=createBody(
-  "Планета "+number,.000003,.5,
-  ["#488bd0","#a96e48","#4caa87","#9d78c9"][number%4],
-  distance,0,0,number+17
- );
- body.velocity.set(0,0,Math.sqrt(G/distance));
- selectBody(body);
- showToast("Новая планета создана");
-};
-/* ADD ASTEROID */
-$("addAsteroid").onclick=()=>{
- const angle=Math.random()*Math.PI*2;
- const distance=10+Math.random()*20;
- const x=Math.cos(angle)*distance;
- const z=Math.sin(angle)*distance;
- const body=createBody(
-  "Астероид",.00000001,.1,
-  "#777b82",x,0,z,Math.random()*100
- );
- body.velocity.set(
-  -Math.sin(angle)*Math.sqrt(G/distance),
-  0,
-  Math.cos(angle)*Math.sqrt(G/distance)
- );
- selectBody(body);
- showToast("Астероид добавлен");
-};
-/* ADD SATURN */
-$("addSaturn").onclick=()=>{
- const distance=30+bodies.length*2;
- const body=createBody(
-  "Сатурн",.00028,.85,"#c7ad82",
-  distance,0,0,21,"gas",{ring:0xc8ae83}
- );
- body.velocity.set(0,0,Math.sqrt(G/distance));
- selectBody(body);
- showToast("Сатурн создан");
-};
-/* MASS */
-$("mass").oninput=e=>{
- if(!selected)return;
- selected.mass=Number(e.target.value)/1000000;
- $("massValue").textContent=selected.mass.toExponential(3);
- $("selected").innerHTML=
-  `<b>${selected.name}</b><br>Масса: ${selected.mass.toExponential(3)}<br>Радиус: ${selected.radius.toFixed(2)}`;
-};
-/* RADIUS */
-$("radius").oninput=e=>{
- if(!selected)return;
- const value=Number(e.target.value);
- const ratio=value/selected.radius;
- selected.radius=value;
- selected.mesh.scale.multiplyScalar(ratio);
- $("radiusValue").textContent=value.toFixed(2);
- $("selected").innerHTML=
-  `<b>${selected.name}</b><br>Масса: ${selected.mass.toExponential(3)}<br>Радиус: ${value.toFixed(2)}`;
-};
-/* SPEED */
-$("speed").onchange=e=>{
- simulationSpeed=Number(e.target.value);
- updateStatus();
-};
-function updateStatus(){
- $("status").textContent=simulationSpeed===0?"Пауза":"Работает";
- $("pause").textContent=simulationSpeed===0?"▶ Старт":"Ⅱ Пауза";
+
+function deleteOrder(id){
+  orders=orders.filter(o=>o.id!==id);
+  saveData();
+  renderAdmin();
 }
-$("pause").onclick=()=>{
- simulationSpeed=simulationSpeed===0?20:0;
- $("speed").value=String(simulationSpeed);
- updateStatus();
-};
-$("faster").onclick=()=>{
- simulationSpeed=simulationSpeed===0?1:Math.min(500,simulationSpeed*2);
- $("speed").value=String(simulationSpeed);
- updateStatus();
-};
-$("slower").onclick=()=>{
- simulationSpeed=Math.max(0,simulationSpeed/2);
- $("speed").value=String(simulationSpeed);
- updateStatus();
-};
-/* ORBITS */
-$("orbitToggle").onclick=()=>{
- showOrbits=!showOrbits;
- for(const b of bodies)b.orbit.visible=showOrbits;
- $("orbitToggle").textContent="◉ Орбиты: "+(showOrbits?"ВКЛ":"ВЫКЛ");
-};
-/* CAMERA */
-$("focus").onclick=()=>{
- if(!selected)return;
- following=true;
- controls.target.copy(selected.position);
- const direction=new THREE.Vector3(0,2,5);
- camera.position.copy(selected.position).add(direction);
- controls.update();
- showToast("Камера следит за "+selected.name);
-};
-/* DELETE */
-$("delete").onclick=()=>{
- if(!selected)return;
- if(selected.name==="Солнце"){
-  showToast("Солнце нельзя удалить");
-  return;
- }
- const b=selected;
- scene.remove(b.mesh);
- scene.remove(b.orbit);
- b.mesh.geometry.dispose();
- b.mesh.material.map?.dispose();
- b.mesh.material.dispose();
- b.orbit.geometry.dispose();
- b.orbit.material.dispose();
- bodies=bodies.filter(x=>x!==b);
- selected=null;
- $("selected").textContent="Выбери планету";
- updateObjectList();
-};
-/* RESET */
-$("reset").onclick=()=>{
- createSystem();
- simulationTime=0;
- simulationSpeed=20;
- $("speed").value="20";
- updateStatus();
-};
-/* TOAST */
-let toastTimer;
-function showToast(message){
- const t=$("toast");
- t.textContent=message;
- t.classList.add("show");
- clearTimeout(toastTimer);
- toastTimer=setTimeout(()=>t.classList.remove("show"),1800);
-}
-/* ANIMATION */
-let lastFrame=performance.now();
-let elapsed=0;
-function animate(now){
- requestAnimationFrame(animate);
- const delta=Math.min((now-lastFrame)/1000,.05);
- lastFrame=now;
- elapsed+=delta;
- updateSimulation(delta);
- for(const b of bodies){
-  b.mesh.rotation.y+=delta*(b.name==="Солнце"?.18:.12);
-  if(b.glow){
-   const pulse=1+Math.sin(elapsed*2)*.045;
-   b.glow.scale.set(7*pulse,7*pulse,1);
-  }
- }
- stars.rotation.y+=delta*.0015;
- distantStars.rotation.y-=delta*.0005;
- if(following&&selected){
-  controls.target.lerp(selected.position,.08);
-  const offset=new THREE.Vector3(0,2,5);
-  camera.position.lerp(selected.position.clone().add(offset),.025);
- }
- controls.update();
- renderer.render(scene,camera);
-}
-requestAnimationFrame(animate);
-/* RESIZE */
-window.addEventListener("resize",()=>{
- camera.aspect=innerWidth/innerHeight;
- camera.updateProjectionMatrix();
- renderer.setSize(innerWidth,innerHeight);
- renderer.setPixelRatio(Math.min(devicePixelRatio,1.7));
-});
-/* START */
-updateStatus();
-console.log("MB UNIVERSE 0.2 STARTED");
+
+render();
 </script>
 </body>
 </html>
