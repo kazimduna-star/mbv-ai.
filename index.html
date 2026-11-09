@@ -3,410 +3,841 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>TIC TAC TOE ULTIMATE</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>PHOTO BATTLE 2.0</title>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
 <style>
 *{box-sizing:border-box}
-:root{--bg:#090d19;--panel:#121a2c;--line:#25334d;--text:#f3f6ff;--muted:#8492ac;--blue:#6c8cff;--pink:#ff639e;--green:#40e0b0}
+:root{
+ --red:#ff365d;
+ --blue:#398aff;
+ --bg:#080b17;
+}
 body{
- margin:0;min-height:100vh;background:
- radial-gradient(ellipse at 15% 0%,#1b2850 0,transparent 45%),
- radial-gradient(ellipse at 90% 90%,#291a49 0,transparent 40%),var(--bg);
- color:var(--text);font-family:system-ui,-apple-system,sans-serif;
- display:flex;justify-content:center;padding:20px 12px 40px;
+ margin:0;
+ padding:12px;
+ min-height:100vh;
+ overflow-x:hidden;
+ color:white;
+ font-family:Arial,sans-serif;
+ background:#080b17;
 }
-.app{width:100%;max-width:520px}
-header{text-align:center;margin:12px 0 25px}
-.logo{font-size:12px;letter-spacing:5px;color:var(--blue);font-weight:900}
-h1{font-size:34px;letter-spacing:-1.5px;margin:7px 0}
-h1 span{color:var(--blue)}
-.subtitle{color:var(--muted);font-size:13px}
+body:before,body:after{
+ content:"";
+ position:fixed;
+ width:75vw;
+ height:75vw;
+ max-width:700px;
+ max-height:700px;
+ border-radius:50%;
+ filter:blur(90px);
+ opacity:.24;
+ pointer-events:none;
+ z-index:-2;
+ animation:float 12s ease-in-out infinite alternate;
+}
+body:before{
+ background:#ff174d;
+ top:-30%;
+ left:-35%;
+}
+body:after{
+ background:#126bff;
+ bottom:-35%;
+ right:-35%;
+ animation-delay:-6s;
+}
+@keyframes float{
+ 0%{transform:translate(0,0) scale(.8)}
+ 50%{transform:translate(35vw,20vh) scale(1.2)}
+ 100%{transform:translate(5vw,45vh) scale(.9)}
+}
+.bg{
+ position:fixed;
+ inset:0;
+ z-index:-1;
+ pointer-events:none;
+ background:
+ radial-gradient(ellipse at 50% 50%,#18213b55,transparent 70%),
+ linear-gradient(120deg,#080b17,#11162a,#080b17);
+ background-size:200% 200%;
+ animation:bgMove 15s ease infinite;
+}
+@keyframes bgMove{
+ 0%{background-position:0% 50%}
+ 50%{background-position:100% 50%}
+ 100%{background-position:0% 50%}
+}
+.container{max-width:760px;margin:auto}
+header{text-align:center;padding:25px 5px}
+h1{
+ font-size:clamp(33px,8vw,49px);
+ margin:0;
+ font-weight:1000;
+ letter-spacing:2px;
+ background:linear-gradient(90deg,#ff365d,#fff,#398aff);
+ background-size:200%;
+ -webkit-background-clip:text;
+ color:transparent;
+ animation:shine 4s linear infinite;
+}
+@keyframes shine{
+ to{background-position:200% center}
+}
+header p{color:#a9b5d2;font-size:14px}
 .panel{
- background:linear-gradient(145deg,#17223a,#10182a);
- border:1px solid var(--line);border-radius:20px;padding:17px;margin-bottom:14px;
- box-shadow:0 12px 35px #0004;
+ background:#141d30eF;
+ border:1px solid #394762;
+ border-radius:21px;
+ padding:18px;
+ margin:15px 0;
+ box-shadow:0 12px 35px #0006;
+ backdrop-filter:blur(15px);
+ animation:appear .5s ease;
 }
-.section-title{font-size:12px;color:var(--muted);font-weight:800;letter-spacing:1.5px;margin-bottom:12px}
-.modes,.sizes,.difficulties{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+@keyframes appear{
+ from{opacity:0;transform:translateY(12px)}
+ to{opacity:1;transform:translateY(0)}
+}
+h2{font-size:18px;margin:0 0 17px}
+.row{
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ flex-wrap:wrap;
+ gap:9px;
+}
+button,input,select{
+ border:1px solid #455775;
+ border-radius:12px;
+ padding:12px;
+ color:white;
+ background:#26334c;
+ font-size:14px;
+}
 button{
- border:1px solid var(--line);background:#1b2740;color:var(--text);
- border-radius:12px;padding:12px 7px;font-size:13px;font-weight:750;
- cursor:pointer;transition:.2s; -webkit-tap-highlight-color:transparent;
+ font-weight:bold;
+ cursor:pointer;
+ transition:.2s;
 }
-button:active{transform:scale(.96)}
-button.active{background:linear-gradient(135deg,#536fff,#8068f7);border-color:transparent;box-shadow:0 5px 20px #536fff55}
-button.primary{background:linear-gradient(135deg,#557aff,#9266ff);border:0}
-button.secondary{background:#202e49}
-button:disabled{opacity:.4}
-.game-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.player{flex:1;text-align:center;padding:12px 5px;border:1px solid var(--line);border-radius:14px;background:#111b30}
-.player.current{border-color:var(--blue);background:#26365b;box-shadow:0 0 20px #557aff33}
-.symbol{font-size:25px;font-weight:900}
-.x{color:#6e9aff;text-shadow:0 0 18px #6e9aff88}
-.o{color:#ff70aa;text-shadow:0 0 18px #ff70aa88}
-.player-name{font-size:11px;color:var(--muted);margin-top:3px}
-.vs{padding:0 9px;color:#67758f;font-size:11px;font-weight:900}
-.status{text-align:center;font-size:14px;font-weight:750;margin:14px 0;color:#dce5ff;min-height:21px}
-.board-wrap{padding:12px;background:#0b1324;border:1px solid #283958;border-radius:19px}
-.board{display:grid;gap:7px;aspect-ratio:1}
+button:active{transform:scale(.95)}
+button:disabled{opacity:.4;cursor:not-allowed}
+.redBtn{
+ background:linear-gradient(120deg,#b8183c,#ff365d);
+ border:0;
+}
+.blueBtn{
+ background:linear-gradient(120deg,#1553b4,#398aff);
+ border:0;
+}
+.primary{
+ background:linear-gradient(120deg,#687aff,#a16bff);
+ border:0;
+}
+.player{
+ text-align:center;
+ padding:12px 5px;
+ border:2px solid #3b4964;
+ border-radius:16px;
+ transition:.3s;
+ min-width:0;
+}
+.players{
+ display:grid;
+ grid-template-columns:1fr 40px 1fr;
+ gap:8px;
+ align-items:center;
+}
+.player.red.active{border-color:var(--red);box-shadow:0 0 20px #ff365d44}
+.player.blue.active{border-color:var(--blue);box-shadow:0 0 20px #398aff44}
+.player img{
+ width:95px;height:95px;
+ object-fit:cover;
+ border-radius:13px;
+ display:block;
+ margin:0 auto 9px;
+ background:#293650;
+}
+.player.red b{color:var(--red)}
+.player.blue b{color:var(--blue)}
+.vs{text-align:center;font-weight:1000;font-size:18px}
+.upload{width:100%;font-size:10px;margin-top:9px}
+.info{color:#9baac7;text-align:center;font-size:12px;line-height:1.6}
+.status{
+ text-align:center;
+ font-size:20px;
+ font-weight:900;
+ margin:18px 0;
+ min-height:27px;
+}
+.board{
+ display:grid;
+ gap:6px;
+ max-width:520px;
+ margin:20px auto;
+}
 .cell{
- min-width:0;min-height:0;border-radius:12px;border:1px solid #283955;
- background:linear-gradient(145deg,#17243a,#101a2d);
- display:flex;align-items:center;justify-content:center;
- font-size:clamp(25px,9vw,48px);font-weight:950;
- transition:background .2s,border .2s;
+ position:relative;
+ min-width:0;
+ padding:0;
+ aspect-ratio:1;
+ overflow:hidden;
+ border-radius:11px;
+ background:linear-gradient(145deg,#273650,#172239);
+ border:2px solid #455776;
 }
-.board.four .cell{font-size:clamp(22px,7vw,38px)}
-.board.five .cell{font-size:clamp(19px,6vw,32px);border-radius:8px}
-.cell:not(:disabled){cursor:pointer}
-.cell:not(:disabled):active{background:#263b60}
-.cell.win{background:#214b4a;border-color:var(--green);animation:winPulse .8s infinite alternate}
-.cell.pop{animation:pop .25s ease-out}
-@keyframes pop{0%{transform:scale(.5);opacity:.2}100%{transform:scale(1);opacity:1}}
-@keyframes winPulse{to{box-shadow:0 0 17px #40e0b077}}
-.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
-.actions button{padding:13px}
-.score{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
-.score div{background:#101a2d;border:1px solid var(--line);padding:10px;border-radius:12px;text-align:center}
-.score strong{display:block;font-size:21px}
-.score small{font-size:10px;color:var(--muted)}
-.online{display:none}
-.online.show{display:block}
-.online-row{display:flex;gap:8px;margin-top:9px}
-.online-row input{
- min-width:0;flex:1;background:#0b1425;color:white;border:1px solid var(--line);
- border-radius:11px;padding:12px;font-size:15px;outline:none;text-transform:uppercase;
+.cell img{
+ width:100%;
+ height:100%;
+ object-fit:cover;
+ display:block;
+ animation:pop .35s cubic-bezier(.2,1.5,.5,1);
 }
-.online-info{font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5}
-.room-code{font-size:25px;letter-spacing:6px;color:#8da7ff;font-weight:900;text-align:center;padding:10px}
+@keyframes pop{
+ from{transform:scale(.2);opacity:0}
+ to{transform:scale(1);opacity:1}
+}
+.cell.redCell{border:3px solid var(--red);box-shadow:0 0 12px #ff365d66}
+.cell.blueCell{border:3px solid var(--blue);box-shadow:0 0 12px #398aff66}
+.cell.win{animation:pulse .6s infinite alternate}
+@keyframes pulse{
+ to{transform:scale(1.05);filter:brightness(1.7)}
+}
+.score{
+ text-align:center;
+ background:#0b1221;
+ border:1px solid #33435e;
+ border-radius:14px;
+ padding:13px;
+ line-height:2;
+ margin-top:15px;
+}
+.redText{color:#ff5573}
+.blueText{color:#5ca1ff}
+.onlineBox{
+ background:#0c1527;
+ border:1px solid #364866;
+ padding:15px;
+ border-radius:15px;
+ margin-top:13px;
+}
+.onlineStatus{
+ text-align:center;
+ color:#a9bddc;
+ font-size:13px;
+ margin:13px 0;
+}
+.roomCode{
+ font-size:20px;
+ font-weight:900;
+ letter-spacing:3px;
+ text-align:center;
+ color:#a8c5ff;
+ width:100%;
+ text-transform:none;
+}
+.bigButton{width:100%;padding:15px;font-size:15px}
 .hidden{display:none!important}
-.notice{text-align:center;color:var(--muted);font-size:11px;margin-top:20px}
-#toast{position:fixed;bottom:25px;left:50%;transform:translateX(-50%);background:#263957;border:1px solid #536fff;color:white;padding:12px 18px;border-radius:12px;display:none;z-index:10;max-width:90%;text-align:center}
-@media(max-width:370px){h1{font-size:28px}.panel{padding:13px}.cell{gap:4px}}
+#confetti{
+ position:fixed;
+ inset:0;
+ pointer-events:none;
+ z-index:100;
+}
+@media(max-width:500px){
+ body{padding:8px}
+ .panel{padding:13px}
+ .player img{width:72px;height:72px}
+ .cell{border-radius:7px}
+ button{font-size:12px;padding:11px}
+}
 </style>
 </head>
+
 <body>
-<div class="app">
+<div class="bg"></div>
+<canvas id="confetti"></canvas>
+
+<div class="container">
+
 <header>
- <div class="logo">MB GAMES PRESENTS</div>
- <h1>TIC TAC <span>TOE</span></h1>
- <div class="subtitle">ULTIMATE EDITION · PLAY YOUR WAY</div>
+<h1>PHOTO BATTLE</h1>
+<p>🔴 КРАСНЫЙ VS СИНИЙ 🔵</p>
+<p>⚡ Только ты и твой друг</p>
 </header>
 
-<div class="panel">
- <div class="section-title">РЕЖИМ ИГРЫ</div>
- <div class="modes">
-  <button class="active" data-mode="bot" onclick="setMode('bot',this)">🤖 С ботом</button>
-  <button data-mode="local" onclick="setMode('local',this)">👥 Вдвоём</button>
-  <button data-mode="online" onclick="setMode('online',this)">🌐 Онлайн</button>
- </div>
+<section class="panel">
+<h2>👥 ФОТОГРАФИИ ИГРОКОВ</h2>
+<div class="players">
+
+<div class="player red active">
+<img id="preview0" alt="Красный игрок">
+<b>🔴 КРАСНЫЙ</b>
+<input class="upload" type="file" accept="image/*" onchange="uploadPhoto(event,0)">
 </div>
 
-<div class="panel">
- <div class="section-title">РАЗМЕР ПОЛЯ</div>
- <div class="sizes">
-  <button class="active" onclick="setSize(3,this)">3 × 3</button>
-  <button onclick="setSize(4,this)">4 × 4</button>
-  <button onclick="setSize(5,this)">5 × 5</button>
- </div>
- <div class="section-title" style="margin-top:17px">СЛОЖНОСТЬ БОТА</div>
- <div class="difficulties">
-  <button class="active" onclick="setDifficulty('easy',this)">Лёгкий</button>
-  <button onclick="setDifficulty('medium',this)">Средний</button>
-  <button onclick="setDifficulty('hard',this)">Сложный</button>
- </div>
+<div class="vs">VS</div>
+
+<div class="player blue">
+<img id="preview1" alt="Синий игрок">
+<b>🔵 СИНИЙ</b>
+<input class="upload" type="file" accept="image/*" onchange="uploadPhoto(event,1)">
 </div>
 
-<div class="panel online" id="onlinePanel">
- <div class="section-title">ОНЛАЙН МУЛЬТИПЛЕЕР</div>
- <div class="online-row">
-  <button class="primary" style="flex:1" onclick="createRoom()">Создать комнату</button>
- </div>
- <div class="online-info">Создай комнату и отправь другу код. Друг должен ввести код и нажать «Подключиться».</div>
- <div id="roomArea" class="hidden">
-  <div class="room-code" id="roomCode"></div>
-  <button class="secondary" style="width:100%" onclick="copyRoom()">📋 Скопировать код</button>
- </div>
- <div class="online-row">
-  <input id="joinCode" maxlength="6" placeholder="КОД КОМНАТЫ">
-  <button class="primary" onclick="joinRoom()">Войти</button>
- </div>
- <div class="online-info" id="netStatus">Ожидание подключения.</div>
+</div>
+<p class="info">Красный — создатель комнаты. Синий — приглашённый друг.</p>
+</section>
+
+<section class="panel">
+<h2>⚔️ ИГРОВОЕ ПОЛЕ</h2>
+
+<div class="row">
+<select id="size">
+<option value="3">3 × 3</option>
+<option value="4">4 × 4</option>
+<option value="5">5 × 5</option>
+</select>
 </div>
 
-<div class="panel">
- <div class="game-info">
-  <div class="player current" id="playerX">
-   <div class="symbol x">✕</div><div class="player-name" id="nameX">Игрок 1</div>
-  </div>
-  <div class="vs">VS</div>
-  <div class="player" id="playerO">
-   <div class="symbol o">◯</div><div class="player-name" id="nameO">Бот</div>
-  </div>
- </div>
+<div class="status" id="status">Начни новую игру!</div>
+<div class="board" id="board"></div>
 
- <div class="status" id="status">Ход крестиков</div>
- <div class="board-wrap">
-  <div class="board" id="board"></div>
- </div>
- <div class="actions">
-  <button class="primary" onclick="newGame()">↻ Новая игра</button>
-  <button class="secondary" onclick="resetScore()">Сбросить счёт</button>
- </div>
- <div class="score">
-  <div><strong class="x" id="scoreX">0</strong><small>КРЕСТИКИ</small></div>
-  <div><strong id="scoreDraw">0</strong><small>НИЧЬИ</small></div>
-  <div><strong class="o" id="scoreO">0</strong><small>НОЛИКИ</small></div>
- </div>
+<div class="row">
+<button class="primary" onclick="newGame()">🔄 Новая игра</button>
 </div>
-<div class="notice">TIC TAC TOE ULTIMATE · MADE FOR FUN</div>
+
+<div class="score" id="score">
+<span class="redText">🔴 Красный: 0</span><br>
+<span class="blueText">🔵 Синий: 0</span><br>
+🤝 Ничьи: 0
 </div>
-<div id="toast"></div>
+</section>
+
+<section class="panel">
+<h2>🌐 ИГРА С ДРУГОМ</h2>
+
+<div class="onlineBox" id="lobby">
+<p class="info">Создай комнату или подключись к комнате друга. Играть смогут ровно два человека.</p>
+
+<button class="redBtn bigButton" onclick="createRoom()">
+🔴 СОЗДАТЬ КОМНАТУ
+</button>
+
+<div style="height:15px"></div>
+
+<input id="joinCode" class="roomCode" placeholder="КОД ДРУГА" autocomplete="off">
+
+<div style="height:10px"></div>
+
+<button class="blueBtn bigButton" onclick="joinRoom()">
+🔵 ПОДКЛЮЧИТЬСЯ К ДРУГУ
+</button>
+</div>
+
+<div class="onlineBox hidden" id="roomPanel">
+
+<p class="info">ТВОЙ КОД КОМНАТЫ</p>
+<input id="displayCode" class="roomCode" readonly>
+
+<div style="height:10px"></div>
+
+<button class="primary bigButton" onclick="copyCode()">
+📋 СКОПИРОВАТЬ КОД
+</button>
+
+<div class="onlineStatus" id="onlineStatus">
+Ожидание второго игрока...
+</div>
+
+<div class="row">
+<button onclick="leaveRoom()">🚪 Выйти из комнаты</button>
+</div>
+</div>
+
+<p class="info" id="networkInfo">
+Для игры оба игрока должны быть онлайн.
+</p>
+</section>
+
+</div>
 
 <script>
-let size=3, winLength=3, mode='bot', difficulty='easy';
-let board=[],turn='X',finished=false,score={X:0,O:0,D:0};
-let peer=null,connection=null,room='',mySide='X',onlineReady=false;
-let winningCells=[];
+let photos=[
+ "https://placehold.co/300x300/ff365d/ffffff?text=RED",
+ "https://placehold.co/300x300/398aff/ffffff?text=BLUE"
+];
 
-const $=id=>document.getElementById(id);
+let size=3;
+let cells=[];
+let turn=0;
+let winner=null;
+let score=[0,0,0];
 
-function toast(message){
- const t=$('toast');t.textContent=message;t.style.display='block';
- clearTimeout(toast.timer);toast.timer=setTimeout(()=>t.style.display='none',2400);
-}
-function setMode(m,btn){
- if(mode==='online'&&m!=='online') disconnect();
- mode=m;
- document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===m));
- $('onlinePanel').classList.toggle('show',m==='online');
- $('nameX').textContent=m==='bot'?'Ты':m==='online'?'Ты (X)':'Игрок 1';
- $('nameO').textContent=m==='bot'?'Бот':m==='online'?'Друг (O)':'Игрок 2';
- newGame();
-}
-function setSize(n,btn){
- size=n;winLength=n===5?4:n;
- document.querySelectorAll('.sizes button').forEach(b=>b.classList.remove('active'));
- btn.classList.add('active');newGame();
-}
-function setDifficulty(d,btn){
- difficulty=d;
- document.querySelectorAll('.difficulties button').forEach(b=>b.classList.remove('active'));
- btn.classList.add('active');
-}
-function newGame(){
- board=Array(size*size).fill('');
- turn='X';finished=false;winningCells=[];
- render();updateStatus();
- if(mode==='online'&&mySide==='O'&&onlineReady) updateStatus('Ожидаем ход игрока X');
-}
-function render(){
- const el=$('board');
- el.innerHTML='';
- el.style.gridTemplateColumns=`repeat(${size},1fr)`;
- el.className='board '+(size===4?'four':size===5?'five':'');
- board.forEach((v,i)=>{
-  const b=document.createElement('button');
-  b.className='cell'+(winningCells.includes(i)?' win':'');
-  b.textContent=v==='X'?'✕':v==='O'?'◯':'';
-  if(v)b.classList.add('pop',v==='X'?'x':'o');
-  b.disabled=!!v||finished||(mode==='online'&&(!onlineReady||turn!==mySide));
-  b.onclick=()=>play(i);
-  el.appendChild(b);
+let peer=null;
+let connection=null;
+let online=false;
+let host=false;
+let connected=false;
+let myPlayer=0;
+let roomId="";
+
+function compressPhoto(file){
+ return new Promise(resolve=>{
+  const reader=new FileReader();
+  reader.onload=e=>{
+   const img=new Image();
+   img.onload=()=>{
+    const canvas=document.createElement("canvas");
+    const scale=Math.min(1,600/Math.max(img.width,img.height));
+    canvas.width=Math.round(img.width*scale);
+    canvas.height=Math.round(img.height*scale);
+    canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
+    resolve(canvas.toDataURL("image/jpeg",.72));
+   };
+   img.onerror=()=>resolve(e.target.result);
+   img.src=e.target.result;
+  };
+  reader.onerror=()=>resolve(null);
+  reader.readAsDataURL(file);
  });
- $('scoreX').textContent=score.X;
- $('scoreO').textContent=score.O;
- $('scoreDraw').textContent=score.D;
- $('playerX').classList.toggle('current',turn==='X'&&!finished);
- $('playerO').classList.toggle('current',turn==='O'&&!finished);
 }
-function updateStatus(message){
- if(message){$('status').textContent=message;return}
- if(finished)return;
- if(mode==='online'&&!onlineReady){$('status').textContent='Ожидаем второго игрока...';return}
- $('status').textContent=turn==='X'?'Ход крестиков':'Ход ноликов';
+
+async function uploadPhoto(event,player){
+ const file=event.target.files[0];
+ if(!file)return;
+ if(!file.type.startsWith("image/")){
+  alert("Выбери изображение");
+  return;
+ }
+ if(file.size>10*1024*1024){
+  alert("Максимальный размер фото — 10 МБ");
+  return;
+ }
+
+ const data=await compressPhoto(file);
+ if(!data)return;
+
+ photos[player]=data;
+ document.getElementById("preview"+player).src=data;
+
+ if(online&&host&&connected)sendState();
 }
-function getWinner(arr){
- const dirs=[[0,1],[1,0],[1,1],[1,-1]];
- for(let r=0;r<size;r++)for(let c=0;c<size;c++){
-  const i=r*size+c,s=arr[i];if(!s)continue;
-  for(const [dr,dc] of dirs){
-   let cells=[i],ok=true;
-   for(let k=1;k<winLength;k++){
-    let nr=r+dr*k,nc=c+dc*k;
-    if(nr<0||nr>=size||nc<0||nc>=size||arr[nr*size+nc]!==s){ok=false;break}
-    cells.push(nr*size+nc);
+
+function newGame(){
+ if(online&&!host){
+  alert("Новую игру может начать создатель комнаты.");
+  return;
+ }
+
+ size=Number(document.getElementById("size").value);
+ cells=Array(size*size).fill(-1);
+ winner=null;
+ turn=0;
+ stopConfetti();
+ render();
+ updateStatus();
+ updateScore();
+
+ if(online&&host&&connected)sendState();
+}
+
+function render(){
+ const board=document.getElementById("board");
+ board.style.gridTemplateColumns=`repeat(${size},1fr)`;
+ board.innerHTML="";
+
+ cells.forEach((player,index)=>{
+  const button=document.createElement("button");
+  button.className="cell";
+
+  if(player!==-1){
+   const img=document.createElement("img");
+   img.src=photos[player];
+   button.appendChild(img);
+   button.classList.add(player===0?"redCell":"blueCell");
+  }
+
+  if(winner&&winner.line.includes(index))button.classList.add("win");
+
+  button.disabled=
+   player!==-1||
+   winner!==null||
+   (online&&(!connected||turn!==myPlayer));
+
+  button.onclick=()=>makeMove(index);
+  board.appendChild(button);
+ });
+}
+
+function checkWinner(player){
+ const directions=[[0,1],[1,0],[1,1],[1,-1]];
+
+ for(let r=0;r<size;r++){
+  for(let c=0;c<size;c++){
+   if(cells[r*size+c]!==player)continue;
+
+   for(const [dr,dc] of directions){
+    let line=[];
+    for(let k=0;k<size;k++){
+     const nr=r+dr*k,nc=c+dc*k;
+     if(nr<0||nr>=size||nc<0||nc>=size||
+        cells[nr*size+nc]!==player)break;
+     line.push(nr*size+nc);
+    }
+    if(line.length===size)return line;
    }
-   if(ok)return {winner:s,cells};
   }
  }
  return null;
 }
-function play(i,remote=false){
- if(finished||board[i]|| (mode==='online'&&!remote&&(!onlineReady||turn!==mySide)))return;
- board[i]=turn;
- const result=getWinner(board);
- if(result){
-  finished=true;winningCells=result.cells;score[result.winner]++;
+
+function makeMove(index){
+ if(winner||cells[index]!==-1)return;
+
+ if(online){
+  if(!connected||turn!==myPlayer)return;
+
+  if(host){
+   if(applyMove(index,myPlayer))sendState();
+  }else{
+   connection.send({type:"move",index});
+  }
+ }else{
+  applyMove(index,turn);
+ }
+}
+
+function applyMove(index,player){
+ if(winner||cells[index]!==-1)return false;
+
+ cells[index]=player;
+ const line=checkWinner(player);
+
+ if(line){
+  winner={player,line};
+  score[player]++;
+  victoryEffect(player);
+ }else if(cells.every(x=>x!==-1)){
+  winner={player:-1,line:[]};
+  score[2]++;
+ }else{
+  turn=1-player;
+ }
+
+ render();
+ updateStatus();
+ updateScore();
+ return true;
+}
+
+function updateStatus(){
+ const s=document.getElementById("status");
+ s.className="status";
+
+ if(winner){
+  if(winner.player===-1){
+   s.textContent="🤝 НИЧЬЯ!";
+  }else{
+   s.textContent=winner.player===0?"🏆 ПОБЕДА КРАСНОГО!":"🏆 ПОБЕДА СИНЕГО!";
+   s.classList.add(winner.player===0?"redText":"blueText");
+  }
+ }else{
+  if(online){
+   s.textContent=!connected?"ОЖИДАНИЕ ИГРОКА...":
+    turn===myPlayer?"🔥 ТВОЙ ХОД!":"⏳ ХОД СОПЕРНИКА";
+  }else{
+   s.textContent=turn===0?"🔴 ХОД КРАСНОГО":"🔵 ХОД СИНЕГО";
+  }
+  s.classList.add(turn===0?"redText":"blueText");
+ }
+}
+
+function updateScore(){
+ document.getElementById("score").innerHTML=
+ `<span class="redText">🔴 Красный: ${score[0]}</span><br>
+ <span class="blueText">🔵 Синий: ${score[1]}</span><br>
+ 🤝 Ничьи: ${score[2]}`;
+}
+
+// АНИМАЦИЯ ПОБЕДЫ
+
+let confettiFrame=null;
+
+function victoryEffect(player){
+ stopConfetti();
+
+ const canvas=document.getElementById("confetti");
+ const ctx=canvas.getContext("2d");
+ canvas.width=innerWidth;
+ canvas.height=innerHeight;
+
+ const colors=player===0?
+ ["#ff365d","#ff9aab","#ffffff"]:
+ ["#398aff","#9dcaff","#ffffff"];
+
+ let pieces=Array.from({length:170},()=>({
+  x:Math.random()*canvas.width,
+  y:-Math.random()*canvas.height,
+  speed:2+Math.random()*5,
+  size:4+Math.random()*7,
+  color:colors[Math.floor(Math.random()*colors.length)],
+  drift:Math.random()*3-1.5,
+  angle:Math.random()*6
+ }));
+
+ let frame=0;
+ function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  pieces.forEach(p=>{
+   p.y+=p.speed;
+   p.x+=p.drift;
+   p.angle+=.1;
+   ctx.save();
+   ctx.translate(p.x,p.y);
+   ctx.rotate(p.angle);
+   ctx.fillStyle=p.color;
+   ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*.6);
+   ctx.restore();
+  });
+  if(++frame<200)confettiFrame=requestAnimationFrame(animate);
+  else stopConfetti();
+ }
+ animate();
+}
+
+function stopConfetti(){
+ if(confettiFrame)cancelAnimationFrame(confettiFrame);
+ confettiFrame=null;
+ const canvas=document.getElementById("confetti");
+ const ctx=canvas.getContext("2d");
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+// СЕТЕВАЯ ИГРА
+
+function onlineMessage(message){
+ document.getElementById("onlineStatus").textContent=message;
+}
+
+function showRoom(code){
+ document.getElementById("lobby").classList.add("hidden");
+ document.getElementById("roomPanel").classList.remove("hidden");
+ document.getElementById("displayCode").value=code||roomId;
+}
+
+function showLobby(){
+ document.getElementById("lobby").classList.remove("hidden");
+ document.getElementById("roomPanel").classList.add("hidden");
+}
+
+function getState(){
+ return {
+  type:"state",
+  cells:cells,
+  size:size,
+  turn:turn,
+  winner:winner,
+  score:score,
+  photos:photos
+ };
+}
+
+function sendState(){
+ if(connection&&connection.open)connection.send(getState());
+}
+
+function receiveState(data){
+ if(!data||data.type!=="state")return;
+ if(!Array.isArray(data.cells)||data.cells.length!==data.size*data.size)return;
+ if(![3,4,5].includes(data.size))return;
+
+ size=data.size;
+ document.getElementById("size").value=size;
+ cells=data.cells;
+ turn=data.turn;
+ winner=data.winner;
+ score=data.score||[0,0,0];
+ photos=data.photos||photos;
+
+ document.getElementById("preview0").src=photos[0];
+ document.getElementById("preview1").src=photos[1];
+
+ render();
+ updateStatus();
+ updateScore();
+}
+
+function setupConnection(conn){
+ connection=conn;
+
+ conn.on("open",()=>{
+  connected=true;
+  onlineMessage("🟢 Друг подключён! Можно играть.");
+  if(host){
+   sendState();
+  }else{
+   conn.send({type:"hello"});
+  }
   render();
-  $('status').textContent=result.winner==='X'?'✕ Крестики победили!':'◯ Нолики победили!';
-  if(mode==='online'&&!remote)send({type:'move',index:i});
-  return;
- }
- if(board.every(Boolean)){
-  finished=true;score.D++;render();$('status').textContent='🤝 Ничья!';
-  if(mode==='online'&&!remote)send({type:'move',index:i});
-  return;
- }
- turn=turn==='X'?'O':'X';
- render();updateStatus();
- if(mode==='online'&&!remote)send({type:'move',index:i});
- if(mode==='bot'&&turn==='O'&&!finished)setTimeout(botMove,350);
-}
-function botMove(){
- if(finished||mode!=='bot')return;
- let i;
- if(difficulty==='hard'&&size===3)i=minimax(board,'O').index;
- else i=smartMove();
- if(i!==undefined&&i!==null)play(i);
-}
-function minimax(arr,player){
- const result=getWinner(arr);
- if(result)return {score:result.winner==='O'?10:-10};
- if(arr.every(Boolean))return {score:0};
- let best={score:player==='O'?-Infinity:Infinity,index:null};
- for(let i=0;i<arr.length;i++)if(!arr[i]){
-  arr[i]=player;
-  const value=minimax(arr,player==='O'?'X':'O').score;
-  arr[i]='';
-  if(player==='O'?value>best.score:value<best.score)best={score:value,index:i};
- }
- return best;
-}
-function smartMove(){
- const empty=board.map((v,i)=>v===''?i:-1).filter(i=>i>=0);
- if(!empty.length)return null;
- if(difficulty==='easy'&&Math.random()<.55)return empty[Math.floor(Math.random()*empty.length)];
- // Ищем выигрышный ход и возможность остановить победу игрока.
- for(const symbol of ['O','X']){
-  for(const i of empty){
-   board[i]=symbol;let wins=!!getWinner(board);board[i]='';
-   if(wins)return i;
-  }
- }
- if(difficulty==='hard'){
-  let best=-Infinity,chosen=empty[0];
-  for(const i of empty){
-   board[i]='O';
-   let value=evaluateBoard();
-   board[i]='';
-   value+=Math.random()*.2;
-   if(value>best){best=value;chosen=i}
-  }
-  return chosen;
- }
- const center=(size-1)/2;
- empty.sort((a,b)=>{
-  let ar=Math.floor(a/size),ac=a%size,br=Math.floor(b/size),bc=b%size;
-  return Math.hypot(ar-center,ac-center)-Math.hypot(br-center,bc-center);
+  updateStatus();
  });
- return difficulty==='medium'?empty[0]:empty[Math.floor(Math.random()*empty.length)];
-}
-function evaluateBoard(){
- let value=0,dirs=[[0,1],[1,0],[1,1],[1,-1]];
- for(let r=0;r<size;r++)for(let c=0;c<size;c++)for(const [dr,dc] of dirs){
-  let cells=[];
-  for(let k=0;k<winLength;k++){
-   let nr=r+dr*k,nc=c+dc*k;
-   if(nr<0||nr>=size||nc<0||nc>=size)break;
-   cells.push(board[nr*size+nc]);
+
+ conn.on("data",data=>{
+  if(!data)return;
+
+  if(host){
+   if(data.type==="move"&&
+      Number.isInteger(data.index)&&
+      data.index>=0&&data.index<cells.length&&
+      turn===1&&cells[data.index]===-1&&!winner){
+    if(applyMove(data.index,1))sendState();
+   }
+  }else{
+   if(data.type==="state")receiveState(data);
+   if(data.type==="hello")sendState();
   }
-  if(cells.length!==winLength)continue;
-  let o=cells.filter(x=>x==='O').length,x=cells.filter(x=>x==='X').length;
-  if(!x)value+=Math.pow(4,o);
-  if(!o)value-=Math.pow(4,x)*1.1;
- }
- return value;
+ });
+
+ conn.on("close",()=>{
+  connected=false;
+  onlineMessage("🔴 Друг отключился");
+  render();
+  updateStatus();
+ });
+
+ conn.on("error",()=>{
+  onlineMessage("Ошибка соединения");
+ });
 }
-function resetScore(){score={X:0,O:0,D:0};render();toast('Счёт обнулён')}
-function send(data){
- if(connection&&connection.open)connection.send(data);
-}
-function disconnect(){
- if(connection){connection.close();connection=null}
- if(peer){peer.destroy();peer=null}
- onlineReady=false;room='';
- $('roomArea').classList.add('hidden');
- $('netStatus').textContent='Отключено.';
-}
+
 function createRoom(){
- disconnect();
- room=Math.random().toString(36).substring(2,8).toUpperCase();
- mySide='X';newGame();
- $('netStatus').textContent='Создаём комнату...';
- peer=new Peer('mbttt-'+room);
- peer.on('open',()=>{
-  $('roomCode').textContent=room;
-  $('roomArea').classList.remove('hidden');
-  $('netStatus').textContent='Комната создана. Ожидаем друга...';
+ leaveRoom(false);
+
+ if(!window.Peer){
+  alert("Не удалось загрузить PeerJS. Проверь интернет.");
+  return;
+ }
+
+ online=true;
+ host=true;
+ myPlayer=0;
+ roomId="photo-"+Math.random().toString(36).slice(2,9);
+
+ cells=Array(9).fill(-1);
+ size=3;
+ turn=0;
+ winner=null;
+ score=[0,0,0];
+
+ document.getElementById("size").value=3;
+ render();
+ updateStatus();
+ updateScore();
+
+ showRoom(roomId);
+ onlineMessage("⏳ Создаём комнату...");
+
+ peer=new Peer(roomId);
+
+ peer.on("open",id=>{
+  roomId=id;
+  document.getElementById("displayCode").value=id;
+  onlineMessage("🟡 Комната готова! Отправь код другу.");
  });
- peer.on('connection',conn=>{
-  if(connection){conn.close();return}
-  connection=conn;setupConnection();
+
+ peer.on("connection",conn=>{
+  if(connection){
+   conn.close();
+   return;
+  }
+  setupConnection(conn);
  });
- peer.on('error',e=>{$('netStatus').textContent='Ошибка соединения: '+e.type;});
+
+ peer.on("error",err=>{
+  onlineMessage("Ошибка комнаты: "+err.type);
+ });
 }
+
 function joinRoom(){
- const code=$('joinCode').value.trim().toUpperCase();
- if(code.length!==6){toast('Введите шестизначный код');return}
- disconnect();room=code;mySide='O';newGame();
- $('netStatus').textContent='Подключаемся...';
+ leaveRoom(false);
+
+ if(!window.Peer){
+  alert("Не удалось загрузить PeerJS.");
+  return;
+ }
+
+ const code=document.getElementById("joinCode").value.trim();
+
+ if(!code){
+  alert("Введи код друга!");
+  return;
+ }
+
+ online=true;
+ host=false;
+ myPlayer=1;
+
+ showRoom(code);
+ onlineMessage("⏳ Подключаемся к другу...");
+
  peer=new Peer();
- peer.on('open',()=>{
-  connection=peer.connect('mbttt-'+room);
-  setupConnection();
+
+ peer.on("open",()=>{
+  const conn=peer.connect(code,{reliable:true});
+  setupConnection(conn);
  });
- peer.on('error',e=>{$('netStatus').textContent='Не удалось подключиться: '+e.type});
+
+ peer.on("error",err=>{
+  onlineMessage("Не удалось подключиться: "+err.type);
+ });
 }
-function setupConnection(){
- if(!connection)return;
- connection.on('open',()=>{
-  onlineReady=true;
-  $('netStatus').textContent='Соединение установлено! Вы играете за '+mySide;
-  if(mySide==='X')send({type:'start',size});
-  else send({type:'hello',size});
-  render();updateStatus();
- });
- connection.on('data',data=>{
-  if(data.type==='hello'&&mySide==='X'){
-   if(data.size!==size){send({type:'reject'});toast('У вас разные размеры поля');return}
-   onlineReady=true;send({type:'start',size});render();updateStatus();
-  }
-  if(data.type==='start'){
-   if(data.size!==size){toast('Размер поля не совпадает');return}
-   onlineReady=true;render();updateStatus('Игра началась! Ваш ход за '+mySide);
-  }
-  if(data.type==='reject')toast('Размер поля не совпадает');
-  if(data.type==='move'){
-   if(!onlineReady||finished||data.index<0||data.index>=board.length||board[data.index])return;
-   play(data.index,true);
-  }
- });
- connection.on('close',()=>{
-  onlineReady=false;updateStatus('Друг отключился.');
-  $('netStatus').textContent='Соединение закрыто.';
+
+async function copyCode(){
+ const code=document.getElementById("displayCode").value;
+ if(!code)return;
+
+ try{
+  await navigator.clipboard.writeText(code);
+  onlineMessage("✅ Код скопирован! Отправь другу.");
+ }catch(e){
+  document.getElementById("displayCode").select();
+  onlineMessage("Выдели и скопируй код вручную.");
+ }
+}
+
+function leaveRoom(show=true){
+ try{
+  if(connection)connection.close();
+  if(peer)peer.destroy();
+ }catch(e){}
+
+ connection=null;
+ peer=null;
+ online=false;
+ host=false;
+ connected=false;
+ roomId="";
+
+ if(show){
+  showLobby();
+  onlineMessage("Ты вышел из комнаты.");
   render();
- });
- connection.on('error',()=>{$('netStatus').textContent='Ошибка соединения'});
+  updateStatus();
+ }
 }
-function copyRoom(){
- const text=room;
- if(navigator.clipboard&&navigator.clipboard.writeText){
-  navigator.clipboard.writeText(text).then(()=>toast('Код скопирован!')).catch(()=>toast('Код: '+text));
- }else toast('Код комнаты: '+text);
-}
-newGame();
+
+document.getElementById("size").onchange=()=>{
+ if(online&&!host)return;
+ newGame();
+};
+
+document.getElementById("preview0").src=photos[0];
+document.getElementById("preview1").src=photos[1];
+
+render();
+updateStatus();
+updateScore();
 </script>
 </body>
 </html>
