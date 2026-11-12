@@ -3,841 +3,402 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>PHOTO BATTLE 2.0</title>
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SNAKE ARENA 11.0 PC</title>
 <style>
 *{box-sizing:border-box}
-:root{
- --red:#ff365d;
- --blue:#398aff;
- --bg:#080b17;
+body{margin:0;background:#050914;color:white;font-family:Arial,sans-serif;overflow:hidden}
+canvas{display:block;width:100vw;height:100vh;cursor:crosshair}
+#top{
+position:fixed;top:14px;left:50%;transform:translateX(-50%);
+font-size:19px;font-weight:900;letter-spacing:2px;
+text-shadow:0 0 15px #00c8ff;pointer-events:none;z-index:3
 }
-body{
- margin:0;
- padding:12px;
- min-height:100vh;
- overflow-x:hidden;
- color:white;
- font-family:Arial,sans-serif;
- background:#080b17;
+#hud{position:fixed;top:18px;left:20px;z-index:4;font-weight:bold;
+background:#101b2bd9;padding:14px 18px;border:1px solid #263b55;border-radius:12px;line-height:1.8}
+#controls{position:fixed;right:20px;top:18px;display:flex;gap:8px;z-index:5}
+button{background:#17263a;color:white;border:1px solid #38516d;
+border-radius:9px;padding:11px 17px;font-weight:bold;cursor:pointer}
+button:hover{background:#245078}
+#menu,#over{
+position:fixed;inset:0;z-index:10;display:flex;align-items:center;
+justify-content:center;background:#030814d9;backdrop-filter:blur(8px)
 }
-body:before,body:after{
- content:"";
- position:fixed;
- width:75vw;
- height:75vw;
- max-width:700px;
- max-height:700px;
- border-radius:50%;
- filter:blur(90px);
- opacity:.24;
- pointer-events:none;
- z-index:-2;
- animation:float 12s ease-in-out infinite alternate;
-}
-body:before{
- background:#ff174d;
- top:-30%;
- left:-35%;
-}
-body:after{
- background:#126bff;
- bottom:-35%;
- right:-35%;
- animation-delay:-6s;
-}
-@keyframes float{
- 0%{transform:translate(0,0) scale(.8)}
- 50%{transform:translate(35vw,20vh) scale(1.2)}
- 100%{transform:translate(5vw,45vh) scale(.9)}
-}
-.bg{
- position:fixed;
- inset:0;
- z-index:-1;
- pointer-events:none;
- background:
- radial-gradient(ellipse at 50% 50%,#18213b55,transparent 70%),
- linear-gradient(120deg,#080b17,#11162a,#080b17);
- background-size:200% 200%;
- animation:bgMove 15s ease infinite;
-}
-@keyframes bgMove{
- 0%{background-position:0% 50%}
- 50%{background-position:100% 50%}
- 100%{background-position:0% 50%}
-}
-.container{max-width:760px;margin:auto}
-header{text-align:center;padding:25px 5px}
-h1{
- font-size:clamp(33px,8vw,49px);
- margin:0;
- font-weight:1000;
- letter-spacing:2px;
- background:linear-gradient(90deg,#ff365d,#fff,#398aff);
- background-size:200%;
- -webkit-background-clip:text;
- color:transparent;
- animation:shine 4s linear infinite;
-}
-@keyframes shine{
- to{background-position:200% center}
-}
-header p{color:#a9b5d2;font-size:14px}
-.panel{
- background:#141d30eF;
- border:1px solid #394762;
- border-radius:21px;
- padding:18px;
- margin:15px 0;
- box-shadow:0 12px 35px #0006;
- backdrop-filter:blur(15px);
- animation:appear .5s ease;
-}
-@keyframes appear{
- from{opacity:0;transform:translateY(12px)}
- to{opacity:1;transform:translateY(0)}
-}
-h2{font-size:18px;margin:0 0 17px}
-.row{
- display:flex;
- align-items:center;
- justify-content:center;
- flex-wrap:wrap;
- gap:9px;
-}
-button,input,select{
- border:1px solid #455775;
- border-radius:12px;
- padding:12px;
- color:white;
- background:#26334c;
- font-size:14px;
-}
-button{
- font-weight:bold;
- cursor:pointer;
- transition:.2s;
-}
-button:active{transform:scale(.95)}
-button:disabled{opacity:.4;cursor:not-allowed}
-.redBtn{
- background:linear-gradient(120deg,#b8183c,#ff365d);
- border:0;
-}
-.blueBtn{
- background:linear-gradient(120deg,#1553b4,#398aff);
- border:0;
-}
-.primary{
- background:linear-gradient(120deg,#687aff,#a16bff);
- border:0;
-}
-.player{
- text-align:center;
- padding:12px 5px;
- border:2px solid #3b4964;
- border-radius:16px;
- transition:.3s;
- min-width:0;
-}
-.players{
- display:grid;
- grid-template-columns:1fr 40px 1fr;
- gap:8px;
- align-items:center;
-}
-.player.red.active{border-color:var(--red);box-shadow:0 0 20px #ff365d44}
-.player.blue.active{border-color:var(--blue);box-shadow:0 0 20px #398aff44}
-.player img{
- width:95px;height:95px;
- object-fit:cover;
- border-radius:13px;
- display:block;
- margin:0 auto 9px;
- background:#293650;
-}
-.player.red b{color:var(--red)}
-.player.blue b{color:var(--blue)}
-.vs{text-align:center;font-weight:1000;font-size:18px}
-.upload{width:100%;font-size:10px;margin-top:9px}
-.info{color:#9baac7;text-align:center;font-size:12px;line-height:1.6}
-.status{
- text-align:center;
- font-size:20px;
- font-weight:900;
- margin:18px 0;
- min-height:27px;
-}
-.board{
- display:grid;
- gap:6px;
- max-width:520px;
- margin:20px auto;
-}
-.cell{
- position:relative;
- min-width:0;
- padding:0;
- aspect-ratio:1;
- overflow:hidden;
- border-radius:11px;
- background:linear-gradient(145deg,#273650,#172239);
- border:2px solid #455776;
-}
-.cell img{
- width:100%;
- height:100%;
- object-fit:cover;
- display:block;
- animation:pop .35s cubic-bezier(.2,1.5,.5,1);
-}
-@keyframes pop{
- from{transform:scale(.2);opacity:0}
- to{transform:scale(1);opacity:1}
-}
-.cell.redCell{border:3px solid var(--red);box-shadow:0 0 12px #ff365d66}
-.cell.blueCell{border:3px solid var(--blue);box-shadow:0 0 12px #398aff66}
-.cell.win{animation:pulse .6s infinite alternate}
-@keyframes pulse{
- to{transform:scale(1.05);filter:brightness(1.7)}
-}
-.score{
- text-align:center;
- background:#0b1221;
- border:1px solid #33435e;
- border-radius:14px;
- padding:13px;
- line-height:2;
- margin-top:15px;
-}
-.redText{color:#ff5573}
-.blueText{color:#5ca1ff}
-.onlineBox{
- background:#0c1527;
- border:1px solid #364866;
- padding:15px;
- border-radius:15px;
- margin-top:13px;
-}
-.onlineStatus{
- text-align:center;
- color:#a9bddc;
- font-size:13px;
- margin:13px 0;
-}
-.roomCode{
- font-size:20px;
- font-weight:900;
- letter-spacing:3px;
- text-align:center;
- color:#a8c5ff;
- width:100%;
- text-transform:none;
-}
-.bigButton{width:100%;padding:15px;font-size:15px}
-.hidden{display:none!important}
-#confetti{
- position:fixed;
- inset:0;
- pointer-events:none;
- z-index:100;
-}
-@media(max-width:500px){
- body{padding:8px}
- .panel{padding:13px}
- .player img{width:72px;height:72px}
- .cell{border-radius:7px}
- button{font-size:12px;padding:11px}
-}
+.panel{width:440px;max-width:92vw;background:#101b2c;border:1px solid #304866;
+border-radius:20px;padding:30px;text-align:center;box-shadow:0 0 60px #0077ff30}
+h1{font-size:36px;margin:0 0 8px;color:#42d7ff}
+.sub{color:#9db2cc;margin-bottom:22px}
+#play{width:100%;font-size:20px;padding:16px;background:#087ed1;margin:15px 0}
+.skins{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:12px}
+.skin{height:43px;border:2px solid #52657d;border-radius:9px;cursor:pointer}
+.skin.selected{border:3px solid white;box-shadow:0 0 14px #45dfff}
+#skinLabel{margin-top:15px;color:#9db2cc}
+#over{display:none}
+#over h1{color:#ff536a}
+#bottom{position:fixed;bottom:15px;left:50%;transform:translateX(-50%);
+color:#8499b3;font-size:12px;pointer-events:none}
+#leader{position:fixed;right:20px;top:90px;background:#101b2bd9;
+border:1px solid #263b55;border-radius:12px;padding:14px 18px;
+min-width:180px;z-index:3;font-size:13px;line-height:1.8}
 </style>
 </head>
-
 <body>
-<div class="bg"></div>
-<canvas id="confetti"></canvas>
-
-<div class="container">
-
-<header>
-<h1>PHOTO BATTLE</h1>
-<p>🔴 КРАСНЫЙ VS СИНИЙ 🔵</p>
-<p>⚡ Только ты и твой друг</p>
-</header>
-
-<section class="panel">
-<h2>👥 ФОТОГРАФИИ ИГРОКОВ</h2>
-<div class="players">
-
-<div class="player red active">
-<img id="preview0" alt="Красный игрок">
-<b>🔴 КРАСНЫЙ</b>
-<input class="upload" type="file" accept="image/*" onchange="uploadPhoto(event,0)">
+<canvas id="game"></canvas>
+<div id="top">МАРАТ АЛИЕВ • 1 КУРС</div>
+<div id="hud">
+<div>🏆 SNAKE ARENA</div>
+<div>Масса: <span id="mass">100</span></div>
+<div>Длина: <span id="length">55</span></div>
+<div>Ботов: <span id="bots">0</span></div>
 </div>
-
-<div class="vs">VS</div>
-
-<div class="player blue">
-<img id="preview1" alt="Синий игрок">
-<b>🔵 СИНИЙ</b>
-<input class="upload" type="file" accept="image/*" onchange="uploadPhoto(event,1)">
+<div id="controls">
+<button onclick="changeZoom(1.15)">ZOOM +</button>
+<button onclick="changeZoom(.87)">ZOOM −</button>
+<button onclick="togglePause()">ESC ПАУЗА</button>
 </div>
+<div id="leader"><b>ТОП ИГРОКОВ</b><div id="scores"></div></div>
+<div id="bottom">МЫШЬ / WASD — ДВИЖЕНИЕ · SHIFT — УСКОРЕНИЕ · КОЛЁСИКО — ЗУМ</div>
 
-</div>
-<p class="info">Красный — создатель комнаты. Синий — приглашённый друг.</p>
-</section>
-
-<section class="panel">
-<h2>⚔️ ИГРОВОЕ ПОЛЕ</h2>
-
-<div class="row">
-<select id="size">
-<option value="3">3 × 3</option>
-<option value="4">4 × 4</option>
-<option value="5">5 × 5</option>
-</select>
-</div>
-
-<div class="status" id="status">Начни новую игру!</div>
-<div class="board" id="board"></div>
-
-<div class="row">
-<button class="primary" onclick="newGame()">🔄 Новая игра</button>
-</div>
-
-<div class="score" id="score">
-<span class="redText">🔴 Красный: 0</span><br>
-<span class="blueText">🔵 Синий: 0</span><br>
-🤝 Ничьи: 0
-</div>
-</section>
-
-<section class="panel">
-<h2>🌐 ИГРА С ДРУГОМ</h2>
-
-<div class="onlineBox" id="lobby">
-<p class="info">Создай комнату или подключись к комнате друга. Играть смогут ровно два человека.</p>
-
-<button class="redBtn bigButton" onclick="createRoom()">
-🔴 СОЗДАТЬ КОМНАТУ
-</button>
-
-<div style="height:15px"></div>
-
-<input id="joinCode" class="roomCode" placeholder="КОД ДРУГА" autocomplete="off">
-
-<div style="height:10px"></div>
-
-<button class="blueBtn bigButton" onclick="joinRoom()">
-🔵 ПОДКЛЮЧИТЬСЯ К ДРУГУ
-</button>
-</div>
-
-<div class="onlineBox hidden" id="roomPanel">
-
-<p class="info">ТВОЙ КОД КОМНАТЫ</p>
-<input id="displayCode" class="roomCode" readonly>
-
-<div style="height:10px"></div>
-
-<button class="primary bigButton" onclick="copyCode()">
-📋 СКОПИРОВАТЬ КОД
-</button>
-
-<div class="onlineStatus" id="onlineStatus">
-Ожидание второго игрока...
-</div>
-
-<div class="row">
-<button onclick="leaveRoom()">🚪 Выйти из комнаты</button>
+<div id="menu">
+<div class="panel">
+<h1>SNAKE ARENA</h1>
+<div class="sub">PC EDITION • VERSION 11.0</div>
+<p>Выбери внешний вид змейки</p>
+<div class="skins" id="skins"></div>
+<div id="skinLabel">Выбран: Красный</div>
+<button id="play" onclick="startGame()">ИГРАТЬ</button>
+<div class="sub">Мышь — управление · Shift — ускорение</div>
 </div>
 </div>
 
-<p class="info" id="networkInfo">
-Для игры оба игрока должны быть онлайн.
-</p>
-</section>
-
+<div id="over">
+<div class="panel">
+<h1>ТЫ ПОГИБ!</h1>
+<p id="result">Твоя змейка проиграла.</p>
+<button id="play" onclick="restartGame()">ИГРАТЬ СНОВА</button>
+<button onclick="backMenu()" style="width:100%">В МЕНЮ</button>
+</div>
 </div>
 
 <script>
-let photos=[
- "https://placehold.co/300x300/ff365d/ffffff?text=RED",
- "https://placehold.co/300x300/398aff/ffffff?text=BLUE"
+const canvas=document.getElementById('game');
+const ctx=canvas.getContext('2d');
+let W,H,dpr;
+function resize(){
+ dpr=Math.min(devicePixelRatio||1,2);
+ W=innerWidth;H=innerHeight;
+ canvas.width=W*dpr;canvas.height=H*dpr;
+ ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+addEventListener('resize',resize);resize();
+
+const WORLD=5000, FOOD_COUNT=1500, BOT_COUNT=35;
+const skins=[
+{name:'Красный',color:'#ff354f'},
+{name:'Синий',color:'#258bff'},
+{name:'Зелёный',color:'#28dc91'},
+{name:'Фиолетовый',color:'#a45aff'},
+{name:'Золотой',color:'#ffc83d'},
+{name:'Ледяной',color:'#70eaff'},
+{name:'Радужный',color:'rainbow'},
+{name:'Огненный',color:'fire'}
 ];
-
-let size=3;
-let cells=[];
-let turn=0;
-let winner=null;
-let score=[0,0,0];
-
-let peer=null;
-let connection=null;
-let online=false;
-let host=false;
-let connected=false;
-let myPlayer=0;
-let roomId="";
-
-function compressPhoto(file){
- return new Promise(resolve=>{
-  const reader=new FileReader();
-  reader.onload=e=>{
-   const img=new Image();
-   img.onload=()=>{
-    const canvas=document.createElement("canvas");
-    const scale=Math.min(1,600/Math.max(img.width,img.height));
-    canvas.width=Math.round(img.width*scale);
-    canvas.height=Math.round(img.height*scale);
-    canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
-    resolve(canvas.toDataURL("image/jpeg",.72));
-   };
-   img.onerror=()=>resolve(e.target.result);
-   img.src=e.target.result;
-  };
-  reader.onerror=()=>resolve(null);
-  reader.readAsDataURL(file);
- });
-}
-
-async function uploadPhoto(event,player){
- const file=event.target.files[0];
- if(!file)return;
- if(!file.type.startsWith("image/")){
-  alert("Выбери изображение");
-  return;
- }
- if(file.size>10*1024*1024){
-  alert("Максимальный размер фото — 10 МБ");
-  return;
- }
-
- const data=await compressPhoto(file);
- if(!data)return;
-
- photos[player]=data;
- document.getElementById("preview"+player).src=data;
-
- if(online&&host&&connected)sendState();
-}
-
-function newGame(){
- if(online&&!host){
-  alert("Новую игру может начать создатель комнаты.");
-  return;
- }
-
- size=Number(document.getElementById("size").value);
- cells=Array(size*size).fill(-1);
- winner=null;
- turn=0;
- stopConfetti();
- render();
- updateStatus();
- updateScore();
-
- if(online&&host&&connected)sendState();
-}
-
-function render(){
- const board=document.getElementById("board");
- board.style.gridTemplateColumns=`repeat(${size},1fr)`;
- board.innerHTML="";
-
- cells.forEach((player,index)=>{
-  const button=document.createElement("button");
-  button.className="cell";
-
-  if(player!==-1){
-   const img=document.createElement("img");
-   img.src=photos[player];
-   button.appendChild(img);
-   button.classList.add(player===0?"redCell":"blueCell");
-  }
-
-  if(winner&&winner.line.includes(index))button.classList.add("win");
-
-  button.disabled=
-   player!==-1||
-   winner!==null||
-   (online&&(!connected||turn!==myPlayer));
-
-  button.onclick=()=>makeMove(index);
-  board.appendChild(button);
- });
-}
-
-function checkWinner(player){
- const directions=[[0,1],[1,0],[1,1],[1,-1]];
-
- for(let r=0;r<size;r++){
-  for(let c=0;c<size;c++){
-   if(cells[r*size+c]!==player)continue;
-
-   for(const [dr,dc] of directions){
-    let line=[];
-    for(let k=0;k<size;k++){
-     const nr=r+dr*k,nc=c+dc*k;
-     if(nr<0||nr>=size||nc<0||nc>=size||
-        cells[nr*size+nc]!==player)break;
-     line.push(nr*size+nc);
-    }
-    if(line.length===size)return line;
-   }
-  }
- }
- return null;
-}
-
-function makeMove(index){
- if(winner||cells[index]!==-1)return;
-
- if(online){
-  if(!connected||turn!==myPlayer)return;
-
-  if(host){
-   if(applyMove(index,myPlayer))sendState();
-  }else{
-   connection.send({type:"move",index});
-  }
- }else{
-  applyMove(index,turn);
- }
-}
-
-function applyMove(index,player){
- if(winner||cells[index]!==-1)return false;
-
- cells[index]=player;
- const line=checkWinner(player);
-
- if(line){
-  winner={player,line};
-  score[player]++;
-  victoryEffect(player);
- }else if(cells.every(x=>x!==-1)){
-  winner={player:-1,line:[]};
-  score[2]++;
- }else{
-  turn=1-player;
- }
-
- render();
- updateStatus();
- updateScore();
- return true;
-}
-
-function updateStatus(){
- const s=document.getElementById("status");
- s.className="status";
-
- if(winner){
-  if(winner.player===-1){
-   s.textContent="🤝 НИЧЬЯ!";
-  }else{
-   s.textContent=winner.player===0?"🏆 ПОБЕДА КРАСНОГО!":"🏆 ПОБЕДА СИНЕГО!";
-   s.classList.add(winner.player===0?"redText":"blueText");
-  }
- }else{
-  if(online){
-   s.textContent=!connected?"ОЖИДАНИЕ ИГРОКА...":
-    turn===myPlayer?"🔥 ТВОЙ ХОД!":"⏳ ХОД СОПЕРНИКА";
-  }else{
-   s.textContent=turn===0?"🔴 ХОД КРАСНОГО":"🔵 ХОД СИНЕГО";
-  }
-  s.classList.add(turn===0?"redText":"blueText");
- }
-}
-
-function updateScore(){
- document.getElementById("score").innerHTML=
- `<span class="redText">🔴 Красный: ${score[0]}</span><br>
- <span class="blueText">🔵 Синий: ${score[1]}</span><br>
- 🤝 Ничьи: ${score[2]}`;
-}
-
-// АНИМАЦИЯ ПОБЕДЫ
-
-let confettiFrame=null;
-
-function victoryEffect(player){
- stopConfetti();
-
- const canvas=document.getElementById("confetti");
- const ctx=canvas.getContext("2d");
- canvas.width=innerWidth;
- canvas.height=innerHeight;
-
- const colors=player===0?
- ["#ff365d","#ff9aab","#ffffff"]:
- ["#398aff","#9dcaff","#ffffff"];
-
- let pieces=Array.from({length:170},()=>({
-  x:Math.random()*canvas.width,
-  y:-Math.random()*canvas.height,
-  speed:2+Math.random()*5,
-  size:4+Math.random()*7,
-  color:colors[Math.floor(Math.random()*colors.length)],
-  drift:Math.random()*3-1.5,
-  angle:Math.random()*6
- }));
-
- let frame=0;
- function animate(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  pieces.forEach(p=>{
-   p.y+=p.speed;
-   p.x+=p.drift;
-   p.angle+=.1;
-   ctx.save();
-   ctx.translate(p.x,p.y);
-   ctx.rotate(p.angle);
-   ctx.fillStyle=p.color;
-   ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size*.6);
-   ctx.restore();
-  });
-  if(++frame<200)confettiFrame=requestAnimationFrame(animate);
-  else stopConfetti();
- }
- animate();
-}
-
-function stopConfetti(){
- if(confettiFrame)cancelAnimationFrame(confettiFrame);
- confettiFrame=null;
- const canvas=document.getElementById("confetti");
- const ctx=canvas.getContext("2d");
- ctx.clearRect(0,0,canvas.width,canvas.height);
-}
-
-// СЕТЕВАЯ ИГРА
-
-function onlineMessage(message){
- document.getElementById("onlineStatus").textContent=message;
-}
-
-function showRoom(code){
- document.getElementById("lobby").classList.add("hidden");
- document.getElementById("roomPanel").classList.remove("hidden");
- document.getElementById("displayCode").value=code||roomId;
-}
-
-function showLobby(){
- document.getElementById("lobby").classList.remove("hidden");
- document.getElementById("roomPanel").classList.add("hidden");
-}
-
-function getState(){
- return {
-  type:"state",
-  cells:cells,
-  size:size,
-  turn:turn,
-  winner:winner,
-  score:score,
-  photos:photos
+let selectedSkin=0;
+const skinBox=document.getElementById('skins');
+skins.forEach((s,i)=>{
+ let b=document.createElement('div');
+ b.className='skin'+(i===0?' selected':'');
+ b.style.background=s.color==='rainbow'?
+ 'linear-gradient(90deg,red,orange,yellow,lime,cyan,blue,violet)':
+ s.color==='fire'?'linear-gradient(90deg,#ffeb3b,#ff6b00,#e60035)':s.color;
+ b.title=s.name;
+ b.onclick=()=>{
+  selectedSkin=i;
+  document.querySelectorAll('.skin').forEach(x=>x.classList.remove('selected'));
+  b.classList.add('selected');
+  document.getElementById('skinLabel').textContent='Выбран: '+s.name;
  };
+ skinBox.appendChild(b);
+});
+
+let foods=[],snakes=[],player=null,running=false,paused=false;
+let camera={x:0,y:0,zoom:1},manualZoom=1;
+let mouse={x:W/2,y:H/2};
+let keys={};
+let last=0,foodId=0;
+
+function rand(a,b){return a+Math.random()*(b-a)}
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function angleDiff(a,b){return Math.atan2(Math.sin(b-a),Math.cos(b-a))}
+
+function makeSnake(x,y,isPlayer=false,index=0){
+ let angle=rand(0,Math.PI*2);
+ let s={
+  x,y,angle,points:[],mass:isPlayer?100:rand(180,600),
+  speed:0,alive:true,isPlayer,index,
+  color:isPlayer?skins[selectedSkin].color:
+  ['#ff465e','#33aaff','#a65cff','#42e6a4','#ffbd39','#f078e8'][index%6],
+  hue:rand(0,360),boost:false,name:isPlayer?'МАРАТ':'БОТ '+(index+1)
+ };
+ let count=55;
+ for(let i=0;i<count;i++){
+  s.points.push({x:x-Math.cos(angle)*i*7,y:y-Math.sin(angle)*i*7});
+ }
+ return s;
 }
 
-function sendState(){
- if(connection&&connection.open)connection.send(getState());
+function addFood(x,y,value){
+ foods.push({x,y,v:value||rand(2,7),r:rand(3,6),h:rand(0,360)});
+}
+function spawnFood(){
+ foods=[];
+ for(let i=0;i<FOOD_COUNT;i++)addFood(rand(-WORLD/2,WORLD/2),rand(-WORLD/2,WORLD/2));
+}
+function spawnBots(){
+ snakes=[player];
+ for(let i=0;i<BOT_COUNT;i++){
+  let a=rand(0,Math.PI*2),r=rand(500,2200);
+  snakes.push(makeSnake(Math.cos(a)*r,Math.sin(a)*r,false,i));
+ }
 }
 
-function receiveState(data){
- if(!data||data.type!=="state")return;
- if(!Array.isArray(data.cells)||data.cells.length!==data.size*data.size)return;
- if(![3,4,5].includes(data.size))return;
+function startGame(){
+ document.getElementById('menu').style.display='none';
+ document.getElementById('over').style.display='none';
+ player=makeSnake(0,0,true);
+ spawnFood();spawnBots();
+ camera.x=0;camera.y=0;manualZoom=1;
+ running=true;paused=false;last=performance.now();
+}
+function restartGame(){startGame()}
+function backMenu(){
+ running=false;
+ document.getElementById('over').style.display='none';
+ document.getElementById('menu').style.display='flex';
+}
+function togglePause(){
+ if(!running)return;
+ paused=!paused;
+}
+function changeZoom(v){manualZoom=clamp(manualZoom*v,.35,2.5)}
 
- size=data.size;
- document.getElementById("size").value=size;
- cells=data.cells;
- turn=data.turn;
- winner=data.winner;
- score=data.score||[0,0,0];
- photos=data.photos||photos;
+addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY});
+addEventListener('keydown',e=>{
+ keys[e.key.toLowerCase()]=true;
+ if(e.key==='Escape')togglePause();
+ if([' ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))e.preventDefault();
+});
+addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+canvas.addEventListener('wheel',e=>{
+ e.preventDefault();changeZoom(e.deltaY<0?1.1:.9);
+},{passive:false});
 
- document.getElementById("preview0").src=photos[0];
- document.getElementById("preview1").src=photos[1];
-
- render();
- updateStatus();
- updateScore();
+function die(s){
+ if(!s.alive)return;
+ s.alive=false;
+ for(let i=5;i<s.points.length;i+=3){
+  let p=s.points[i];addFood(p.x+rand(-8,8),p.y+rand(-8,8),rand(5,12));
+ }
+ if(s.isPlayer){
+  running=false;
+  document.getElementById('result').textContent='Твоя масса: '+Math.floor(s.mass);
+  document.getElementById('over').style.display='flex';
+ }
 }
 
-function setupConnection(conn){
- connection=conn;
-
- conn.on("open",()=>{
-  connected=true;
-  onlineMessage("🟢 Друг подключён! Можно играть.");
-  if(host){
-   sendState();
-  }else{
-   conn.send({type:"hello"});
+function moveSnake(s,dt){
+ if(!s.alive)return;
+ if(s.isPlayer){
+  let target=Math.atan2(mouse.y-H/2,mouse.x-W/2);
+  if(keys['a']||keys['arrowleft'])target=s.angle-.07;
+  if(keys['d']||keys['arrowright'])target=s.angle+.07;
+  if(keys['w']||keys['arrowup'])target=s.angle;
+  if(keys['s']||keys['arrowdown'])target=s.angle+Math.PI;
+  let diff=angleDiff(s.angle,target);
+  s.angle+=clamp(diff,-3.4*dt,3.4*dt);
+  s.boost=!!(keys['shift']&&s.mass>25);
+ }else{
+  if(Math.random()<.025)s.angle+=rand(-1.3,1.3);
+  let target=s.angle;
+  let nearest=null,nd=Infinity;
+  for(let f of foods){
+   let d=Math.hypot(f.x-s.x,f.y-s.y);
+   if(d<nd&&d<350){nd=d;nearest=f}
   }
-  render();
-  updateStatus();
- });
+  if(nearest){
+   let a=Math.atan2(nearest.y-s.y,nearest.x-s.x);
+   s.angle+=clamp(angleDiff(s.angle,a),-1.7*dt,1.7*dt);
+  }
+  if(Math.random()<.012)s.boost=s.mass>100&&Math.random()<.5;
+ }
+ let speed= s.boost?310:190;
+ speed*=1/(1+s.mass/4500);
+ s.x+=Math.cos(s.angle)*speed*dt;
+ s.y+=Math.sin(s.angle)*speed*dt;
+ if(Math.abs(s.x)>WORLD/2||Math.abs(s.y)>WORLD/2){die(s);return}
+ s.points.unshift({x:s.x,y:s.y});
+ let spacing=7;
+ let length=55+Math.sqrt(s.mass)*3.4;
+ while(s.points.length>length)s.points.pop();
+}
 
- conn.on("data",data=>{
-  if(!data)return;
-
-  if(host){
-   if(data.type==="move"&&
-      Number.isInteger(data.index)&&
-      data.index>=0&&data.index<cells.length&&
-      turn===1&&cells[data.index]===-1&&!winner){
-    if(applyMove(data.index,1))sendState();
+function eatFood(){
+ for(let s of snakes){
+  if(!s.alive)continue;
+  for(let i=foods.length-1;i>=0;i--){
+   let f=foods[i];
+   if(Math.hypot(s.x-f.x,s.y-f.y)<20+f.r){
+    s.mass+=f.v*1.2;
+    foods.splice(i,1);
    }
-  }else{
-   if(data.type==="state")receiveState(data);
-   if(data.type==="hello")sendState();
   }
- });
-
- conn.on("close",()=>{
-  connected=false;
-  onlineMessage("🔴 Друг отключился");
-  render();
-  updateStatus();
- });
-
- conn.on("error",()=>{
-  onlineMessage("Ошибка соединения");
- });
+ }
+ while(foods.length<FOOD_COUNT)addFood(rand(-WORLD/2,WORLD/2),rand(-WORLD/2,WORLD/2));
 }
 
-function createRoom(){
- leaveRoom(false);
-
- if(!window.Peer){
-  alert("Не удалось загрузить PeerJS. Проверь интернет.");
-  return;
- }
-
- online=true;
- host=true;
- myPlayer=0;
- roomId="photo-"+Math.random().toString(36).slice(2,9);
-
- cells=Array(9).fill(-1);
- size=3;
- turn=0;
- winner=null;
- score=[0,0,0];
-
- document.getElementById("size").value=3;
- render();
- updateStatus();
- updateScore();
-
- showRoom(roomId);
- onlineMessage("⏳ Создаём комнату...");
-
- peer=new Peer(roomId);
-
- peer.on("open",id=>{
-  roomId=id;
-  document.getElementById("displayCode").value=id;
-  onlineMessage("🟡 Комната готова! Отправь код другу.");
- });
-
- peer.on("connection",conn=>{
-  if(connection){
-   conn.close();
-   return;
+function collisions(){
+ for(let i=0;i<snakes.length;i++){
+  let a=snakes[i];if(!a.alive)continue;
+  for(let j=i+1;j<snakes.length;j++){
+   let b=snakes[j];if(!b.alive)continue;
+   let hitA=false,hitB=false;
+   for(let k=5;k<b.points.length;k+=2){
+    if(Math.hypot(a.x-b.points[k].x,a.y-b.points[k].y)<17){hitA=true;break}
+   }
+   for(let k=5;k<a.points.length;k+=2){
+    if(Math.hypot(b.x-a.points[k].x,b.y-a.points[k].y)<17){hitB=true;break}
+   }
+   if(Math.hypot(a.x-b.x,a.y-b.y)<22){hitA=true;hitB=true}
+   if(hitA||hitB){die(a);die(b)}
   }
-  setupConnection(conn);
- });
-
- peer.on("error",err=>{
-  onlineMessage("Ошибка комнаты: "+err.type);
- });
-}
-
-function joinRoom(){
- leaveRoom(false);
-
- if(!window.Peer){
-  alert("Не удалось загрузить PeerJS.");
-  return;
- }
-
- const code=document.getElementById("joinCode").value.trim();
-
- if(!code){
-  alert("Введи код друга!");
-  return;
- }
-
- online=true;
- host=false;
- myPlayer=1;
-
- showRoom(code);
- onlineMessage("⏳ Подключаемся к другу...");
-
- peer=new Peer();
-
- peer.on("open",()=>{
-  const conn=peer.connect(code,{reliable:true});
-  setupConnection(conn);
- });
-
- peer.on("error",err=>{
-  onlineMessage("Не удалось подключиться: "+err.type);
- });
-}
-
-async function copyCode(){
- const code=document.getElementById("displayCode").value;
- if(!code)return;
-
- try{
-  await navigator.clipboard.writeText(code);
-  onlineMessage("✅ Код скопирован! Отправь другу.");
- }catch(e){
-  document.getElementById("displayCode").select();
-  onlineMessage("Выдели и скопируй код вручную.");
  }
 }
 
-function leaveRoom(show=true){
- try{
-  if(connection)connection.close();
-  if(peer)peer.destroy();
- }catch(e){}
-
- connection=null;
- peer=null;
- online=false;
- host=false;
- connected=false;
- roomId="";
-
- if(show){
-  showLobby();
-  onlineMessage("Ты вышел из комнаты.");
-  render();
-  updateStatus();
+function update(dt){
+ for(let s of snakes)moveSnake(s,dt);
+ eatFood();collisions();
+ for(let i=1;i<snakes.length;i++){
+  if(!snakes[i].alive){
+   let a=rand(0,Math.PI*2),r=rand(600,2200);
+   snakes[i]=makeSnake(Math.cos(a)*r,Math.sin(a)*r,false,i);
+  }
+ }
+ if(player&&player.alive){
+  camera.x+=(player.x-camera.x)*Math.min(1,dt*5);
+  camera.y+=(player.y-camera.y)*Math.min(1,dt*5);
  }
 }
 
-document.getElementById("size").onchange=()=>{
- if(online&&!host)return;
- newGame();
-};
+function worldToScreen(x,y){
+ return {x:(x-camera.x)*camera.zoom+W/2,y:(y-camera.y)*camera.zoom+H/2};
+}
+function drawBackground(){
+ ctx.fillStyle='#07101e';ctx.fillRect(0,0,W,H);
+ let step=100*camera.zoom;
+ if(step>15){
+  let ox=((W/2-camera.x*camera.zoom)%step+step)%step;
+  let oy=((H/2-camera.y*camera.zoom)%step+step)%step;
+  ctx.strokeStyle='#15253a';ctx.lineWidth=1;
+  ctx.beginPath();
+  for(let x=ox;x<W;x+=step){ctx.moveTo(x,0);ctx.lineTo(x,H)}
+  for(let y=oy;y<H;y+=step){ctx.moveTo(0,y);ctx.lineTo(W,y)}
+  ctx.stroke();
+ }
+ let a=worldToScreen(-WORLD/2,-WORLD/2);
+ let b=worldToScreen(WORLD/2,WORLD/2);
+ ctx.strokeStyle='#ff3c61';ctx.lineWidth=5;
+ ctx.strokeRect(a.x,a.y,b.x-a.x,b.y-a.y);
+}
 
-document.getElementById("preview0").src=photos[0];
-document.getElementById("preview1").src=photos[1];
+function foodColor(h){return `hsl(${h},100%,65%)`}
+function drawFood(){
+ for(let f of foods){
+  let p=worldToScreen(f.x,f.y);
+  if(p.x<-15||p.x>W+15||p.y<-15||p.y>H+15)continue;
+  let r=Math.max(1.5,f.r*camera.zoom);
+  ctx.fillStyle=foodColor(f.h);
+  ctx.shadowBlur=10;ctx.shadowColor=foodColor(f.h);
+  ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill();
+ }
+ ctx.shadowBlur=0;
+}
 
-render();
-updateStatus();
-updateScore();
+function drawSnake(s){
+ if(!s.alive||s.points.length<2)return;
+ let pts=s.points;
+ let r=(8+Math.sqrt(s.mass)*.48)*camera.zoom;
+ ctx.lineCap='round';ctx.lineJoin='round';
+ let rainbow=s.color==='rainbow'||s.color==='fire';
+ if(rainbow){
+  for(let i=pts.length-1;i>0;i--){
+   let a=worldToScreen(pts[i].x,pts[i].y);
+   let b=worldToScreen(pts[i-1].x,pts[i-1].y);
+   ctx.strokeStyle=s.color==='fire'?`hsl(${Math.max(0,45-i*.3)},100%,${55-i*.05}%)`:`hsl(${(i*5+s.hue)%360},100%,60%)`;
+   ctx.lineWidth=r*2;
+   ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+  }
+ }else{
+  ctx.strokeStyle=s.color;ctx.lineWidth=r*2;
+  ctx.beginPath();
+  let p=worldToScreen(pts[pts.length-1].x,pts[pts.length-1].y);
+  ctx.moveTo(p.x,p.y);
+  for(let i=pts.length-2;i>=0;i-=1){
+   p=worldToScreen(pts[i].x,pts[i].y);ctx.lineTo(p.x,p.y);
+  }
+  ctx.stroke();
+ }
+ let head=worldToScreen(s.x,s.y);
+ ctx.fillStyle=s.color==='rainbow'?'#ffec55':s.color==='fire'?'#ff9a25':s.color;
+ ctx.beginPath();ctx.arc(head.x,head.y,r,0,Math.PI*2);ctx.fill();
+ let ex=Math.cos(s.angle+Math.PI/2)*r*.42;
+ let ey=Math.sin(s.angle+Math.PI/2)*r*.42;
+ for(let side of [-1,1]){
+  let x=head.x+Math.cos(s.angle)*r*.35+ex*side;
+  let y=head.y+Math.sin(s.angle)*r*.35+ey*side;
+  ctx.fillStyle='white';ctx.beginPath();ctx.arc(x,y,r*.28,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#10131a';ctx.beginPath();
+  ctx.arc(x+Math.cos(s.angle)*r*.1,y+Math.sin(s.angle)*r*.1,r*.13,0,Math.PI*2);ctx.fill();
+ }
+ if(camera.zoom>.45){
+  ctx.font='bold 12px Arial';ctx.textAlign='center';ctx.fillStyle='white';
+  ctx.fillText(s.name,head.x,head.y-r-9);
+ }
+}
+
+function draw(){
+ drawBackground();drawFood();
+ for(let s of snakes)drawSnake(s);
+}
+function hud(){
+ if(!player)return;
+ document.getElementById('mass').textContent=Math.floor(player.mass);
+ document.getElementById('length').textContent=player.points.length;
+ document.getElementById('bots').textContent=snakes.filter(s=>!s.isPlayer&&s.alive).length;
+ let top=[...snakes].filter(s=>s.alive).sort((a,b)=>b.mass-a.mass).slice(0,5);
+ document.getElementById('scores').innerHTML=top.map((s,i)=>
+ `${i+1}. ${s.name} — ${Math.floor(s.mass)}`
+ ).join('<br>');
+}
+function loop(t){
+ requestAnimationFrame(loop);
+ let dt=Math.min((t-last)/1000,.04);last=t;
+ if(running&&!paused){
+  update(dt);
+  if(player&&player.alive){
+   let auto=clamp(1.25/(1+Math.sqrt(player.mass)/30),.48,1.15);
+   camera.zoom+=(auto*manualZoom-camera.zoom)*Math.min(1,dt*2.5);
+  }
+  hud();
+ }
+ draw();
+ if(paused&&running){
+  ctx.fillStyle='#0009';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='white';ctx.textAlign='center';ctx.font='bold 40px Arial';
+  ctx.fillText('ПАУЗА',W/2,H/2);
+ }
+}
+requestAnimationFrame(loop);
 </script>
 </body>
 </html>
