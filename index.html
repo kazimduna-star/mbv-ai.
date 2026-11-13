@@ -3,602 +3,650 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>SNAKE ARENA 13.0</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Blob Arena ULTRA</title>
 <style>
+:root{--bg:#050914;--panel:#101b2d;--line:#2a405e;--blue:#398cff;--green:#35e5a0;--text:#f3f7ff;--muted:#8797ad;--gold:#ffdf79}
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050914;color:white;font-family:Arial}
-#stage{position:fixed;inset:0;width:100vw;height:100vh;overflow:hidden;background:#07101e}
-canvas{display:block;width:100%;height:100%}
-#top{position:absolute;top:14px;left:50%;transform:translateX(-50%);font-size:18px;font-weight:900;letter-spacing:2px;text-shadow:0 0 15px #00c8ff;pointer-events:none;white-space:nowrap}
-#hud{position:absolute;top:14px;left:16px;background:#101b2bdd;border:1px solid #30445e;border-radius:10px;padding:10px 14px;font-size:13px;line-height:1.7;font-weight:bold;pointer-events:none}
-#leader{position:absolute;right:16px;top:72px;background:#101b2bdd;border:1px solid #30445e;border-radius:10px;padding:10px 14px;font-size:12px;line-height:1.7;min-width:160px;pointer-events:none}
-#controls{position:absolute;right:16px;top:14px;display:flex;gap:7px}
-button{background:#172b42;color:white;border:1px solid #426080;border-radius:8px;padding:10px 15px;font-weight:bold;cursor:pointer}
-button:hover{background:#245078}
-#bottom{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);color:#91a6c0;font-size:12px;white-space:nowrap;pointer-events:none}
-#joystick{position:absolute;left:35px;bottom:35px;width:145px;height:145px;border-radius:50%;background:#13253b99;border:2px solid #52718e;touch-action:none;user-select:none}
-#stick{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:58px;height:58px;border-radius:50%;background:#4dbbff;border:3px solid white;box-shadow:0 0 20px #168cff;pointer-events:none}
-#boost{position:absolute;right:40px;bottom:50px;width:105px;height:105px;border-radius:50%;background:linear-gradient(145deg,#ff9d28,#e83d28);border:3px solid #ffd19a;font-size:17px;box-shadow:0 0 22px #ff6b25;touch-action:none;user-select:none}
-#boost.active{background:#ffdf54;color:#211400;transform:scale(.94)}
-#menu,#over{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:#030814df;backdrop-filter:blur(8px)}
-.panel{width:430px;max-width:90%;background:#101b2c;border:1px solid #304866;border-radius:18px;padding:27px;text-align:center;box-shadow:0 0 60px #0077ff30}
-h1{font-size:34px;margin:0 0 8px;color:#42d7ff}
-.sub{color:#9db2cc;margin:12px 0}
-#play{width:100%;font-size:19px;padding:15px;background:#087ed1;margin:15px 0}
-.skins{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
-.skin{height:38px;border:2px solid #52657d;border-radius:8px;cursor:pointer}
-.skin.selected{border:3px solid white;box-shadow:0 0 14px #45dfff}
-#skinLabel{margin-top:12px;color:#9db2cc}
-#over{display:none}
-#over h1{color:#ff536a}
-@media(max-width:700px){
- #hud{font-size:10px;padding:6px}
- #leader{display:none}
- #top{font-size:12px}
- #controls button{font-size:9px;padding:6px}
- #joystick{width:110px;height:110px;left:12px;bottom:20px}
- #stick{width:46px;height:46px}
- #boost{width:75px;height:75px;right:15px;bottom:30px;font-size:13px}
- #bottom{display:none}
-}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Arial,sans-serif;touch-action:none;user-select:none}
+button,input,select{font:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:1}
+#menu{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at 50% 42%,#183b69 0%,#0a172c 45%,#030610 100%)}
+.menuGlow{position:absolute;width:75vw;height:75vw;max-width:800px;max-height:800px;border-radius:50%;background:#1678ff25;filter:blur(75px);animation:glow 6s ease-in-out infinite alternate}
+.menuGrid{position:absolute;inset:0;opacity:.16;background-image:linear-gradient(#6e9acb22 1px,transparent 1px),linear-gradient(90deg,#6e9acb22 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse,#000 10%,transparent 80%)}
+.menuBlob{position:absolute;border-radius:50%;border:2px solid #ffffff66;box-shadow:inset -20px -25px 35px #0007,0 0 45px currentColor;animation:float 8s ease-in-out infinite}
+.menuBlob:after{content:"";position:absolute;width:30%;height:23%;left:20%;top:17%;background:#ffffffaa;border-radius:50%;filter:blur(5px);transform:rotate(-35deg)}
+.blob1{width:125px;height:125px;left:8%;top:18%;background:radial-gradient(circle at 30% 25%,#b5e2ff,#2584ff 55%,#0645a5);color:#2689ff}
+.blob2{width:75px;height:75px;right:13%;top:20%;background:radial-gradient(circle at 30% 25%,#f0caff,#a34cff 60%,#51218c);color:#b45aff;animation-delay:-2s}
+.blob3{width:95px;height:95px;left:18%;bottom:14%;background:radial-gradient(circle at 30% 25%,#c4ffe7,#20c98a 60%,#08774c);color:#20c98a;animation-delay:-4s}
+.blob4{width:55px;height:55px;right:20%;bottom:16%;background:radial-gradient(circle at 30% 25%,#fff0b5,#ffae42 60%,#a65a0c);color:#ffb64a;animation-delay:-1s}
+.menuContent{position:relative;z-index:2;width:min(560px,92vw);display:flex;flex-direction:column;align-items:center;text-align:center;padding:25px 20px}
+.logoMark{width:88px;height:88px;border-radius:28px;display:grid;place-items:center;margin-bottom:16px;background:linear-gradient(145deg,#62b8ff,#1455bb);border:1px solid #a8d4ff99;box-shadow:0 12px 55px #167cff88,inset 0 2px 12px #ffffff88;animation:logoFloat 3s ease-in-out infinite}
+.logoMark span{width:45px;height:45px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#fff,#91caff 30%,#1872ed 72%);box-shadow:0 0 30px #b6dcff}
+.logoTitle{margin:0;font-size:clamp(38px,8vw,68px);font-weight:1000;letter-spacing:-2px;line-height:1.05;text-shadow:0 5px 35px #348cff88}
+.logoTitle em{font-style:normal;color:#72baff}
+.logoSub{margin:12px 0 28px;color:#b1c7e3;font-size:11px;letter-spacing:4px;font-weight:900}
+.menuStats{display:flex;gap:10px;margin-bottom:28px;flex-wrap:wrap;justify-content:center}
+.stat{padding:9px 16px;border:1px solid #ffffff25;border-radius:12px;background:#ffffff0c;color:#d0e0f5;font-size:11px;font-weight:850;letter-spacing:1px;backdrop-filter:blur(12px)}
+.menuActions{width:min(340px,100%);display:grid;gap:12px}
+.bigBtn{width:100%;min-height:61px;border-radius:17px;border:1px solid #ffffff38;color:white;font-size:16px;font-weight:950;letter-spacing:2px;transition:.2s;position:relative;overflow:hidden}
+.bigBtn:active{transform:scale(.96)}
+#play{background:linear-gradient(110deg,#3199ff,#1259d0);box-shadow:0 8px 35px #167cff66,inset 0 1px 3px #ffffff88}
+#settingsOpen{background:linear-gradient(110deg,#263c5a,#142239);box-shadow:0 8px 25px #0007}
+.bigBtn:before{content:"";position:absolute;top:-80%;left:-40%;width:35%;height:250%;background:#ffffff38;transform:rotate(25deg);animation:shine 4s infinite}
+.menuVersion{margin-top:23px;color:#7186a5;font-size:10px;letter-spacing:2px}
+#settings{display:none;position:fixed;z-index:30;inset:0;background:#060b13f7;backdrop-filter:blur(20px);padding:env(safe-area-inset-top) 12px env(safe-area-inset-bottom)}
+.settingsShell{width:min(900px,100%);height:100%;margin:auto;display:flex;flex-direction:column}
+.settingsHeader{height:64px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+.settingsHeader strong{font-size:19px;letter-spacing:1px}
+.closeBtn{width:42px;height:42px;border-radius:13px;background:#1c2a3d;border:1px solid #40536c;color:white;font-size:22px}
+.settingsBody{overflow:auto;overscroll-behavior:contain;padding:14px 2px 25px;scrollbar-width:thin;scrollbar-color:#354a66 transparent}
+.settingsGroup{margin-bottom:13px;padding:14px;border:1px solid #25364c;border-radius:16px;background:linear-gradient(145deg,#142033,#0e1725);box-shadow:0 8px 25px #0003}
+.groupTitle{color:#72b5ff;font-size:11px;font-weight:950;letter-spacing:2px;margin:0 0 10px}
+.settingRow{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #ffffff0b;padding:7px 0}
+.settingRow:last-child{border-bottom:0}
+.settingInfo{min-width:0}
+.settingName{font-size:13px;font-weight:750}
+.settingHint{font-size:10px;color:#8497b2;margin-top:3px}
+.toggle{width:48px;height:27px;border-radius:30px;border:1px solid #52627a;background:#273447;position:relative;flex-shrink:0;padding:0;transition:.2s}
+.toggle:after{content:"";position:absolute;width:19px;height:19px;left:3px;top:3px;border-radius:50%;background:#b4c0d0;transition:.2s}
+.toggle.on{background:#1674d9;border-color:#5baaff;box-shadow:0 0 14px #167cff55}
+.toggle.on:after{left:24px;background:white}
+.select{min-width:105px;max-width:155px;padding:9px 10px;color:#eaf3ff;background:#1c2b40;border:1px solid #405571;border-radius:10px;font-size:12px;outline:none}
+.segment{display:flex;gap:4px;padding:4px;border-radius:11px;background:#091321;border:1px solid #273950}
+.segment button{min-width:37px;padding:8px 10px;border:0;border-radius:8px;color:#8092aa;background:transparent;font-size:11px;font-weight:850}
+.segment button.active{color:white;background:#236fc4;box-shadow:0 2px 10px #167cff55}
+.rangeBox{width:46%;min-width:120px;text-align:right}
+.rangeBox input{width:100%;accent-color:#3994ff}
+.rangeValue{font-size:11px;color:#82bbff;font-weight:800}
+.settingsFooter{flex-shrink:0;padding:10px 0 12px;border-top:1px solid var(--line);display:flex;gap:10px}
+.footerBtn{flex:1;min-height:48px;border-radius:13px;border:1px solid #ffffff20;color:white;background:#1b2b40;font-weight:850;font-size:12px}
+.footerBtn.primary{background:linear-gradient(110deg,#2387ff,#1760d3)}
+#skinPreview{width:35px;height:35px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#fff,#f3b4d0 48%,#a92d55);border:2px solid #fff;box-shadow:0 0 15px #ff739f;overflow:hidden}
+#skinPreview img{width:100%;height:100%;object-fit:cover;object-position:center 35%}
+#hud{position:fixed;left:0;top:0;padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 0;pointer-events:none;font-size:14px;z-index:4}
+#score{background:#111c2ddd;padding:8px 13px;border-radius:12px;display:inline-block;border:1px solid #ffffff22;box-shadow:0 4px 16px #0008}
+#lb{position:fixed;right:10px;top:calc(env(safe-area-inset-top,0px) + 10px);background:#111c2ddd;border:1px solid #ffffff22;border-radius:14px;padding:9px 12px;min-width:140px;font-size:13px;pointer-events:none;box-shadow:0 5px 20px #0008;backdrop-filter:blur(10px);z-index:4}
+#lb b{display:block;text-align:center;margin-bottom:5px;color:#ffd54a}
+#lb div{display:flex;justify-content:space-between;gap:10px;white-space:nowrap}
+#lb .me{color:#ffd54a;font-weight:700}
+#fpsHud{position:fixed;top:calc(env(safe-area-inset-top,0px) + 65px);left:12px;font-size:11px;color:#9fcaff;background:#101b2bcc;padding:5px 8px;border-radius:7px;pointer-events:none;z-index:4;display:none}
+#directionHud{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translateX(-50%);font-size:10px;color:#ffd76a;background:#111b2bcc;padding:5px 9px;border-radius:8px;pointer-events:none;z-index:4;display:none}
+#btns{position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);display:flex;flex-direction:row;flex-wrap:wrap;width:132px;justify-content:flex-end;gap:10px;z-index:5}
+#btns button{width:60px;height:60px;border-radius:19px;color:#fff;font-size:11px;font-weight:900;letter-spacing:.3px;border:1px solid #ffffff66;box-shadow:0 5px 18px #0008,inset 0 1px 1px #ffffff66;transition:.16s;position:relative;overflow:hidden}
+#btns button:active{transform:scale(.88);filter:brightness(1.4)}
+#bs{background:linear-gradient(145deg,#58a6ff,#1f6feb)}
+#be{background:linear-gradient(145deg,#ffad55,#d65b00)}
+#bm{background:linear-gradient(145deg,#bc8cff,#8957e5)}
+#b5{background:linear-gradient(145deg,#ffe17b,#bf8700)}
+#btns button.on{background:linear-gradient(145deg,#3fb950,#176b35)!important}
+#gear{position:fixed;left:12px;top:calc(env(safe-area-inset-top,0px) + 52px);width:44px;height:44px;border-radius:13px;border:1px solid #ffffff44;background:#1b2b40;color:white;font-size:19px;z-index:5}
+#joy{position:fixed;width:120px;height:120px;border-radius:50%;border:2px solid #ffffff70;background:radial-gradient(circle,#ffffff12,#ffffff05 65%,#ffffff12);display:none;pointer-events:none;box-shadow:0 0 28px #48a5ff22,inset 0 0 22px #ffffff16;z-index:3}
+#joy:after{content:"";position:absolute;inset:9px;border-radius:50%;border:1px dashed #ffffff35}
+#knob{position:absolute;width:50px;height:50px;left:35px;top:35px;border-radius:50%;background:radial-gradient(circle at 30% 25%,#fff,#a6d6ff 40%,#368cff 80%);border:1px solid #ffffffaa;box-shadow:0 3px 18px #168cff99,inset 0 1px 4px #fff}
+#end{display:none;position:fixed;z-index:15;left:50%;top:50%;transform:translate(-50%,-50%);padding:25px;width:min(330px,90vw);text-align:center;background:#111c2d;border:1px solid #ffffff33;border-radius:20px;box-shadow:0 15px 60px #000c}
+#end button{margin-top:14px;width:100%;padding:13px;background:#2479e5;color:white;border:0;border-radius:11px;font-weight:900}
+#mitsuriGif{position:fixed;display:none;z-index:2;border-radius:50%;object-fit:cover;object-position:center 35%;border:2px solid #ffe5ef;box-shadow:0 0 14px #ff80b7,0 0 30px #ff4e9b88;pointer-events:none}
+.mitsuriClone{position:fixed;display:none;z-index:2;border-radius:50%;object-fit:cover;object-position:center 35%;border:2px solid #ffe5ef;box-shadow:0 0 14px #ff80b7,0 0 30px #ff4e9b88;pointer-events:none}
+body.leftHand #btns{left:14px;right:auto;justify-content:flex-start}
+body.leftHand #joy{right:34px;left:auto!important}
+body.leftHand #gear{right:12px;left:auto}
+@keyframes glow{from{transform:scale(.8);opacity:.55}to{transform:scale(1.15);opacity:1}}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-24px) rotate(12deg)}}
+@keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes shine{0%,65%{left:-50%}100%{left:130%}}
+@media(max-height:520px){.menuContent{padding:8px}.logoMark{width:55px;height:55px;margin-bottom:8px}.logoMark span{width:28px;height:28px}.logoSub{margin:5px 0 10px}.menuStats{margin-bottom:10px}.bigBtn{min-height:45px}.settingsHeader{height:48px}.settingsGroup{padding:9px;margin-bottom:8px}.settingRow{min-height:40px}}
 </style>
 </head>
 <body>
-<div id="stage">
-<canvas id="game"></canvas>
-
-<div id="top">МАРАТ АЛИЕВ • 1 КУРС</div>
-
-<div id="hud">
-<div>🐍 SNAKE ARENA</div>
-<div>Масса: <span id="mass">100</span></div>
-<div>Длина: <span id="length">38</span></div>
-<div>Боты: <span id="bots">0</span></div>
-</div>
-
-<div id="controls">
-<button onclick="changeZoom(1.15)">ZOOM +</button>
-<button onclick="changeZoom(.87)">ZOOM −</button>
-<button onclick="togglePause()">ESC / ПАУЗА</button>
-</div>
-
-<div id="leader"><b>ТОП ИГРОКОВ</b><div id="scores"></div></div>
-
-<div id="joystick"><div id="stick"></div></div>
-<button id="boost">BOOST</button>
-<div id="bottom">ДЖОЙСТИК — ДВИЖЕНИЕ · BOOST — УСКОРЕНИЕ · КОЛЁСИКО — ЗУМ</div>
+<canvas id="c"></canvas>
+<img id="mitsuriGif" alt="Mitsuri animated skin" src="https://media1.tenor.com/m/pzMeHIatRyMAAAAd/mitsuri-kanroji.gif">
 
 <div id="menu">
- <div class="panel">
-  <h1>SNAKE ARENA</h1>
-  <div class="sub">FULLSCREEN PC EDITION • 13.0</div>
-  <p>Выбери скин змейки</p>
-  <div class="skins" id="skins"></div>
-  <div id="skinLabel">Выбран: Красный</div>
-  <button id="play" onclick="startGame()">ИГРАТЬ</button>
-  <div class="sub">Джойстик — движение · BOOST — ускорение</div>
+ <div class="menuGlow"></div><div class="menuGrid"></div>
+ <div class="menuBlob blob1"></div><div class="menuBlob blob2"></div>
+ <div class="menuBlob blob3"></div><div class="menuBlob blob4"></div>
+ <div class="menuContent">
+  <div class="logoMark"><span></span></div>
+  <h1 class="logoTitle">BLOB <em>ARENA</em></h1>
+  <div class="logoSub">ULTRA LEGENDARY EDITION</div>
+  <div class="menuStats"><div class="stat">20 БОТОВ</div><div class="stat">5000 × 5000</div><div class="stat">ARENA MODE</div></div>
+  <div class="menuActions">
+   <button class="bigBtn" id="play">ИГРАТЬ</button>
+   <button class="bigBtn" id="settingsOpen">НАСТРОЙКИ</button>
+  </div>
+  <div class="menuVersion">BLOB ARENA · ULTRA 3.1</div>
  </div>
 </div>
 
-<div id="over">
- <div class="panel">
-  <h1>ТЫ ПОГИБ!</h1>
-  <p id="result"></p>
-  <button id="play" onclick="startGame()">ИГРАТЬ СНОВА</button>
-  <button onclick="backMenu()" style="width:100%">В МЕНЮ</button>
+<div id="settings">
+ <div class="settingsShell">
+  <div class="settingsHeader"><strong>НАСТРОЙКИ ИГРЫ</strong><button class="closeBtn" id="settingsClose">×</button></div>
+  <div class="settingsBody">
+   <section class="settingsGroup">
+    <div class="groupTitle">УПРАВЛЕНИЕ · ДЖОЙСТИК</div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Направление</div><div class="settingHint">Стрелка прицеливания отключена</div></div><button class="toggle" data-setting="direction"></button></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Неподвижно</div><div class="settingHint">Останавливать клетки при отпускании</div></div><button class="toggle" data-setting="stationary"></button></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Автодвижение</div><div class="settingHint">Продолжать движение в последнем направлении</div></div><button class="toggle" data-setting="autoMove"></button></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Самокормление</div><div class="settingHint">Автоматически использовать выброс массы</div></div><button class="toggle" data-setting="selfFeed"></button></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Нажатие по центру</div><div class="settingHint">Центральная зона джойстика активирует движение</div></div><button class="toggle" data-setting="pressCenter"></button></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Центр джойстика</div><div class="settingHint">Фиксированное положение стика</div></div><button class="toggle" data-setting="joyCenter"></button></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Удерживать паузу</div><div class="settingHint">Пауза при удержании центра</div></div><button class="toggle" data-setting="holdPause"></button></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Отпускание джойстика</div><div class="settingHint">Клетки возвращаются к центру экрана</div></div><button class="toggle on" data-setting="releaseCenter"></button></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Для левшей</div><div class="settingHint">Перенести управление на другую сторону</div></div><button class="toggle" data-setting="leftHand"></button></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Размер джойстика</div><div class="rangeBox"><div class="rangeValue" id="joySizeVal">100%</div><input id="joySize" type="range" min="70" max="300" value="100"></div></div></div>
+   </section>
+
+   <section class="settingsGroup">
+    <div class="groupTitle">ГРАФИКА И ПРОИЗВОДИТЕЛЬНОСТЬ</div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">FPS</div><div class="settingHint">Ограничение частоты обновления</div></div><div class="segment" id="fpsOptions"><button data-value="60" class="active">60</button><button data-value="90">90</button><button data-value="120">120</button></div></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Качество графики</div><div class="settingHint">Выбери максимальную детализацию</div></div><select class="select" id="quality"><option value="low">НИЗКОЕ</option><option value="medium">СРЕДНЕЕ</option><option value="high">ВЫСОКОЕ</option><option value="max" selected>ULTRA MAX</option></select></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Эффекты · желейная физика</div></div><button class="toggle on" data-setting="jelly"></button></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Анимация клетки</div></div><button class="toggle on" data-setting="cellAnimation"></button></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Скорость анимации</div><div class="rangeBox"><div class="rangeValue" id="animSpeedVal">100%</div><input id="animSpeed" type="range" min="25" max="300" value="100"></div></div></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Принудительная анимация</div></div><button class="toggle on" data-setting="forceAnimation"></button></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Показывать FPS/MS</div></div><button class="toggle" data-setting="showFps"></button></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">SHOW DOWN/UP</div><div class="settingHint">Показывать состояние направления</div></div><button class="toggle on" data-setting="showDownUp"></button></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Масштаб интерфейса</div><div class="rangeValue" id="uiScaleVal">100%</div></div><div class="rangeBox"><input id="uiScale" type="range" min="70" max="300" value="100"></div></div>
+   </section>
+
+   <section class="settingsGroup">
+    <div class="groupTitle">ВНЕШНИЙ ВИД · СКИНЫ</div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Скин игрока</div><div class="settingHint">Анимированный GIF на каждой клетке</div></div><select class="select" id="skin"><option value="normal">КЛАССИКА</option><option value="mitsuri">MITSURI GIF</option><option value="neon">NEON</option><option value="cosmic">COSMIC</option></select></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Предпросмотр</div></div><div id="skinPreview"><img src="https://media1.tenor.com/m/pzMeHIatRyMAAAAd/mitsuri-kanroji.gif" alt=""></div></div>
+   </section>
+
+   <section class="settingsGroup">
+    <div class="groupTitle">МАКРО · СКОРОСТЬ</div>
+    <div class="settingRow">
+     <div class="settingInfo"><div class="settingName">Скорость макро</div><div class="settingHint">От медленного до очень быстрого выброса</div></div>
+     <div class="rangeBox"><div class="rangeValue" id="macroSpeedVal">100%</div><input id="macroSpeed" type="range" min="25" max="500" value="100"></div>
+    </div>
+    <div class="settingHint">За одно удержание макро выбрасывает максимум 80% общей массы.</div>
+   </section>
+
+   <section class="settingsGroup">
+    <div class="groupTitle">ДОПОЛНИТЕЛЬНО</div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">CAMO-кормление</div><div class="settingHint">Скрывать метки выброшенной массы</div></div><button class="toggle" data-setting="camoFeed"></button></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Регион</div></div><select class="select" id="region"><option>ЕВРОПА</option><option>АМЕРИКА</option><option>АЗИЯ</option></select></div>
+    <div class="settingRow"><div class="settingInfo"><div class="settingName">Язык</div></div><select class="select" id="language"><option value="system">Системный язык</option><option value="ru">Русский</option><option value="en">English</option></select></div>
+   </section>
+  </div>
+  <div class="settingsFooter"><button class="footerBtn" id="resetSettings">СБРОСИТЬ</button><button class="footerBtn primary" id="saveSettings">СОХРАНИТЬ</button></div>
  </div>
 </div>
-</div>
+
+<div id="hud"><span id="score">Масса: 0</span></div>
+<div id="lb"></div><div id="fpsHud"></div><div id="directionHud"></div>
+<div id="btns"><button id="bs">РАЗДЕЛ</button><button id="be">ВЫБРОС</button><button id="bm">МАКРО</button><button id="b5">+500</button></div>
+<button id="gear">⚙</button>
+<div id="joy"><div id="knob"></div></div>
+<div id="end"><div id="endText">Игра окончена</div><button id="endPlay">ИГРАТЬ СНОВА</button><button id="endMenu" style="margin-top:8px;background:#263b56">ГЛАВНОЕ МЕНЮ</button></div>
 
 <script>
-const canvas=document.getElementById('game');
-const ctx=canvas.getContext('2d');
-let W,H,dpr=1;
+const $=id=>document.getElementById(id);
+const defaults={
+ direction:false,stationary:false,autoMove:false,selfFeed:false,
+ pressCenter:false,joyCenter:false,holdPause:false,releaseCenter:true,
+ leftHand:false,jelly:true,cellAnimation:true,forceAnimation:true,
+ showFps:false,showDownUp:true,camoFeed:false,
+ fps:60,quality:'max',animSpeed:100,joySize:100,uiScale:100,
+ macroSpeed:100,region:'ЕВРОПА',language:'system',skin:'mitsuri'
+};
+let settings={...defaults};
+try{settings={...settings,...JSON.parse(localStorage.getItem('blobSettings')||'{}')}}catch(e){}
+settings.direction=false;
+settings.macroSpeed=Math.max(25,Math.min(500,Number(settings.macroSpeed)||100));
 
+function saveSettings(){try{localStorage.setItem('blobSettings',JSON.stringify(settings))}catch(e){}}
+function renderSettings(){
+ document.querySelectorAll('[data-setting]').forEach(b=>b.classList.toggle('on',!!settings[b.dataset.setting]));
+ $('quality').value=settings.quality;$('region').value=settings.region;$('language').value=settings.language;$('skin').value=settings.skin;
+ $('joySize').value=settings.joySize;$('joySizeVal').textContent=settings.joySize+'%';
+ $('animSpeed').value=settings.animSpeed;$('animSpeedVal').textContent=settings.animSpeed+'%';
+ $('macroSpeed').value=settings.macroSpeed;$('macroSpeedVal').textContent=settings.macroSpeed+'%';
+ $('uiScale').value=settings.uiScale;$('uiScaleVal').textContent=settings.uiScale+'%';
+ document.querySelectorAll('#fpsOptions button').forEach(b=>b.classList.toggle('active',+b.dataset.value===settings.fps));
+ document.body.classList.toggle('leftHand',settings.leftHand);
+ $('fpsHud').style.display=settings.showFps?'block':'none';
+ $('directionHud').style.display=settings.showDownUp?'block':'none';
+ const size=120*settings.joySize/100;
+ $('joy').style.width=size+'px';$('joy').style.height=size+'px';
+ const ks=50*settings.joySize/100;
+ $('knob').style.width=ks+'px';$('knob').style.height=ks+'px';
+ $('knob').style.left=((size-ks)/2)+'px';$('knob').style.top=((size-ks)/2)+'px';
+ document.documentElement.style.setProperty('--ui-scale',settings.uiScale/100);
+}
+document.querySelectorAll('[data-setting]').forEach(b=>b.addEventListener('click',()=>{
+ const k=b.dataset.setting;
+ if(k==='direction')return;
+ settings[k]=!settings[k];renderSettings();saveSettings();
+}));
+$('fpsOptions').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;settings.fps=+b.dataset.value;renderSettings();saveSettings()});
+$('quality').onchange=e=>{settings.quality=e.target.value;resize();saveSettings()};
+$('region').onchange=e=>{settings.region=e.target.value;saveSettings()};
+$('language').onchange=e=>{settings.language=e.target.value;saveSettings()};
+$('skin').onchange=e=>{settings.skin=e.target.value;saveSettings();updateMitsuriOverlay()};
+$('joySize').oninput=e=>{settings.joySize=+e.target.value;renderSettings();saveSettings()};
+$('animSpeed').oninput=e=>{settings.animSpeed=+e.target.value;renderSettings();saveSettings()};
+$('macroSpeed').oninput=e=>{settings.macroSpeed=+e.target.value;renderSettings();saveSettings()};
+$('uiScale').oninput=e=>{settings.uiScale=+e.target.value;renderSettings();saveSettings()};
+$('resetSettings').onclick=()=>{settings={...defaults};renderSettings();saveSettings();resize()};
+$('saveSettings').onclick=()=>{$('settings').style.display='none';saveSettings()};
+$('settingsOpen').onclick=()=>{$('settings').style.display='block';renderSettings()};
+$('settingsClose').onclick=()=>{$('settings').style.display='none'};
+$('gear').onclick=()=>{$('settings').style.display='block';renderSettings()};
+renderSettings();
+
+/* ENGINE */
+const cv=$('c'),ctx=cv.getContext('2d');
+let W,H,DPR;
 function resize(){
- W=innerWidth;H=innerHeight;
- dpr=Math.min(devicePixelRatio||1,2);
- canvas.width=W*dpr;
- canvas.height=H*dpr;
- ctx.setTransform(dpr,0,0,dpr,0,0);
+ const q=settings.quality;
+ const limit=q==='max'?2.5:q==='high'?2:q==='medium'?1.5:1;
+ DPR=Math.min(devicePixelRatio||1,limit);
+ W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);
 }
-addEventListener('resize',resize);
-resize();
+addEventListener('resize',resize);resize();
+const WORLD=5000,FOOD_N=700,BOT_N=20;
+const rad=m=>Math.sqrt(m)*4;
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const hsl=()=>`hsl(${Math.floor(rnd(0,360))},75%,55%)`;
+const NAMES=['Бульк','Гриша','Тень','Шар','Кекс','Нуб','Pro','Слайм','Жук','Макс','Лови','Бублик','Пикси','Тигр','Дракон','Ёж','Блоб','Зевс','Рик','Мышь'];
+let ents=[],food=[],player=null,playing=false;
+let cam={x:WORLD/2,y:WORLD/2,z:1},mouse={x:W/2,y:H/2},now=0;
+let best=0,EJM=10,EJS=8,ZM=1,ADDM=500,macro=false,mAcc=0,macroAcc=0,macroBudget=0;
+let particles=[];
+const MITSURI_SRC='https://media1.tenor.com/m/pzMeHIatRyMAAAAd/mitsuri-kanroji.gif';
 
-const WORLD=6000;
-const FOOD_COUNT=1300;
-const BOT_COUNT=30;
-
-const skins=[
- {name:'Красный',color:'#ff354f'},
- {name:'Синий',color:'#258bff'},
- {name:'Зелёный',color:'#28dc91'},
- {name:'Фиолетовый',color:'#a45aff'},
- {name:'Золотой',color:'#ffc83d'},
- {name:'Ледяной',color:'#70eaff'},
- {name:'Радужный',color:'rainbow'},
- {name:'Огненный',color:'fire'}
-];
-
-let selectedSkin=0;
-const skinBox=document.getElementById('skins');
-
-skins.forEach((s,i)=>{
- let b=document.createElement('div');
- b.className='skin'+(i===0?' selected':'');
- b.style.background=s.color==='rainbow'
- ?'linear-gradient(90deg,red,orange,yellow,lime,cyan,blue,violet)'
- :s.color==='fire'
- ?'linear-gradient(90deg,#ffeb3b,#ff6b00,#e60035)':s.color;
- b.title=s.name;
- b.onclick=()=>{
-  selectedSkin=i;
-  document.querySelectorAll('.skin').forEach(x=>x.classList.remove('selected'));
-  b.classList.add('selected');
-  document.getElementById('skinLabel').textContent='Выбран: '+s.name;
- };
- skinBox.appendChild(b);
-});
-
-let foods=[],snakes=[],player=null;
-let running=false,paused=false;
-let camera={x:0,y:0,zoom:1},manualZoom=1;
-let last=0;
-let joystick={active:false,x:0,y:0};
-let boostActive=false;
-let keys={};
-
-function rand(a,b){return a+Math.random()*(b-a)}
-function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
-function angleDiff(a,b){return Math.atan2(Math.sin(b-a),Math.cos(b-a))}
-
-function makeSnake(x,y,isPlayer=false,index=0,mass=null){
- let angle=rand(0,Math.PI*2);
- let m=mass===null?(isPlayer?100:rand(75,145)):mass;
- let s={
-  x,y,angle,points:[],mass:m,alive:true,isPlayer,index,
-  color:isPlayer?skins[selectedSkin].color:
-  ['#ff465e','#33aaff','#a65cff','#42e6a4','#ffbd39','#f078e8'][index%6],
-  hue:rand(0,360),boost:false,
-  name:isPlayer?'МАРАТ':'БОТ '+(index+1)
- };
-
- for(let i=0;i<38;i++){
-  s.points.push({
-   x:x-Math.cos(angle)*i*6,
-   y:y-Math.sin(angle)*i*6
-  });
- }
- return s;
+function mkEnt(name,color,bot,m){
+ const e={name,color,bot,cells:[],tx:rnd(0,WORLD),ty:rnd(0,WORLD),think:0,dead:false,respawn:0};
+ e.cells.push({x:rnd(100,WORLD-100),y:rnd(100,WORLD-100),m:m||20,vx:0,vy:0,t:0});
+ return e;
 }
-
-function addFood(x,y,value){
- foods.push({x,y,v:value||rand(2,7),r:rand(3,6),h:rand(0,360)});
+function mkFood(){return{x:rnd(0,WORLD),y:rnd(0,WORLD),m:1,c:hsl(),vx:0,vy:0}}
+function init(){
+ food=[];for(let i=0;i<FOOD_N;i++)food.push(mkFood());
+ ents=[];for(let i=0;i<BOT_N;i++)ents.push(mkEnt(NAMES[i%NAMES.length],hsl(),true,rnd(15,120)));
 }
-
-function spawnFood(){
- foods=[];
- for(let i=0;i<FOOD_COUNT;i++){
-  addFood(rand(-WORLD/2,WORLD/2),rand(-WORLD/2,WORLD/2));
- }
+function total(e){let s=0;for(const c of e.cells)s+=c.m;return s}
+function start(){
+ init();player=mkEnt('Игрок',settings.skin==='mitsuri'?'#e9a5c4':settings.skin==='neon'?'#27d8ff':settings.skin==='cosmic'?'#a77aff':hsl(),false,25);ents.push(player);
+ cam.x=player.cells[0].x;cam.y=player.cells[0].y;cam.z=ZM;
+ macro=false;setMacro(false);mAcc=0;macroAcc=0;macroBudget=0;playing=true;
+ $('menu').style.display='none';$('settings').style.display='none';$('end').style.display='none';
+ updateMitsuriOverlay();
 }
+$('play').onclick=start;$('endPlay').onclick=start;
+$('endMenu').onclick=()=>{$('end').style.display='none';$('menu').style.display='flex';playing=false;updateMitsuriOverlay()};
 
-function safeBotPosition(){
- let x,y,tries=0;
- do{
-  let a=rand(0,Math.PI*2);
-  let r=rand(1400,2400);
-  x=player.x+Math.cos(a)*r;
-  y=player.y+Math.sin(a)*r;
-  tries++;
- }while((Math.abs(x)>WORLD/2-150||Math.abs(y)>WORLD/2-150)&&tries<30);
-
- return {
-  x:clamp(x,-WORLD/2+200,WORLD/2-200),
-  y:clamp(y,-WORLD/2+200,WORLD/2-200)
- };
-}
-
-function spawnBots(){
- snakes=[player];
- for(let i=0;i<BOT_COUNT;i++){
-  let p=safeBotPosition();
-  snakes.push(makeSnake(p.x,p.y,false,i,rand(75,145)));
- }
-}
-
-function startGame(){
- document.getElementById('menu').style.display='none';
- document.getElementById('over').style.display='none';
- player=makeSnake(0,0,true);
- spawnFood();
- spawnBots();
- camera={x:0,y:0,zoom:1};
- manualZoom=1;
- running=true;
- paused=false;
- last=performance.now();
-}
-
-function backMenu(){
- running=false;
- document.getElementById('over').style.display='none';
- document.getElementById('menu').style.display='flex';
-}
-
-function togglePause(){
- if(running)paused=!paused;
-}
-
-function changeZoom(v){
- manualZoom=clamp(manualZoom*v,.35,2.5);
-}
-
-// Джойстик
-const joy=document.getElementById('joystick');
-const stick=document.getElementById('stick');
-
-function updateJoystick(e){
- let r=joy.getBoundingClientRect();
- let dx=e.clientX-(r.left+r.width/2);
- let dy=e.clientY-(r.top+r.height/2);
- let max=r.width*.34;
- let d=Math.hypot(dx,dy);
- if(d>max){dx=dx/d*max;dy=dy/d*max}
- joystick.x=dx/max;
- joystick.y=dy/max;
- stick.style.left=`calc(50% + ${dx}px)`;
- stick.style.top=`calc(50% + ${dy}px)`;
-}
-
-joy.addEventListener('pointerdown',e=>{
- joystick.active=true;
- joy.setPointerCapture(e.pointerId);
- updateJoystick(e);
-});
-joy.addEventListener('pointermove',e=>{
- if(joystick.active)updateJoystick(e);
-});
-function releaseJoystick(){
- joystick.active=false;
- joystick.x=0;joystick.y=0;
- stick.style.left='50%';stick.style.top='50%';
-}
-joy.addEventListener('pointerup',releaseJoystick);
-joy.addEventListener('pointercancel',releaseJoystick);
-
-const boostButton=document.getElementById('boost');
-boostButton.addEventListener('pointerdown',e=>{
- e.preventDefault();
- boostActive=true;
- boostButton.classList.add('active');
-});
-function releaseBoost(){
- boostActive=false;
- boostButton.classList.remove('active');
-}
-boostButton.addEventListener('pointerup',releaseBoost);
-boostButton.addEventListener('pointerleave',releaseBoost);
-boostButton.addEventListener('pointercancel',releaseBoost);
-
-addEventListener('keydown',e=>{
- keys[e.key.toLowerCase()]=true;
- if(e.key==='Escape')togglePause();
-});
-addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-
-addEventListener('wheel',e=>{
- changeZoom(e.deltaY<0?1.1:.9);
-},{passive:true});
-
-function die(s){
- if(!s.alive)return;
- s.alive=false;
-
- for(let i=5;i<s.points.length;i+=3){
-  let p=s.points[i];
-  addFood(p.x+rand(-8,8),p.y+rand(-8,8),rand(4,9));
- }
-
- if(s.isPlayer){
-  running=false;
-  document.getElementById('result').textContent='Твоя масса: '+Math.floor(s.mass);
-  document.getElementById('over').style.display='flex';
- }
-}
-
-function moveSnake(s,dt){
- if(!s.alive)return;
-
- if(s.isPlayer){
-  let dx=joystick.x,dy=joystick.y;
-
-  if(keys['a']||keys['arrowleft'])dx=-1;
-  if(keys['d']||keys['arrowright'])dx=1;
-  if(keys['w']||keys['arrowup'])dy=-1;
-  if(keys['s']||keys['arrowdown'])dy=1;
-
-  if(Math.hypot(dx,dy)>.12){
-   let target=Math.atan2(dy,dx);
-   s.angle+=clamp(angleDiff(s.angle,target),-4.5*dt,4.5*dt);
-  }
-  s.boost=boostActive||keys['shift'];
-
- }else{
-  if(Math.random()<.018)s.angle+=rand(-1,1);
-
-  let nearest=null,nd=Infinity;
-  for(let f of foods){
-   let d=Math.hypot(f.x-s.x,f.y-s.y);
-   if(d<nd&&d<320){nd=d;nearest=f}
-  }
-  if(nearest){
-   let target=Math.atan2(nearest.y-s.y,nearest.x-s.x);
-   s.angle+=clamp(angleDiff(s.angle,target),-1.7*dt,1.7*dt);
-  }
-  s.boost=false;
- }
-
- let speed=s.boost?300:185;
- speed*=1/(1+s.mass/5000);
- s.x+=Math.cos(s.angle)*speed*dt;
- s.y+=Math.sin(s.angle)*speed*dt;
-
- if(Math.abs(s.x)>WORLD/2||Math.abs(s.y)>WORLD/2){
-  die(s);return;
- }
-
- s.points.unshift({x:s.x,y:s.y});
- let maxLength=42+Math.sqrt(s.mass)*1.8;
- while(s.points.length>maxLength)s.points.pop();
-}
-
-function eatFood(){
- for(let s of snakes){
-  if(!s.alive)continue;
-  for(let i=foods.length-1;i>=0;i--){
-   let f=foods[i];
-   if(Math.hypot(s.x-f.x,s.y-f.y)<19+f.r){
-    s.mass+=f.v*1.2;
-    foods.splice(i,1);
-   }
-  }
- }
- while(foods.length<FOOD_COUNT){
-  addFood(rand(-WORLD/2,WORLD/2),rand(-WORLD/2,WORLD/2));
- }
-}
-
-function headHitsBody(head,body){
- for(let k=8;k<body.points.length;k+=2){
-  let p=body.points[k];
-  if(Math.hypot(head.x-p.x,head.y-p.y)<19)return true;
- }
+function isMerging(e,c){
+ if(now-(c.abs||-9)<.4)return true;
+ for(const o of e.cells)if(o!==c&&o.m>=c.m&&now>=c.t&&now>=o.t&&Math.hypot(o.x-c.x,o.y-c.y)<rad(o.m)+rad(c.m)*.5)return true;
  return false;
 }
-
-function collisions(){
- if(!player||!player.alive)return;
-
- // Бот врезается в игрока — погибает бот.
- // Игрок врезается в бота — погибает игрок.
- for(let i=1;i<snakes.length;i++){
-  let bot=snakes[i];
-  if(!bot.alive)continue;
-
-  if(headHitsBody(bot,player)){
-   die(bot);
-   continue;
+function split(e,tx,ty){
+ const add=[];
+ for(const c of e.cells){
+  if(c.m<40||e.cells.length+add.length>=16||isMerging(e,c))continue;
+  c.m/=2;let dx=tx-c.x,dy=ty-c.y,d=Math.hypot(dx,dy)||1,ux=dx/d,uy=dy/d;
+  const r=rad(c.m),offset=r*2+3;let nx=c.x+ux*offset,ny=c.y+uy*offset;
+  if(nx<r||nx>WORLD-r||ny<r||ny>WORLD-r){
+   const bx=c.x-ux*offset,by=c.y-uy*offset;
+   if(bx>=r&&bx<=WORLD-r&&by>=r&&by<=WORLD-r){ux=-ux;uy=-uy;nx=bx;ny=by}
+   else{nx=Math.max(r,Math.min(WORLD-r,nx));ny=Math.max(r,Math.min(WORLD-r,ny))}
   }
-
-  if(headHitsBody(player,bot)){
-   die(player);
-   return;
-  }
-
-  if(Math.hypot(player.x-bot.x,player.y-bot.y)<22){
-   die(bot);
-  }
+  add.push({x:nx,y:ny,m:c.m,vx:ux*650,vy:uy*650,t:now+5});
+  c.t=now+5;
  }
+ e.cells.push(...add);
+ if(e===player&&settings.quality==='max'){
+  const c=mainCell(e);for(let i=0;i<18;i++)particles.push({x:c.x,y:c.y,vx:rnd(-180,180),vy:rnd(-180,180),life:.55,max:.55,color:'#83caff'});
+ }
+ updateMitsuriOverlay();
+}
+function eject(e,tx,ty,amt){
+ amt=amt||EJM;
+ for(const c of e.cells){
+  if(c.m<amt+25)continue;c.m-=amt;
+  let dx=tx-c.x,dy=ty-c.y,d=Math.hypot(dx,dy)||1;
+  const r=rad(c.m),n=Math.max(1,Math.round(amt/10)),pm=amt*.9/n,a0=Math.atan2(dy,dx);
+  for(let k=0;k<n;k++){
+   const a=a0+rnd(-.045,.045),s=rnd(350,800),o=r+rnd(4,22),lt=rnd(-36,36);
+   food.push({x:c.x+Math.cos(a0)*o-Math.sin(a0)*lt,y:c.y+Math.sin(a0)*o+Math.cos(a0)*lt,m:pm,ej:1,o:e,t:now+.1,c:e.color,vx:Math.cos(a)*s,vy:Math.sin(a)*s});
+  }
+  if(food.length>5000)food.splice(0,200);
+ }
+}
 
- // Столкновения ботов между собой
- for(let i=1;i<snakes.length;i++){
-  let a=snakes[i];
-  if(!a.alive)continue;
+/* Макро: общий лимит 80% массы на одно удержание.
+   Каждая клетка/клон участвует в выбросе. */
+function macroEject(e,tx,ty){
+ if(!e||macroBudget<=0)return;
+ const eligible=e.cells.filter(c=>c.m>EJM+25);
+ if(!eligible.length){macroBudget=0;return}
+ const per=Math.min(EJM,macroBudget/eligible.length);
+ if(per<=0){macroBudget=0;return}
+ const before=macroBudget;
+ eject(e,tx,ty,per);
+ const used=per*eligible.length;
+ macroBudget=Math.max(0,before-used);
+}
 
-  for(let j=i+1;j<snakes.length;j++){
-   let b=snakes[j];
-   if(!b.alive)continue;
-
-   if(headHitsBody(a,b)||headHitsBody(b,a)||
-      Math.hypot(a.x-b.x,a.y-b.y)<22){
-    die(a);
-    die(b);
+function pTarget(){
+ if(touchMode){
+  if(!joy.act)return{x:cam.x,y:cam.y};
+  return{x:cam.x+joy.lx*1500,y:cam.y+joy.ly*1500};
+ }
+ return{x:(mouse.x-W/2)/cam.z+cam.x,y:(mouse.y-H/2)/cam.z+cam.y};
+}
+function mainCell(e){let m=e.cells[0];for(const c of e.cells)if(c.m>m.m)m=c;return m}
+function botThink(e){
+ let big=e.cells[0];for(const c of e.cells)if(c.m>big.m)big=c;
+ const r=rad(big.m);let flee=null,fd=1e9,chase=null,cd=1e9;
+ for(const o of ents){if(o===e)continue;for(const c of o.cells){
+  const d=Math.hypot(c.x-big.x,c.y-big.y);if(d>500+r)continue;
+  if(c.m>big.m*1.2&&d<fd){fd=d;flee=c}
+  else if(big.m>c.m*1.2&&d<cd){cd=d;chase=c}
+ }}
+ if(flee){e.tx=big.x-(flee.x-big.x);e.ty=big.y-(flee.y-big.y);return}
+ if(chase){e.tx=chase.x;e.ty=chase.y;return}
+ let bestFood=null,bd=1e9;
+ for(let i=0;i<food.length;i+=3){const f=food[i],d=Math.hypot(f.x-big.x,f.y-big.y);if(d<bd){bd=d;bestFood=f}}
+ if(bestFood){e.tx=bestFood.x;e.ty=bestFood.y}
+}
+function update(dt){
+ now+=dt;
+ if(player&&playing){
+  const t=pTarget();player.tx=t.x;player.ty=t.y;
+  player.stop=touchMode&&!joy.act&&settings.stationary;
+  if(player.stop)for(const c of player.cells)c.vx=c.vy=0;
+ }
+ if(settings.selfFeed&&playing&&player&&!player.dead){
+  mAcc+=dt*EJS;
+  while(mAcc>=1){mAcc--;eject(player,player.tx,player.ty)}
+ }
+ if(macro&&playing&&player&&!player.dead&&macroBudget>0){
+  macroAcc+=dt*EJS*(settings.macroSpeed/100);
+  while(macroAcc>=1&&macroBudget>0){
+   macroAcc--;
+   macroEject(player,player.tx,player.ty);
+  }
+  if(macroBudget<=0)setMacro(false);
+ }
+ for(const e of ents){
+  if(e.dead){if(e.bot&&now>e.respawn)Object.assign(e,mkEnt(e.name,e.color,true,rnd(15,60)));continue}
+  if(e.bot){e.think-=dt;if(e.think<=0){e.think=rnd(.2,.5);botThink(e);if(Math.random()<.003&&total(e)>150)split(e,e.tx,e.ty)}}
+  for(const c of e.cells){
+   const touchPlayer=e===player&&touchMode;
+   if(touchPlayer){
+    let dx=0,dy=0;
+    if(joy.act){dx=joy.lx*1500;dy=joy.ly*1500}
+    else if(settings.autoMove){dx=joy.lx*1500;dy=joy.ly*1500}
+    else if(settings.releaseCenter){dx=cam.x-c.x;dy=cam.y-c.y}
+    else if(settings.stationary){dx=0;dy=0}
+    else{dx=cam.x-c.x;dy=cam.y-c.y}
+    const d=Math.hypot(dx,dy),r=rad(c.m);
+    const sp=520/Math.pow(c.m,.28)*Math.min(1,d/(r*.8+1));
+    if(d>1&&(!settings.holdPause||joy.act||!joy.id)){c.x+=dx/d*sp*dt;c.y+=dy/d*sp*dt}
+   }else{
+    const main=(e.stop||e.cells.length>1)?mainCell(e):null;
+    const gt=!!main&&c!==main&&(e.stop||now>=c.t);
+    const dx=(gt?main.x:e.tx)-c.x,dy=(gt?main.y:e.ty)-c.y,d=Math.hypot(dx,dy);
+    const r=rad(c.m),sp=520/Math.pow(c.m,.28)*Math.min(1,d/(r*.8+1));
+    if(d>1&&(!e.stop||gt)){const g=gt?1.8:1;c.x+=dx/d*sp*dt*g;c.y+=dy/d*sp*dt*g}
+   }
+   c.x+=c.vx*dt;c.y+=c.vy*dt;
+   const k=Math.pow(.02,dt);c.vx*=k;c.vy*=k;
+   const r=rad(c.m);c.x=Math.max(r*.3,Math.min(WORLD-r*.3,c.x));c.y=Math.max(r*.3,Math.min(WORLD-r*.3,c.y));
+   if(c.pend>0){const tr=Math.min(c.pend,Math.max(c.pend*6*dt,20*dt));c.m+=tr;c.pend-=tr}
+   if(c.m>60)c.m-=c.m*.0015*dt*10;
+  }
+  const cs=e.cells;
+  for(let i=0;i<cs.length;i++)for(let j=i+1;j<cs.length;j++){
+   const a=cs[i],b=cs[j];if(!a||!b)continue;
+   const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||.01,min=rad(a.m)+rad(b.m);
+   if(d<min){
+    if(now>=a.t&&now>=b.t){
+     if(d<Math.max(rad(a.m),rad(b.m))+Math.min(rad(a.m),rad(b.m))*.5){
+      const big=a.m>=b.m?a:b,sm=big===a?b:a;big.pend=(big.pend||0)+sm.m+(sm.pend||0);sm.m=0;sm.pend=0;
+      if(sm===b){cs.splice(j,1);j--}else{cs.splice(i,1);i--;break}
+     }
+    }else{const p=(min-d)*.5;a.x-=dx/d*p;a.y-=dy/d*p;b.x+=dx/d*p;b.y+=dy/d*p}
    }
   }
  }
-}
-
-function update(dt){
- for(let s of snakes)moveSnake(s,dt);
- eatFood();
- collisions();
-
- // Боты появляются заново далеко от игрока и с маленьким телом.
- for(let i=1;i<snakes.length;i++){
-  if(!snakes[i].alive){
-   let p=safeBotPosition();
-   snakes[i]=makeSnake(p.x,p.y,false,i,rand(75,145));
+ for(let i=food.length-1;i>=0;i--){
+  const f=food[i];
+  if(f.vx||f.vy){f.x+=f.vx*dt;f.y+=f.vy*dt;const k=Math.pow(.02,dt);f.vx*=k;f.vy*=k;if(Math.abs(f.vx)+Math.abs(f.vy)<4)f.vx=f.vy=0;f.x=Math.max(0,Math.min(WORLD,f.x));f.y=Math.max(0,Math.min(WORLD,f.y))}
+ }
+ for(const e of ents){
+  if(e.dead)continue;
+  for(const c of e.cells){const r=rad(c.m);
+   for(let i=food.length-1;i>=0;i--){const f=food[i];
+    if(Math.abs(f.x-c.x)<r&&Math.abs(f.y-c.y)<r&&Math.hypot(f.x-c.x,f.y-c.y)<r&&!(f.o===e&&now<f.t)){
+     c.m+=f.m;if(f.m===1)food[i]=mkFood();else food.splice(i,1);
+    }
+   }
   }
  }
-
- if(player&&player.alive){
-  camera.x+=(player.x-camera.x)*Math.min(1,dt*5);
-  camera.y+=(player.y-camera.y)*Math.min(1,dt*5);
- }
-}
-
-function worldToScreen(x,y){
- return {
-  x:(x-camera.x)*camera.zoom+W/2,
-  y:(y-camera.y)*camera.zoom+H/2
- };
-}
-
-function drawBackground(){
- ctx.fillStyle='#07101e';
- ctx.fillRect(0,0,W,H);
-
- let step=100*camera.zoom;
- if(step>12){
-  let ox=((W/2-camera.x*camera.zoom)%step+step)%step;
-  let oy=((H/2-camera.y*camera.zoom)%step+step)%step;
-  ctx.strokeStyle='#15253a';
-  ctx.lineWidth=1;
-  ctx.beginPath();
-  for(let x=ox;x<W;x+=step){
-   ctx.moveTo(x,0);ctx.lineTo(x,H);
+ while(food.length<FOOD_N)food.push(mkFood());
+ for(const a of ents){if(a.dead)continue;for(const b of ents){if(a===b||b.dead)continue;
+  for(const ca of a.cells)for(let j=b.cells.length-1;j>=0;j--){const cb=b.cells[j];
+   if(ca.m>cb.m*1.2&&Math.hypot(ca.x-cb.x,ca.y-cb.y)<rad(ca.m)+rad(cb.m)*.6){ca.pend=(ca.pend||0)+cb.m+(cb.pend||0);b.cells.splice(j,1)}
   }
-  for(let y=oy;y<H;y+=step){
-   ctx.moveTo(0,y);ctx.lineTo(W,y);
-  }
-  ctx.stroke();
- }
-
- let a=worldToScreen(-WORLD/2,-WORLD/2);
- let b=worldToScreen(WORLD/2,WORLD/2);
- ctx.strokeStyle='#ff3c61';
- ctx.lineWidth=4;
- ctx.strokeRect(a.x,a.y,b.x-a.x,b.y-a.y);
-}
-
-function drawFood(){
- for(let f of foods){
-  let p=worldToScreen(f.x,f.y);
-  if(p.x<-15||p.x>W+15||p.y<-15||p.y>H+15)continue;
-  let r=Math.max(1.5,f.r*camera.zoom);
-  let c=`hsl(${f.h},100%,65%)`;
-  ctx.fillStyle=c;
-  ctx.shadowBlur=9;
-  ctx.shadowColor=c;
-  ctx.beginPath();
-  ctx.arc(p.x,p.y,r,0,Math.PI*2);
-  ctx.fill();
- }
- ctx.shadowBlur=0;
-}
-
-function drawSnake(s){
- if(!s.alive||s.points.length<2)return;
- let pts=s.points;
- let r=(8+Math.sqrt(s.mass)*.48)*camera.zoom;
- ctx.lineCap='round';
- ctx.lineJoin='round';
-
- if(s.color==='rainbow'||s.color==='fire'){
-  for(let i=pts.length-1;i>0;i--){
-   let a=worldToScreen(pts[i].x,pts[i].y);
-   let b=worldToScreen(pts[i-1].x,pts[i-1].y);
-   ctx.strokeStyle=s.color==='fire'
-    ?`hsl(${Math.max(0,45-i*.3)},100%,55%)`
-    :`hsl(${(i*5+s.hue)%360},100%,60%)`;
-   ctx.lineWidth=r*2;
-   ctx.beginPath();
-   ctx.moveTo(a.x,a.y);
-   ctx.lineTo(b.x,b.y);
-   ctx.stroke();
-  }
- }else{
-  ctx.strokeStyle=s.color;
-  ctx.lineWidth=r*2;
-  ctx.beginPath();
-  let p=worldToScreen(pts[pts.length-1].x,pts[pts.length-1].y);
-  ctx.moveTo(p.x,p.y);
-  for(let i=pts.length-2;i>=0;i--){
-   p=worldToScreen(pts[i].x,pts[i].y);
-   ctx.lineTo(p.x,p.y);
-  }
-  ctx.stroke();
- }
-
- let head=worldToScreen(s.x,s.y);
- ctx.fillStyle=s.color==='rainbow'?'#ffec55':
-  s.color==='fire'?'#ff9a25':s.color;
- ctx.beginPath();
- ctx.arc(head.x,head.y,r,0,Math.PI*2);
- ctx.fill();
-
- let ex=Math.cos(s.angle+Math.PI/2)*r*.42;
- let ey=Math.sin(s.angle+Math.PI/2)*r*.42;
-
- for(let side of [-1,1]){
-  let x=head.x+Math.cos(s.angle)*r*.35+ex*side;
-  let y=head.y+Math.sin(s.angle)*r*.35+ey*side;
-  ctx.fillStyle='white';
-  ctx.beginPath();
-  ctx.arc(x,y,r*.28,0,Math.PI*2);
-  ctx.fill();
-  ctx.fillStyle='#10131a';
-  ctx.beginPath();
-  ctx.arc(x+Math.cos(s.angle)*r*.1,
-          y+Math.sin(s.angle)*r*.1,r*.13,0,Math.PI*2);
-  ctx.fill();
- }
-
- if(camera.zoom>.4){
-  ctx.font='bold 12px Arial';
-  ctx.textAlign='center';
-  ctx.fillStyle='white';
-  ctx.fillText(s.name,head.x,head.y-r-9);
+ }}
+ for(const e of ents){if(!e.dead&&e.cells.length===0){e.dead=true;e.respawn=now+3;if(e===player){playing=false;setMacro(false);showEnd()}}}
+ for(let i=particles.length-1;i>=0;i--){
+  const p=particles[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;p.vx*=.94;p.vy*=.94;if(p.life<=0)particles.splice(i,1);
  }
 }
+function showEnd(){$('endText').textContent='Тебя съели! Рекорд массы: '+best;$('end').style.display='block';updateMitsuriOverlay()}
+function setMacro(v){
+ if(v&&!macro){
+  macroBudget=player&&!player.dead?total(player)*.8:0;
+  macroAcc=0;
+ }
+ macro=v;$('bm').classList.toggle('on',v);
+ if(!v){macroAcc=0;macroBudget=0}
+}
+
+/* SKINS */
+function drawSkin(c,r,e){
+ if(e!==player)return;
+ if(settings.skin==='neon'){
+  ctx.save();ctx.strokeStyle='#54fff3';ctx.lineWidth=Math.max(2,r*.07);ctx.shadowColor='#20eaff';ctx.shadowBlur=18;
+  ctx.beginPath();ctx.arc(0,0,r*.83,0,Math.PI*2);ctx.stroke();ctx.restore();
+ }else if(settings.skin==='cosmic'){
+  ctx.save();ctx.fillStyle='#fff';for(let i=0;i<9;i++){const a=i*2.4;ctx.beginPath();ctx.arc(Math.cos(a)*r*.55,Math.sin(a)*r*.55,Math.max(1,r*.025),0,Math.PI*2);ctx.fill()}ctx.restore();
+ }
+}
+
+/* Отдельная GIF-Мицури для каждой клетки игрока */
+function updateMitsuriOverlay(){
+ const first=$('mitsuriGif');
+ if(!playing||!player||player.dead||settings.skin!=='mitsuri'||!player.cells.length){
+  first.style.display='none';
+  document.querySelectorAll('.mitsuriClone').forEach(el=>el.style.display='none');
+  return;
+ }
+ const cells=player.cells;
+ while(player.skinImgs&&player.skinImgs.length>cells.length){
+  const old=player.skinImgs.pop();
+  if(old!==first)old.remove();
+ }
+ if(!player.skinImgs)player.skinImgs=[first];
+ while(player.skinImgs.length<cells.length){
+  const img=document.createElement('img');
+  img.className='mitsuriClone';
+  img.alt='Mitsuri';
+  img.src=MITSURI_SRC;
+  document.body.appendChild(img);
+  player.skinImgs.push(img);
+ }
+ cells.forEach((c,i)=>{
+  const el=player.skinImgs[i];
+  const x=(c.x-cam.x)*cam.z+W/2;
+  const y=(c.y-cam.y)*cam.z+H/2;
+  const size=Math.max(24,rad(c.m)*2*cam.z);
+  el.style.width=size+'px';
+  el.style.height=size+'px';
+  el.style.left=(x-size/2)+'px';
+  el.style.top=(y-size/2)+'px';
+  el.style.display='block';
+ });
+}
+
+/* AIM отключён: стрелка прицеливания не рисуется */
+function drawAim(){return}
 
 function draw(){
- drawBackground();
- drawFood();
- for(let s of snakes)drawSnake(s);
+ ctx.fillStyle=settings.quality==='max'?'#080e1c':settings.quality==='high'?'#0a101b':'#0d1117';ctx.fillRect(0,0,W,H);
+ if(player&&!player.dead&&player.cells.length){
+  let sx=0,sy=0,sm=0;for(const c of player.cells){sx+=c.x*c.m;sy+=c.y*c.m;sm+=c.m}
+  const tz=ZM/(1+Math.sqrt(sm)*.03);cam.x+=(sx/sm-cam.x)*.12;cam.y+=(sy/sm-cam.y)*.12;cam.z+=(tz-cam.z)*.05;
+ }else if(!playing){cam.x+=(WORLD/2-cam.x)*.01;cam.y+=(WORLD/2-cam.y)*.01}
+ ctx.save();ctx.translate(W/2,H/2);ctx.scale(cam.z,cam.z);ctx.translate(-cam.x,-cam.y);
+ const vw=W/cam.z/2+60,vh=H/cam.z/2+60,quality=settings.quality;
+ ctx.strokeStyle=quality==='max'?'rgba(105,165,255,.09)':'rgba(255,255,255,.05)';ctx.lineWidth=1/cam.z;ctx.beginPath();
+ const g=100;
+ for(let x=Math.max(0,Math.floor((cam.x-vw)/g)*g);x<=Math.min(WORLD,cam.x+vw);x+=g){ctx.moveTo(x,Math.max(0,cam.y-vh));ctx.lineTo(x,Math.min(WORLD,cam.y+vh))}
+ for(let y=Math.max(0,Math.floor((cam.y-vh)/g)*g);y<=Math.min(WORLD,cam.y+vh);y+=g){ctx.moveTo(Math.max(0,cam.x-vw),y);ctx.lineTo(Math.min(WORLD,cam.x+vw),y)}
+ ctx.stroke();
+ if(quality==='max'){
+  ctx.strokeStyle='rgba(67,140,255,.12)';ctx.lineWidth=2/cam.z;ctx.beginPath();
+  for(let x=Math.max(0,Math.floor((cam.x-vw)/500)*500);x<=Math.min(WORLD,cam.x+vw);x+=500){ctx.moveTo(x,Math.max(0,cam.y-vh));ctx.lineTo(x,Math.min(WORLD,cam.y+vh))}
+  for(let y=Math.max(0,Math.floor((cam.y-vh)/500)*500);y<=Math.min(WORLD,cam.y+vh);y+=500){ctx.moveTo(Math.max(0,cam.x-vw),y);ctx.lineTo(Math.min(WORLD,cam.x+vw),y)}
+  ctx.stroke();
+ }
+ ctx.strokeStyle='#f85149';ctx.lineWidth=6;ctx.strokeRect(0,0,WORLD,WORLD);
+ const foodStep=quality==='low'?3:quality==='medium'?2:1;
+ for(let i=0;i<food.length;i+=foodStep){
+  const f=food[i];if(Math.abs(f.x-cam.x)>vw||Math.abs(f.y-cam.y)>vh)continue;if(settings.camoFeed&&f.ej)continue;
+  const fr=f.ej?15:6.5;ctx.save();
+  if(quality==='max'){ctx.shadowColor=f.ej?f.c:'#b7dcff';ctx.shadowBlur=f.ej?19:13}
+  else if(quality!=='low'){ctx.shadowColor=f.ej?f.c:'#fff';ctx.shadowBlur=8}
+  ctx.fillStyle=f.c;ctx.beginPath();ctx.arc(f.x,f.y,fr,0,Math.PI*2);ctx.fill();
+  ctx.shadowBlur=0;ctx.lineWidth=f.ej?3:2.2;ctx.strokeStyle='rgba(255,255,255,.9)';ctx.stroke();
+  if(quality!=='low'){ctx.fillStyle='rgba(255,255,255,.5)';ctx.beginPath();ctx.arc(f.x-fr*.3,f.y-fr*.3,fr*.4,0,Math.PI*2);ctx.fill()}
+  ctx.restore();
+ }
+ const all=[];for(const e of ents)if(!e.dead)for(const c of e.cells)all.push([e,c]);all.sort((a,b)=>a[1].m-b[1].m);
+ for(const [e,c] of all){
+  const r=rad(c.m);if(Math.abs(c.x-cam.x)>vw+r||Math.abs(c.y-cam.y)>vh+r)continue;
+  let wobble=1;
+  if(settings.cellAnimation&&(settings.forceAnimation||settings.jelly))wobble=1+Math.sin(now*settings.animSpeed/100*3+c.x*.01)*.025;
+  ctx.save();ctx.translate(c.x,c.y);ctx.scale(wobble,1/wobble);
+  let base=e.color;
+  if(e===player&&settings.skin==='mitsuri')base='#e9a5c4';
+  if(e===player&&settings.skin==='neon')base='#19c9df';
+  if(e===player&&settings.skin==='cosmic')base='#8254d6';
+  ctx.fillStyle=base;ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fill();
+  if(quality!=='low'){
+   const gr=ctx.createRadialGradient(-r*.35,-r*.38,r*.03,0,0,r*1.1);
+   gr.addColorStop(0,'rgba(255,255,255,.65)');gr.addColorStop(.28,'rgba(255,255,255,.2)');gr.addColorStop(.65,'rgba(255,255,255,0)');gr.addColorStop(1,'rgba(0,0,0,.35)');
+   ctx.fillStyle=gr;ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fill();
+   ctx.lineWidth=Math.max(2,r*.045);ctx.strokeStyle='rgba(255,255,255,.42)';ctx.stroke();
+  }else{ctx.lineWidth=Math.max(3,r*.06);ctx.strokeStyle='rgba(0,0,0,.28)';ctx.stroke()}
+  if(quality==='max'){
+   ctx.save();ctx.shadowColor=e===player?'#ffb4d4':'#8bc8ff';ctx.shadowBlur=18;
+   ctx.strokeStyle=e===player&&settings.skin==='mitsuri'?'#ffd6e8':'rgba(190,225,255,.5)';
+   ctx.lineWidth=Math.max(1.5,r*.025);ctx.beginPath();ctx.arc(0,0,r*.96,-2.6,-.4);ctx.stroke();ctx.restore();
+  }
+  drawSkin(c,r,e);
+  if(r>18){
+   ctx.fillStyle='#fff';ctx.strokeStyle='rgba(0,0,0,.65)';ctx.lineWidth=Math.max(2,r*.05);
+   ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`bold ${Math.max(12,r*.38)}px system-ui,sans-serif`;
+   const big=r>34,ny=big?-r*.12:0;ctx.strokeText(e.name,0,ny);ctx.fillText(e.name,0,ny);
+   if(big){ctx.font=`bold ${Math.max(10,r*.24)}px system-ui,sans-serif`;const ms=String(Math.round(c.m));ctx.strokeText(ms,0,r*.3);ctx.fillText(ms,0,r*.3)}
+  }
+  ctx.restore();
+ }
+ if(quality==='max')for(const p of particles){
+  ctx.save();ctx.globalAlpha=Math.max(0,p.life/p.max);ctx.fillStyle=p.color;ctx.shadowColor=p.color;ctx.shadowBlur=12;
+  ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fill();ctx.restore();
+ }
+ ctx.restore();
+ updateMitsuriOverlay();
+}
+let lbT=0,fpsFrames=0,fpsTime=0,shownFps=0;
+function hud(dt){
+ lbT-=dt;
+ if(lbT<=0){
+  lbT=.4;if(player&&!player.dead){const m=Math.round(total(player));best=Math.max(best,m);$('score').textContent='Масса: '+m}
+  const list=ents.filter(e=>!e.dead).map(e=>[e,Math.round(total(e))]).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  $('lb').innerHTML='<b>Лидеры</b>'+list.map((x,i)=>`<div class="${x[0]===player?'me':''}"><span>${i+1}. ${x[0].name}</span><span>${x[1]}</span></div>`).join('');
+ }
+ if(settings.showFps){
+  fpsFrames++;fpsTime+=dt;if(fpsTime>=.5){shownFps=Math.round(fpsFrames/fpsTime);fpsFrames=0;fpsTime=0}
+  $('fpsHud').textContent=shownFps+' FPS · '+(dt*1000).toFixed(1)+' MS';
+ }
+ if(settings.showDownUp)$('directionHud').textContent=joy.act?'НАПРАВЛЕНИЕ: АКТИВНО':'НАПРАВЛЕНИЕ: ЦЕНТР';
 }
 
-function hud(){
- if(!player)return;
- document.getElementById('mass').textContent=Math.floor(player.mass);
- document.getElementById('length').textContent=player.points.length;
- document.getElementById('bots').textContent=
-  snakes.filter(s=>!s.isPlayer&&s.alive).length;
-
- let top=[...snakes].filter(s=>s.alive)
-  .sort((a,b)=>b.mass-a.mass).slice(0,5);
-
- document.getElementById('scores').innerHTML=top.map((s,i)=>
-  `${i+1}. ${s.name} — ${Math.floor(s.mass)}`
- ).join('<br>');
+/* INPUT */
+const joy={id:null,ox:0,oy:0,lx:1,ly:0,act:false};
+let touchMode=matchMedia('(pointer:coarse)').matches,lastTouch=0;
+const jb=$('joy'),jk=$('knob');
+function joyRest(){
+ jb.style.display=touchMode?'block':'none';jb.style.opacity=.35;
+ const size=120*settings.joySize/100;
+ if(settings.joyCenter){jb.style.left=(settings.leftHand?W-size-34:34)+'px';jb.style.right='auto';jb.style.top=(H-size-154)+'px'}
+ else{jb.style.left='34px';jb.style.right='auto';jb.style.top=(H-size-154)+'px'}
+ jk.style.transform='none';
 }
-
+function joyStart(t){
+ joy.id=t.identifier;joy.ox=t.clientX;joy.oy=t.clientY;
+ if(!settings.joyCenter){const size=120*settings.joySize/100;jb.style.left=(joy.ox-size/2)+'px';jb.style.top=(joy.oy-size/2)+'px'}
+ jb.style.opacity=1;joyMove(t);
+}
+function joyMove(t){
+ const dx=t.clientX-joy.ox,dy=t.clientY-joy.oy,d=Math.hypot(dx,dy),k=Math.min(d,55*settings.joySize/100);
+ if(d>8){joy.lx=dx/d;joy.ly=dy/d}
+ joy.act=d>8;if(settings.pressCenter&&d<=8)joy.act=true;if(settings.holdPause&&d<=8)joy.act=false;
+ jk.style.transform=d>0?`translate(${dx/d*k}px,${dy/d*k}px)`:'none';
+}
+function joyEnd(){joy.id=null;joy.act=false;if(!settings.autoMove){joy.lx=0;joy.ly=0}joyRest()}
+addEventListener('mousemove',e=>{
+ if(Date.now()-lastTouch<1000)return;if(touchMode){touchMode=false;joyRest()}mouse.x=e.clientX;mouse.y=e.clientY;
+});
+addEventListener('touchstart',e=>{
+ lastTouch=Date.now();if(!touchMode){touchMode=true;joyRest()}if(!playing)return;
+ for(const t of e.changedTouches){const onJoySide=settings.leftHand?t.clientX>W*.45:t.clientX<W*.55;if(joy.id===null&&onJoySide)joyStart(t)}
+},{passive:true});
+addEventListener('touchmove',e=>{for(const t of e.changedTouches)if(t.identifier===joy.id)joyMove(t)},{passive:true});
+const jEnd=e=>{lastTouch=Date.now();for(const t of e.changedTouches)if(t.identifier===joy.id)joyEnd()};
+addEventListener('touchend',jEnd,{passive:true});addEventListener('touchcancel',jEnd,{passive:true});
+addEventListener('keydown',e=>{
+ if(e.target.tagName==='INPUT')return;if(!playing||!player)return;const t=pTarget();
+ if(e.code==='Space'){e.preventDefault();split(player,t.x,t.y)}
+ if(e.code==='KeyW')eject(player,t.x,t.y);if(e.code==='KeyE')setMacro(true);
+});
+addEventListener('keyup',e=>{if(e.code==='KeyE')setMacro(false)});
+function act(id,f){
+ const b=$(id);const h=ev=>{ev.preventDefault();ev.stopPropagation();if(playing){const t=pTarget();f(player,t.x,t.y)}};
+ b.addEventListener('touchstart',h,{passive:false});b.addEventListener('mousedown',h);
+}
+act('bs',split);act('be',eject);act('b5',()=>addMass(ADDM));
+$('bm').addEventListener('touchstart',e=>{e.preventDefault();if(playing)setMacro(true)},{passive:false});
+$('bm').addEventListener('touchend',e=>{e.preventDefault();setMacro(false)},{passive:false});
+$('bm').addEventListener('touchcancel',()=>setMacro(false),{passive:true});
+$('bm').addEventListener('mousedown',()=>{if(playing)setMacro(true)});
+addEventListener('mouseup',()=>setMacro(false));
+function addMass(n){if(!player||player.dead||!playing)return;const k=n/player.cells.length;for(const c of player.cells)c.m+=k}
+function setZ(v){ZM=Math.max(.1,Math.min(3,v))}
+$('gear').addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
+addEventListener('wheel',e=>{setZ(ZM*(e.deltaY>0?.9:1.1))},{passive:true});
+addEventListener('resize',()=>{if(joy.id===null)joyRest();resize()});
+joyRest();init();
+let last=performance.now(),acc=0;
 function loop(t){
  requestAnimationFrame(loop);
- let dt=Math.min((t-last)/1000,.04);
- last=t;
-
- if(running&&!paused){
-  update(dt);
-  if(player&&player.alive){
-   let auto=clamp(1.25/(1+Math.sqrt(player.mass)/30),.48,1.15);
-   camera.zoom+=(auto*manualZoom-camera.zoom)*Math.min(1,dt*2.5);
-  }
-  hud();
- }
-
- draw();
-
- if(paused&&running){
-  ctx.fillStyle='#0009';
-  ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='white';
-  ctx.textAlign='center';
-  ctx.font='bold 40px Arial';
-  ctx.fillText('ПАУЗА',W/2,H/2);
- }
+ const elapsed=Math.min(.1,(t-last)/1000);last=t;
+ const targetInterval=1/settings.fps;acc+=elapsed;
+ if(acc<targetInterval)return;
+ const dt=Math.min(.05,acc);acc=0;update(dt);draw();hud(dt);
 }
 requestAnimationFrame(loop);
 </script>
