@@ -3,489 +3,649 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>MB WORLD 3D</title>
-
 <style>
 *{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden}
-body{background:#91c9e8;font-family:Arial;color:white;touch-action:none}
-canvas{display:block;position:absolute;inset:0;z-index:0}
-button{border:0;color:white;background:#263d5c;padding:13px 16px;border-radius:13px;font-weight:bold}
-#top{position:absolute;z-index:2;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:center;pointer-events:none}
-#top>*{pointer-events:auto}
-.panel{background:#101827dc;padding:11px 14px;border-radius:13px;border:1px solid #ffffff35;font-size:13px}
-#load,#start{background:#1677ff}
-#status{position:absolute;z-index:2;top:68px;left:50%;transform:translateX(-50%);background:#101827dc;padding:9px 13px;border-radius:12px;font-size:12px;max-width:90%;text-align:center}
-#controls{position:absolute;z-index:3;bottom:22px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:end;pointer-events:none}
-#joy{width:125px;height:125px;border-radius:50%;background:#172a4580;border:2px solid #ffffff70;position:relative;pointer-events:auto;touch-action:none}
-#stick{width:53px;height:53px;border-radius:50%;background:#fff;position:absolute;left:34px;top:34px;box-shadow:0 3px 15px #0008}
-#jump{width:76px;height:76px;border-radius:50%;background:#1685ffeb;border:2px solid #ffffff80;font-size:13px;pointer-events:auto;touch-action:none}
-#hint{position:absolute;z-index:2;bottom:160px;left:50%;transform:translateX(-50%);background:#101827c9;padding:8px 12px;border-radius:10px;font-size:11px;white-space:nowrap}
-#file{display:none}
-#loading{position:absolute;inset:0;z-index:5;background:#101827;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;text-align:center;padding:25px}
-#loading p{color:#b8c8dc;line-height:1.5}
-#loading small{color:#9eacc0}
-#fatal{display:none;position:absolute;z-index:10;inset:0;background:#111827;color:white;padding:25px;align-items:center;justify-content:center;flex-direction:column;text-align:center;gap:15px}
-#fatal.show{display:flex}
-#fatal pre{font-size:11px;white-space:pre-wrap;word-break:break-word;color:#ffb7b7;max-height:35vh;overflow:auto}
-</style>
-
-<script type="importmap">
-{
- "imports":{
-  "three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
-  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
-  "@pixiv/three-vrm":"https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@3/lib/three-vrm.module.min.js"
- }
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#91c9ed;font-family:Arial,sans-serif;touch-action:none}
+#game{position:fixed;inset:0}
+canvas{display:block;width:100%;height:100%}
+#top{
+ position:fixed;top:env(safe-area-inset-top,10px);left:12px;right:12px;
+ display:flex;justify-content:space-between;align-items:center;pointer-events:none;z-index:5
 }
-</script>
+.logo{color:white;font-weight:900;font-size:17px;letter-spacing:1px;text-shadow:0 2px 5px #18364e}
+.pill{background:#101b2bbd;color:white;border:1px solid #ffffff35;border-radius:14px;padding:9px 12px;font-size:12px;backdrop-filter:blur(10px)}
+#status{position:fixed;top:62px;left:50%;transform:translateX(-50%);color:white;background:#101b2ba8;padding:8px 13px;border-radius:12px;font-size:12px;z-index:5;max-width:90%;text-align:center;pointer-events:none}
+#controls{position:fixed;inset:0;pointer-events:none;z-index:4}
+#joy{
+ position:absolute;left:24px;bottom:calc(25px + env(safe-area-inset-bottom));
+ width:132px;height:132px;border-radius:50%;background:#14253b55;border:2px solid #ffffff70;
+ pointer-events:auto;touch-action:none;backdrop-filter:blur(5px)
+}
+#stick{
+ position:absolute;width:55px;height:55px;left:37px;top:37px;border-radius:50%;
+ background:linear-gradient(145deg,#ffffffd9,#a9c7e9c9);border:2px solid #fff;
+ box-shadow:0 4px 15px #0005;pointer-events:none
+}
+#jump{
+ position:absolute;right:25px;bottom:calc(38px + env(safe-area-inset-bottom));
+ width:76px;height:76px;border-radius:50%;border:2px solid #ffffffb0;
+ color:white;font-weight:900;font-size:14px;background:#247de9c9;
+ box-shadow:0 5px 18px #0004;pointer-events:auto;touch-action:none
+}
+#load{
+ position:absolute;right:22px;top:calc(75px + env(safe-area-inset-top));
+ pointer-events:auto;background:#14253bd9;color:white;border:1px solid #ffffff55;
+ padding:11px 14px;border-radius:13px;font-weight:bold;font-size:12px
+}
+#file{display:none}
+#cameraHint{
+ position:absolute;right:22px;bottom:calc(130px + env(safe-area-inset-bottom));
+ color:#fff;background:#14253b88;padding:8px 10px;border-radius:10px;
+ font-size:10px;pointer-events:none
+}
+#menu{
+ position:fixed;inset:0;background:#081525e8;z-index:10;display:flex;
+ align-items:center;justify-content:center;padding:24px;color:white
+}
+.panel{width:min(390px,100%);background:linear-gradient(145deg,#1d3451,#101b2b);
+ border:1px solid #ffffff25;border-radius:24px;padding:24px;box-shadow:0 20px 70px #0008}
+.panel h1{font-size:27px;margin:0 0 8px}
+.panel p{color:#c1d0e2;font-size:14px;line-height:1.5}
+.panel button{width:100%;padding:15px;border:0;border-radius:13px;background:#287ee9;color:white;font-weight:900;font-size:15px;margin-top:10px}
+.small{font-size:11px!important;color:#9fb1c8!important}
+#err{
+ position:fixed;inset:0;z-index:20;background:#101827;color:white;padding:25px;
+ display:none;overflow:auto;font-size:13px;line-height:1.5
+}
+</style>
 </head>
-
 <body>
+<div id="game"></div>
 
 <div id="top">
- <div class="panel"><b>MB WORLD 3D</b><br>20 × 20 METERS</div>
- <button id="load">ЗАГРУЗИТЬ VRM</button>
+ <div class="logo">MB WORLD <span style="color:#70c5ff">3D</span></div>
+ <div class="pill" id="fps">Загрузка...</div>
 </div>
-
-<div id="status">Нажми «Начать игру»</div>
-<div id="hint">Джойстик — движение · Проведи пальцем — камера</div>
+<div id="status">Подготовка мира...</div>
 
 <div id="controls">
  <div id="joy"><div id="stick"></div></div>
  <button id="jump">ПРЫЖОК</button>
+ <button id="load">ЗАГРУЗИТЬ VRM</button>
+ <input id="file" type="file" accept=".vrm,model/gltf-binary">
+ <div id="cameraHint">Проводи пальцем справа — камера</div>
 </div>
 
-<input id="file" type="file" accept=".vrm">
-
-<div id="loading">
- <h1>MB WORLD 3D</h1>
- <p>Твоя первая 3D-игра<br>Карта 20 × 20 метров<br>Вид от третьего лица</p>
- <button id="start">НАЧАТЬ ИГРУ</button>
- <small>Для запуска нужен интернет</small>
+<div id="menu">
+ <div class="panel">
+  <h1>MB WORLD <span style="color:#70c5ff">3D</span></h1>
+  <p>Твой небольшой 3D-мир. Загрузи VRM-персонажа и исследуй карту.</p>
+  <button id="start">ВОЙТИ В МИР</button>
+  <p class="small">После входа нажми «Загрузить VRM» и выбери свою модель. Для загрузки нужен интернет.</p>
+ </div>
 </div>
 
-<div id="fatal">
- <h2>ОШИБКА ЗАПУСКА</h2>
- <p>Не удалось запустить 3D-движок.</p>
- <pre id="fatalText"></pre>
- <button onclick="location.reload()">ПЕРЕЗАПУСТИТЬ</button>
-</div>
+<div id="err"></div>
 
-<script>
-window.addEventListener('error',e=>{
- const box=document.getElementById('fatal');
- if(box){
-  document.getElementById('fatalText').textContent=e.message||'Ошибка JavaScript';
-  box.classList.add('show');
+<script type="importmap">
+{
+ "imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+  "@pixiv/three-vrm":"https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@3.0.0/lib/three-vrm.module.js"
  }
-});
-window.addEventListener('unhandledrejection',e=>{
- const box=document.getElementById('fatal');
- if(box){
-  document.getElementById('fatalText').textContent=String(e.reason);
-  box.classList.add('show');
- }
-});
+}
 </script>
 
 <script type="module">
-import * as THREE from 'three';
-import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-import {VRMLoaderPlugin} from '@pixiv/three-vrm';
+import * as THREE from "three";
+import {GLTFLoader} from "three/addons/loaders/GLTFLoader.js";
+import {VRMLoaderPlugin,VRMUtils} from "@pixiv/three-vrm";
 
-const $=id=>document.getElementById(id);
-const status=$('status');
-const fileInput=$('file');
+const game=document.getElementById("game");
+const statusEl=document.getElementById("status");
+const fpsEl=document.getElementById("fps");
+const errorEl=document.getElementById("err");
 
-let scene,camera,renderer,player,vrm;
-let clock=new THREE.Clock();
-let started=false;
-let joyX=0,joyY=0;
+let scene,camera,renderer,clock;
+let player,vrm=null;
+let mixer=null;
+let playerYaw=0;
+let moveX=0,moveZ=0;
 let velocityY=0;
 let grounded=true;
-let cameraAngle=0;
-let cameraDistance=6;
+let jumping=false;
+let cameraYaw=0;
+let cameraPitch=0.18;
+let cameraDistance=3.8;
+let runningTime=0;
+let lastTime=0,frames=0,fpsTime=0;
+let bones={};
+let baseRotations={};
+let modelHeight=1.7;
+let isRunning=false;
 let cameraTouch=null;
-let previousX=0;
-let mixer=null;
+let joyTouch=null;
+let started=false;
 
-function message(t){status.textContent=t;}
+const WORLD=20;
+const clockObj=new THREE.Clock();
 
-function showError(error){
+function status(text){statusEl.textContent=text}
+
+function fatal(error){
  console.error(error);
- $('fatalText').textContent=String(error?.stack||error);
- $('fatal').classList.add('show');
+ errorEl.style.display="block";
+ errorEl.innerHTML="<h2>Не удалось запустить MB WORLD 3D</h2><p>"+String(error).replaceAll("<","&lt;")+"</p><p>Проверь интернет-соединение и попробуй обновить страницу.</p>";
 }
 
-function material(color,roughness=1){
+function mat(color,roughness=1){
  return new THREE.MeshStandardMaterial({color,roughness});
 }
 
-function createTree(x,z){
- const tree=new THREE.Group();
-
- const trunk=new THREE.Mesh(
-  new THREE.CylinderGeometry(.12,.18,1.3,8),
-  material(0x80512d)
- );
- trunk.position.y=.65;
- trunk.castShadow=true;
- tree.add(trunk);
-
- const leaves=new THREE.Mesh(
-  new THREE.SphereGeometry(.8,12,10),
-  material(0x287d43)
- );
- leaves.position.y=1.65;
- leaves.scale.set(1,1.2,1);
- leaves.castShadow=true;
- tree.add(leaves);
-
- tree.position.set(x,0,z);
- scene.add(tree);
+function box(parent,x,y,z,sx,sy,sz,material){
+ const mesh=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),material);
+ mesh.position.set(x,y,z);
+ mesh.castShadow=true;
+ mesh.receiveShadow=true;
+ parent.add(mesh);
+ return mesh;
 }
 
-function createWorld(){
- scene=new THREE.Scene();
- scene.background=new THREE.Color(0x91c9e8);
- scene.fog=new THREE.Fog(0x91c9e8,28,65);
+function makeTree(x,z,scale=1){
+ const group=new THREE.Group();
+ group.position.set(x,0,z);
+ const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.13*scale,.19*scale,1.2*scale,7),mat(0x795035));
+ trunk.position.y=.6*scale;
+ trunk.castShadow=true;
+ group.add(trunk);
 
- camera=new THREE.PerspectiveCamera(
-  65,innerWidth/innerHeight,.1,100
- );
+ const colors=[0x2d8950,0x3a9c5c,0x247849];
+ for(let i=0;i<3;i++){
+  const crown=new THREE.Mesh(
+   new THREE.IcosahedronGeometry((.72-i*.09)*scale,1),
+   mat(colors[i])
+  );
+  crown.position.set((i-1)*.18*scale,(1.45+i*.43)*scale,0);
+  crown.scale.set(1,1.05,1);
+  crown.castShadow=true;
+  group.add(crown);
+ }
+ scene.add(group);
+}
+
+function makeRock(x,z,s){
+ const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(s,0),mat(0x858d91));
+ rock.position.set(x,s*.55,z);
+ rock.rotation.set(Math.random(),Math.random(),Math.random());
+ rock.scale.y=.65;
+ rock.castShadow=true;
+ scene.add(rock);
+}
+
+function makeWorld(){
+ scene=new THREE.Scene();
+ scene.background=new THREE.Color(0x91c9ed);
+ scene.fog=new THREE.Fog(0x91c9ed,24,48);
+
+ camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,100);
+ camera.position.set(0,3,5);
 
  renderer=new THREE.WebGLRenderer({
-  antialias:false,
+  antialias:true,
   alpha:false,
-  powerPreference:'high-performance'
+  powerPreference:"high-performance"
  });
-
- renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));
+ renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
  renderer.setSize(innerWidth,innerHeight);
  renderer.outputColorSpace=THREE.SRGBColorSpace;
  renderer.toneMapping=THREE.ACESFilmicToneMapping;
  renderer.toneMappingExposure=1.15;
- renderer.domElement.style.touchAction='none';
- document.body.appendChild(renderer.domElement);
+ renderer.shadowMap.enabled=true;
+ renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+ game.appendChild(renderer.domElement);
 
- scene.add(new THREE.HemisphereLight(0xffffff,0x65804e,2));
+ const hemi=new THREE.HemisphereLight(0xe6f5ff,0x59734c,2.1);
+ scene.add(hemi);
 
- const sun=new THREE.DirectionalLight(0xffffff,2);
- sun.position.set(-8,15,10);
+ const sun=new THREE.DirectionalLight(0xfff2d8,2.5);
+ sun.position.set(-7,13,8);
+ sun.castShadow=true;
+ sun.shadow.mapSize.set(1024,1024);
+ sun.shadow.camera.left=-15;
+ sun.shadow.camera.right=15;
+ sun.shadow.camera.top=15;
+ sun.shadow.camera.bottom=-15;
+ sun.shadow.bias=-.0003;
  scene.add(sun);
 
- // Карта 20 на 20 метров
  const ground=new THREE.Mesh(
-  new THREE.PlaneGeometry(20,20),
-  material(0x65ad50)
+  new THREE.PlaneGeometry(WORLD,WORLD),
+  new THREE.MeshStandardMaterial({color:0x62a95d,roughness:1})
  );
  ground.rotation.x=-Math.PI/2;
- ground.position.y=-.03;
+ ground.receiveShadow=true;
  scene.add(ground);
 
- const grid=new THREE.GridHelper(20,20,0xffffff,0x478c42);
- grid.position.y=.005;
- scene.add(grid);
+ // Светлая дорожка через карту
+ const path=new THREE.Mesh(
+  new THREE.PlaneGeometry(3.2,20),
+  mat(0xb8a47d)
+ );
+ path.rotation.x=-Math.PI/2;
+ path.position.y=.012;
+ scene.add(path);
 
- // Декоративные деревья
- [
-  [-8,-7],[-7,7],[8,-7],[7,7],
-  [-9,0],[9,0],[0,-9],[0,9],
-  [-5,-9],[5,9],[-9,5],[9,-5]
- ].forEach(p=>createTree(p[0],p[1]));
-
- // Камни
- for(let i=0;i<18;i++){
-  const rock=new THREE.Mesh(
-   new THREE.DodecahedronGeometry(.2+Math.random()*.25),
-   material(0x929b9e)
+ // Плитки и небольшие детали земли
+ for(let i=0;i<70;i++){
+  const x=(Math.random()-.5)*18;
+  const z=(Math.random()-.5)*18;
+  if(Math.abs(x)<2.2) continue;
+  const patch=new THREE.Mesh(
+   new THREE.CircleGeometry(.08+Math.random()*.12,7),
+   mat(Math.random()>.5?0x79b96c:0x4e944c)
   );
-  rock.position.set(
-   (Math.random()-.5)*17,
-   .15,
-   (Math.random()-.5)*17
-  );
-  scene.add(rock);
+  patch.rotation.x=-Math.PI/2;
+  patch.position.set(x,.02,z);
+  scene.add(patch);
  }
 
- // Временный персонаж
+ // Деревья по краям
+ const trees=[
+  [-8,-8],[-6,-8],[7,-8],[9,-5],[-9,-3],
+  [8,0],[-8,3],[8,5],[-7,8],[7,8],
+  [4,-9],[-4,-9],[9,8]
+ ];
+ trees.forEach((p,i)=>makeTree(p[0],p[1],.8+Math.random()*.35));
+
+ for(let i=0;i<16;i++){
+  const x=(Math.random()-.5)*17;
+  const z=(Math.random()-.5)*17;
+  if(Math.abs(x)<2.5) continue;
+  makeRock(x,z,.15+Math.random()*.2);
+ }
+
+ // Граница карты
+ const borderMat=mat(0x426c43);
+ box(scene,0,.25,-10,20,.5,.18,borderMat);
+ box(scene,0,.25,10,20,.5,.18,borderMat);
+ box(scene,-10,.25,0,.18,.5,20,borderMat);
+ box(scene,10,.25,0,.18,.5,20,borderMat);
+
+ // Стартовый персонаж-заглушка
  player=new THREE.Group();
-
- const body=new THREE.Mesh(
-  new THREE.CapsuleGeometry(.35,.8,5,10),
-  material(0x287bff)
- );
- body.position.y=.85;
- player.add(body);
-
- const head=new THREE.Mesh(
-  new THREE.SphereGeometry(.27,16,16),
-  material(0xffd1b0)
- );
- head.position.y=1.55;
- player.add(head);
-
+ player.position.set(0,0,2);
  scene.add(player);
-
- camera.position.set(0,3,7);
- camera.lookAt(0,1,0);
+ makePlaceholder();
 }
 
-function startGame(){
- if(started)return;
- started=true;
+function makePlaceholder(){
+ const body=new THREE.Group();
+ const skin=mat(0xf0c6a8);
+ const clothes=mat(0x477bd2);
+ const dark=mat(0x293348);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.23,20,16),skin);
+ head.position.y=1.48;
+ body.add(head);
+ const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.22,.55,5,12),clothes);
+ torso.position.y=.98;
+ body.add(torso);
 
- try{
-  message('Создаю игровой мир...');
-  createWorld();
-  $('loading').style.display='none';
-  message('Мир готов! Загрузи своего персонажа.');
-  animate();
- }catch(e){
-  showError(e);
+ const armGeo=new THREE.CapsuleGeometry(.075,.38,4,8);
+ const legGeo=new THREE.CapsuleGeometry(.09,.48,4,8);
+ const arms=[];
+ const legs=[];
+ for(const side of [-1,1]){
+  const arm=new THREE.Mesh(armGeo,skin);
+  arm.position.set(side*.31,1.02,0);
+  arm.rotation.z=side*-.12;
+  body.add(arm);arms.push(arm);
+  const leg=new THREE.Mesh(legGeo,dark);
+  leg.position.set(side*.12,.43,0);
+  body.add(leg);legs.push(leg);
+ }
+ body.userData={arms,legs,head};
+ player.add(body);
+ player.userData.placeholder=body;
+}
+
+function resetBonePose(){
+ for(const key in bones){
+  const b=bones[key],r=baseRotations[key];
+  if(b&&r)b.rotation.set(r.x,r.y,r.z);
  }
 }
 
-// Загрузка VRM
-async function loadCharacter(file){
+function getBone(name){
+ try{
+  return vrm?.humanoid?.getNormalizedBoneNode(name)||null;
+ }catch(e){return null}
+}
+
+function prepareBones(){
+ bones={};baseRotations={};
+ const names=[
+  "hips","spine","chest","upperChest","neck","head",
+  "leftUpperArm","rightUpperArm","leftLowerArm","rightLowerArm",
+  "leftUpperLeg","rightUpperLeg","leftLowerLeg","rightLowerLeg",
+  "leftFoot","rightFoot"
+ ];
+ for(const name of names){
+  const b=getBone(name);
+  if(b){
+   bones[name]=b;
+   baseRotations[name]={
+    x:b.rotation.x,y:b.rotation.y,z:b.rotation.z
+   };
+  }
+ }
+}
+
+function removePlaceholder(){
+ if(player.userData.placeholder){
+  player.remove(player.userData.placeholder);
+  player.userData.placeholder=null;
+ }
+}
+
+function loadVRM(file){
  if(!file)return;
+ status("Загружаю персонажа...");
 
- if(!file.name.toLowerCase().endsWith('.vrm')){
-  message('Нужен файл с расширением .vrm');
-  return;
- }
+ const url=URL.createObjectURL(file);
+ const loader=new GLTFLoader();
+ loader.register(parser=>new VRMLoaderPlugin(parser));
 
- message('Загружаю 3D-персонажа...');
+ loader.load(url,(gltf)=>{
+  try{
+   const loaded=gltf.userData.vrm;
+   if(!loaded)throw new Error("В файле не обнаружена VRM-модель.");
 
- try{
-  const loader=new GLTFLoader();
-  loader.crossOrigin='anonymous';
-  loader.register(parser=>new VRMLoaderPlugin(parser));
-
-  const buffer=await file.arrayBuffer();
-  const gltf=await loader.parseAsync(buffer,'');
-
-  const newVrm=gltf.userData.vrm;
-  if(!newVrm)throw new Error('Не удалось распознать VRM');
-
-  if(vrm)scene.remove(vrm.scene);
-  else if(player)scene.remove(player);
-
-  vrm=newVrm;
-  player=vrm.scene;
-
-  player.position.set(0,0,0);
-  player.rotation.set(0,Math.PI,0);
-
-  // Подгоняем размер персонажа
-  const box=new THREE.Box3().setFromObject(player);
-  const size=box.getSize(new THREE.Vector3());
-  const height=size.y;
-
-  if(height>0){
-   player.scale.setScalar(1.7/height);
-  }
-
-  player.traverse(obj=>{
-   if(obj.isMesh){
-    obj.frustumCulled=false;
+   if(vrm){
+    scene.remove(vrm.scene);
+    VRMUtils.deepDispose(vrm.scene);
    }
-  });
 
-  scene.add(player);
+   vrm=loaded;
+   VRMUtils.rotateVRM0(vrm);
 
-  if(gltf.animations && gltf.animations.length){
-   mixer=new THREE.AnimationMixer(player);
-   gltf.animations.forEach(clip=>{
-    mixer.clipAction(clip).play();
+   removePlaceholder();
+
+   vrm.scene.traverse(obj=>{
+    if(obj.isMesh){
+     obj.frustumCulled=false;
+     if(obj.material){
+      const materials=Array.isArray(obj.material)?obj.material:[obj.material];
+      materials.forEach(m=>{m.needsUpdate=true});
+     }
+    }
    });
+
+   player.add(vrm.scene);
+   vrm.scene.position.set(0,0,0);
+   vrm.scene.scale.setScalar(1);
+
+   prepareBones();
+   status("Персонаж загружен! Попробуй походить.");
+   URL.revokeObjectURL(url);
+  }catch(e){
+   URL.revokeObjectURL(url);
+   status("Ошибка модели: "+e.message);
+   console.error(e);
   }
+ },(progress)=>{
+  if(progress.total){
+   status("Загрузка модели: "+Math.round(progress.loaded/progress.total*100)+"%");
+  }
+ },(error)=>{
+  URL.revokeObjectURL(url);
+  console.error(error);
+  status("Не получилось загрузить VRM. Проверь файл.");
+ });
+}
 
-  message('Персонаж загружен! Можно играть.');
- }catch(e){
-  console.error(e);
-  message('Ошибка VRM: '+(e.message||'неизвестная ошибка'));
+function animateVRM(dt){
+ if(!vrm)return;
+ vrm.update(dt);
+
+ const speed=Math.min(1,Math.hypot(moveX,moveZ));
+ const walkAmount=isRunning?1:0;
+ const swing=Math.sin(runningTime*9)*.55*walkAmount;
+
+ // Сначала возвращаем кости в исходное положение
+ resetBonePose();
+
+ const armL=bones.leftUpperArm;
+ const armR=bones.rightUpperArm;
+ const legL=bones.leftUpperLeg;
+ const legR=bones.rightUpperLeg;
+ const lowerL=bones.leftLowerLeg;
+ const lowerR=bones.rightLowerLeg;
+ const spine=bones.spine;
+ const chest=bones.chest;
+ const head=bones.head;
+ const hips=bones.hips;
+
+ // Движения ног и рук при ходьбе
+ if(legL)legL.rotation.x+=swing;
+ if(legR)legR.rotation.x-=swing;
+ if(armL)armL.rotation.x-=swing*.8;
+ if(armR)armR.rotation.x+=swing*.8;
+
+ if(lowerL)lowerL.rotation.x+=Math.max(0,-swing)*.65;
+ if(lowerR)lowerR.rotation.x+=Math.max(0,swing)*.65;
+
+ // Небольшое движение корпуса
+ const breathe=Math.sin(runningTime*2.1)*.018;
+ if(spine)spine.rotation.x+=breathe+(isRunning?.035:0);
+ if(chest)chest.rotation.z+=Math.sin(runningTime*9)*.025*walkAmount;
+ if(head)head.rotation.z+=Math.sin(runningTime*1.4)*.025;
+ if(hips)hips.position.y+=Math.abs(Math.sin(runningTime*9))*.025*walkAmount;
+
+ // Поза прыжка
+ if(jumping){
+  if(legL)legL.rotation.x-=.25;
+  if(legR)legR.rotation.x-=.25;
+  if(armL)armL.rotation.x-=.35;
+  if(armR)armR.rotation.x-=.35;
  }
 }
 
-// Джойстик
-const joy=$('joy');
-const stick=$('stick');
-let joyActive=false;
+function updatePlayer(dt){
+ const inputLength=Math.hypot(moveX,moveZ);
+ isRunning=inputLength>.08;
 
-function updateJoy(e){
- const r=joy.getBoundingClientRect();
- let x=e.clientX-(r.left+r.width/2);
- let y=e.clientY-(r.top+r.height/2);
- const max=37;
- const length=Math.hypot(x,y);
-
- if(length>max){
-  x=x/length*max;
-  y=y/length*max;
- }
-
- joyX=x/max;
- joyY=y/max;
- stick.style.left=(34+x)+'px';
- stick.style.top=(34+y)+'px';
-}
-
-joy.addEventListener('pointerdown',e=>{
- e.preventDefault();
- joyActive=true;
- joy.setPointerCapture(e.pointerId);
- updateJoy(e);
-});
-
-joy.addEventListener('pointermove',e=>{
- if(joyActive)updateJoy(e);
-});
-
-function resetJoy(){
- joyActive=false;
- joyX=0;
- joyY=0;
- stick.style.left='34px';
- stick.style.top='34px';
-}
-
-joy.addEventListener('pointerup',resetJoy);
-joy.addEventListener('pointercancel',resetJoy);
-
-// Прыжок
-$('jump').addEventListener('pointerdown',e=>{
- e.preventDefault();
- if(grounded){
-  velocityY=6.5;
-  grounded=false;
- }
-});
-
-// Управление камерой
-function cameraStart(e){
- cameraTouch=e.pointerId;
- previousX=e.clientX;
- renderer.domElement.setPointerCapture(e.pointerId);
-}
-function cameraMove(e){
- if(cameraTouch!==e.pointerId)return;
- const dx=e.clientX-previousX;
- previousX=e.clientX;
- cameraAngle-=dx*.006;
-}
-function cameraEnd(e){
- if(cameraTouch===e.pointerId)cameraTouch=null;
-}
-
-function animate(){
- requestAnimationFrame(animate);
-
- const dt=Math.min(clock.getDelta(),.04);
-
- if(player){
+ if(inputLength>.01){
   const forward=new THREE.Vector3(
-   -Math.sin(cameraAngle),0,-Math.cos(cameraAngle)
-  );
-  const right=new THREE.Vector3(
-   Math.cos(cameraAngle),0,-Math.sin(cameraAngle)
-  );
+   moveX,0,moveZ
+  ).normalize();
 
-  const direction=new THREE.Vector3()
-   .addScaledVector(right,joyX)
-   .addScaledVector(forward,-joyY);
+  const desiredYaw=Math.atan2(forward.x,forward.z);
+  let diff=desiredYaw-playerYaw;
+  while(diff>Math.PI)diff-=Math.PI*2;
+  while(diff<-Math.PI)diff+=Math.PI*2;
+  playerYaw+=diff*Math.min(1,dt*9);
+ }
 
-  const moving=direction.lengthSq()>.04;
+ const speed=3.2;
+ const dx=moveX*speed*dt;
+ const dz=moveZ*speed*dt;
 
-  if(moving){
-   direction.normalize();
-   player.position.addScaledVector(direction,3.5*dt);
+ player.position.x=THREE.MathUtils.clamp(player.position.x+dx,-9.1,9.1);
+ player.position.z=THREE.MathUtils.clamp(player.position.z+dz,-9.1,9.1);
+ player.rotation.y=playerYaw;
 
-   const angle=Math.atan2(direction.x,direction.z);
-   let diff=angle-player.rotation.y;
-   diff=Math.atan2(Math.sin(diff),Math.cos(diff));
-   player.rotation.y+=diff*Math.min(1,dt*10);
-  }
-
-  // Границы карты
-  player.position.x=THREE.MathUtils.clamp(player.position.x,-9.5,9.5);
-  player.position.z=THREE.MathUtils.clamp(player.position.z,-9.5,9.5);
-
-  // Прыжок
+ if(!grounded){
+  velocityY-=10*dt;
   player.position.y+=velocityY*dt;
-  velocityY-=15*dt;
-
   if(player.position.y<=0){
    player.position.y=0;
    velocityY=0;
    grounded=true;
+   jumping=false;
   }
-
-  if(!vrm && moving && grounded){
-   player.children[0].position.y=.85+Math.sin(performance.now()*.012)*.04;
-  }
-
-  if(vrm)vrm.update(dt);
-  if(mixer)mixer.update(dt);
-
-  // Камера от третьего лица
-  const target=new THREE.Vector3(
-   player.position.x,
-   player.position.y+1.2,
-   player.position.z
-  );
-
-  const offset=new THREE.Vector3(
-   Math.sin(cameraAngle)*cameraDistance,
-   3,
-   Math.cos(cameraAngle)*cameraDistance
-  );
-
-  camera.position.lerp(
-   target.clone().add(offset),
-   Math.min(1,dt*5)
-  );
-  camera.lookAt(target);
  }
 
- renderer.render(scene,camera);
+ // Заглушка тоже двигается, если VRM ещё не загружена
+ const body=player.userData.placeholder;
+ if(body){
+  const swing=Math.sin(runningTime*9)*.5*(isRunning?1:0);
+  body.userData.legs[0].rotation.x=swing;
+  body.userData.legs[1].rotation.x=-swing;
+  body.userData.arms[0].rotation.x=-swing*.7;
+  body.userData.arms[1].rotation.x=swing*.7;
+  body.position.y=isRunning?Math.abs(Math.sin(runningTime*9))*.035:0;
+ }
 }
 
-// События запуска
-$('start').addEventListener('click',startGame);
-$('load').addEventListener('click',()=>{
- if(!started){
-  message('Сначала нажми «Начать игру»');
-  return;
+function updateCamera(dt){
+ const target=new THREE.Vector3(
+  player.position.x,
+  player.position.y+1.12,
+  player.position.z
+ );
+
+ const horizontal=Math.cos(cameraPitch)*cameraDistance;
+ const offset=new THREE.Vector3(
+  Math.sin(cameraYaw)*horizontal,
+  Math.sin(cameraPitch)*cameraDistance+0.35,
+  Math.cos(cameraYaw)*horizontal
+ );
+
+ const desired=target.clone().add(offset);
+ camera.position.lerp(desired,1-Math.exp(-dt*9));
+ camera.lookAt(target);
+}
+
+function loop(){
+ requestAnimationFrame(loop);
+ if(!renderer)return;
+
+ const dt=Math.min(clockObj.getDelta(),.04);
+ runningTime+=dt;
+
+ updatePlayer(dt);
+ animateVRM(dt);
+ updateCamera(dt);
+
+ renderer.render(scene,camera);
+
+ frames++;
+ fpsTime+=dt;
+ if(fpsTime>=1){
+  fpsEl.textContent=Math.round(frames/fpsTime)+" FPS";
+  frames=0;fpsTime=0;
  }
- fileInput.click();
+}
+
+function jump(){
+ if(grounded){
+  velocityY=5.2;
+  grounded=false;
+  jumping=true;
+ }
+}
+
+// Джойстик
+const joy=document.getElementById("joy");
+const stick=document.getElementById("stick");
+
+function updateJoy(e){
+ const r=joy.getBoundingClientRect();
+ const cx=r.left+r.width/2;
+ const cy=r.top+r.height/2;
+ let x=e.clientX-cx;
+ let y=e.clientY-cy;
+ const max=42;
+ const len=Math.hypot(x,y);
+ if(len>max){x=x/len*max;y=y/len*max}
+ stick.style.transform=`translate(${x}px,${y}px)`;
+ moveX=x/max;
+ moveZ=y/max;
+}
+
+function stopJoy(){
+ joyTouch=null;
+ moveX=0;moveZ=0;
+ stick.style.transform="translate(0px,0px)";
+}
+
+joy.addEventListener("pointerdown",e=>{
+ e.preventDefault();
+ joyTouch=e.pointerId;
+ joy.setPointerCapture(e.pointerId);
+ updateJoy(e);
+});
+joy.addEventListener("pointermove",e=>{
+ if(e.pointerId===joyTouch)updateJoy(e);
+});
+joy.addEventListener("pointerup",e=>{
+ if(e.pointerId===joyTouch)stopJoy();
+});
+joy.addEventListener("pointercancel",stopJoy);
+
+document.getElementById("jump").addEventListener("pointerdown",e=>{
+ e.preventDefault();jump();
 });
 
-fileInput.addEventListener('change',async()=>{
- await loadCharacter(fileInput.files[0]);
- fileInput.value='';
+// Управление камерой правой частью экрана
+rendererPointerSetup();
+
+function rendererPointerSetup(){
+ const el=game;
+ el.addEventListener("pointerdown",e=>{
+  if(e.clientX<innerWidth*.43)return;
+  if(e.target.closest("button"))return;
+  cameraTouch={id:e.pointerId,x:e.clientX,y:e.clientY};
+  try{el.setPointerCapture(e.pointerId)}catch(err){}
+ });
+ el.addEventListener("pointermove",e=>{
+  if(!cameraTouch||cameraTouch.id!==e.pointerId)return;
+  const dx=e.clientX-cameraTouch.x;
+  const dy=e.clientY-cameraTouch.y;
+  cameraTouch.x=e.clientX;
+  cameraTouch.y=e.clientY;
+  cameraYaw-=dx*.006;
+  cameraPitch=THREE.MathUtils.clamp(cameraPitch+dy*.004,-.12,.75);
+ });
+ const end=e=>{
+  if(cameraTouch&&cameraTouch.id===e.pointerId)cameraTouch=null;
+ };
+ el.addEventListener("pointerup",end);
+ el.addEventListener("pointercancel",end);
+}
+
+document.getElementById("load").addEventListener("click",()=>{
+ document.getElementById("file").click();
+});
+document.getElementById("file").addEventListener("change",e=>{
+ const file=e.target.files?.[0];
+ if(file)loadVRM(file);
+ e.target.value="";
 });
 
-window.addEventListener('resize',()=>{
+document.getElementById("start").addEventListener("click",()=>{
+ document.getElementById("menu").style.display="none";
+ started=true;
+ status("Мир готов. Загрузи VRM или исследуй карту.");
+});
+
+window.addEventListener("resize",()=>{
  if(!camera||!renderer)return;
  camera.aspect=innerWidth/innerHeight;
  camera.updateProjectionMatrix();
  renderer.setSize(innerWidth,innerHeight);
+ renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
 });
 
 try{
- message('3D-движок загружается...');
-}catch(e){
- showError(e);
-}
-
-renderer?.domElement.addEventListener('pointerdown',cameraStart);
-renderer?.domElement.addEventListener('pointermove',cameraMove);
-renderer?.domElement.addEventListener('pointerup',cameraEnd);
-renderer?.domElement.addEventListener('pointercancel',cameraEnd);
-
+ makeWorld();
+ clock=clockObj;
+ status("Мир загружен. Нажми «Войти в мир».");
+ loop();
+}catch(e){fatal(e)}
 </script>
 </body>
 </html>
